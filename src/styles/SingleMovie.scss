@@ -1,0 +1,22 @@
+.single {
+  min-block-size: 100vh;
+  inline-size: 50vw;
+  margin-inline: auto;
+  // background-color: rgb(var(--primary-rgb) / 0.02);
+  background-color: var(--surface2);
+
+  &__test {
+    margin-inline: auto;
+    block-size: 20vh;
+    inline-size: 20vw;
+    background-color: var(--surface3);
+  }
+
+  &__test2 {
+    margin-block-start: 2rem;
+    margin-inline: auto;
+    block-size: 20vh;
+    inline-size: 20vw;
+    background-color: rgb(var(--primary-rgb) / 0.04);
+  }
+}

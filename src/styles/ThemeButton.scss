@@ -1,0 +1,115 @@
+.theme-button {
+  background: none;
+  inline-size: 1.6rem;
+  block-size: 1.6rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+
+  outline-offset: 6px;
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+  }
+}
+
+.theme {
+  inline-size: 100%;
+  block-size: 100%;
+  stroke-linecap: round;
+
+  // Moon
+  &__mask {
+    fill: var(--on-surface-variant);
+
+    .theme-button:hover &,
+    .theme-button:focus-visible & {
+      fill: var(--on-surface);
+    }
+
+    transform-origin: center center;
+  }
+
+  &__moon {
+    @media (prefers-reduced-motion: no-preference) {
+      transition: transform 0.25s cubic-bezier(0, 0, 0, 1);
+
+      @supports (cx: 1) {
+        transition: cx 0.25s cubic-bezier(0, 0, 0, 1);
+      }
+    }
+
+    [color-scheme='dark'] & {
+      transform: translateX(-7px);
+
+      @supports (cx: 1) {
+        transform: translateX(0);
+        cx: 17;
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition-delay: 0.25s;
+        transition-duration: 0.5s;
+      }
+    }
+  }
+
+  // Sun
+  &__circle {
+    fill: var(--on-surface-variant);
+
+    .theme-button:hover &,
+    .theme-button:focus-visible & {
+      fill: var(--on-surface);
+    }
+
+    transform-origin: center center;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: transform 0.5s cubic-bezier(0.5, 1.25, 0.75, 1.25);
+    }
+
+    [color-scheme='dark'] & {
+      transform: scale(1.75);
+
+      @media (prefers-reduced-motion: no-preference) {
+        transform: scale(1.75);
+        transition-timing-function: cubic-bezier(0.25, 0, 0.3, 1);
+        transition-duration: 0.25s;
+      }
+    }
+  }
+
+  // Sun beams
+  &__lines {
+    stroke: var(--on-surface-variant);
+    stroke-width: 2px;
+
+    .theme-button:hover &,
+    .theme-button:focus-visible & {
+      fill: var(--on-surface);
+    }
+
+    transform-origin: center center;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: transform 0.5s cubic-bezier(0.5, 1.5, 0.75, 1.25),
+        opacity 0.5s cubic-bezier(0.25, 0, 0.3, 1);
+    }
+
+    [color-scheme='dark'] & {
+      opacity: 0;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transform: rotateZ(-25deg);
+        transition-duration: 0.15s;
+      }
+    }
+  }
+}
+
+// Used just for the first render if theme is set to dark
+// Overwrites the above through the cascade
+.no-transition {
+  transition: none;
+}

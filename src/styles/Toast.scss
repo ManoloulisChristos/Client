@@ -1,0 +1,55 @@
+// .toast {
+//   &__container {
+//     position: fixed;
+//     inset-block-end: 0;
+//     inset-inline: 0;
+//     z-index: 2;
+//     padding-block-end: 5vh;
+
+//     display: grid;
+//     justify-content: center;
+//     justify-items: center;
+//     gap: 1vh;
+
+//     // pointer-events: none;
+//   }
+
+//   &__item {
+//     --_duration: 3s;
+//     --_travel-distance: 0;
+
+//     max-inline-size: min(25ch, 90vw);
+//     padding-block: 0.5ch;
+//     padding-inline: 1ch;
+//     font-size: 1.2rem;
+//     color: $text-color-white;
+//     background-color: $bg-color-box;
+//     border: 1px solid $border-color;
+//     border-radius: 12px;
+
+//     will-change: transform;
+//     animation: fade-in 0.3s ease, slide-in 0.3s ease, fade-out 0.3s ease 3s;
+
+//     @media (prefers-reduced-motion: no-preference) {
+//       --_travel-distance: 5vh;
+//     }
+//   }
+// }
+
+// @keyframes fade-in {
+//   from {
+//     opacity: 0;
+//   }
+// }
+
+// @keyframes fade-out {
+//   to {
+//     opacity: 0;
+//   }
+// }
+
+// @keyframes slide-in {
+//   from {
+//     transform: translateY(var(--_travel-distance, 10px));
+//   }
+// }

@@ -1,0 +1,48 @@
+// Color Variations
+$bg-color-main: #191b1f;
+$bg-color-nav: rgba(25, 27, 31, 0.9);
+$bg-color-box: rgba(255, 255, 255, 0.02);
+$bg-color-input: rgb(35, 36, 38);
+$border-color: rgba(255, 255, 255, 0.19);
+// $border-color-neon: #3f51b5;
+$border-color-neon: #9e9e9e;
+$text-color-grey: rgba(255, 255, 255, 0.6);
+$text-color-white: rgba(255, 255, 255, 1);
+$bg-color-1: #17191e;
+$bg-color-2: #1b1c23;
+$bg-color-3: #1f2028;
+$bg-color-4: #242731;
+$bg-color-grey: #dee2e6;
+$text-color-1: #eceef2;
+$text-color-2: #cfd6e4;
+$text-color-3: #afb3c1;
+$text-color-4: #9599a9;
+$text-color-5: #7e8292;
+$btn-hover: #a0a5eb;
+$divider: #3b3e4f;
+
+$border: 1px solid hsl(var(--brand-hue) 10% 50% / 15%);
+
+$highlight: 0;
+$highlight-color: hsl(210 10% 5%/25%);
+
+// Sizing
+$padding-inline-m: 1.5rem;
+$padding-block-m: 1rem;
+
+$gap-m: 1.5rem;
+
+// General
+$border-radious-normal: 12px;
+$solid-gray-line: 1px solid #7a7a7a7a;
+
+// Breakpoints
+$bp-desktop-large: 137.5em;
+$bp-laptop-large: 100em;
+$bp-laptop: 75em;
+$bp-tablet: 56.25em;
+$bp-phone: 37.5em;
+
+// Animations
+$ease-modifier: cubic-bezier(0.25, 0, 0.3, 1);
+$ease-squish: cubic-bezier(0.5, -0.5, 0.1, 1.5);

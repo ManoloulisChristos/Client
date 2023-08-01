@@ -1,0 +1,267 @@
+/* inter-300 - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  src: url('./fonts/inter-v12-latin-300.woff2') format('woff2'),
+    url('./fonts/inter-v12-latin-300.woff') format('woff');
+}
+/* inter-regular - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./fonts/inter-v12-latin-regular.woff2') format('woff2'),
+    url('./fonts/inter-v12-latin-regular.woff') format('woff');
+}
+/* inter-500 - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  src: url('./fonts/inter-v12-latin-500.woff2') format('woff2'),
+    url('./fonts/inter-v12-latin-500.woff') format('woff');
+}
+/* inter-600 - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  src: url('./fonts/inter-v12-latin-600.woff2') format('woff2'),
+    url('./fonts/inter-v12-latin-600.woff') format('woff');
+}
+/* inter-700 - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  src: url('./fonts/inter-v12-latin-700.woff2') format('woff2'),
+    url('./fonts/inter-v12-latin-700.woff') format('woff');
+}
+
+// Some custom properties with whole expressions eg rgb(var() / 1) are declared directly in color shemes blocks
+* {
+  /* brand foundation */
+  --brand-hue: 212;
+
+  /* light */
+  --primary-light: #215fa6;
+  --primary-light-rgb: 33 95 166;
+  --on-primary-light: #ffffff;
+  --on-surface-light: #1a1c1e;
+  --on-surface-light-rgb: 26 28 30;
+  --on-surface-variant-light: #43474e;
+  --on-surface-variant-light-rgb: 67 71 78;
+  --outline-light: #74777f;
+  --outline-light-rgb: 116 119 127;
+  --outline-variant-light: #c4c6cf;
+  --surface1-light: #faf9fd;
+  --surface1-light-rgb: 250 249 253;
+  --surface2-light: #f1f0f4;
+  --surface3-light: #e3e2e6;
+  --inverse-on-surface-light: #f1f0f4;
+  --inverse-surface-light: #2f3033;
+
+  --surface-shadow-light: var(--brand-hue) 10% 20%;
+  --shadow-strength-light: 0.02;
+
+  /* dark */
+  --primary-dark: #a6c8ff;
+  --primary-dark-rgb: 166 200 255;
+  --on-primary-dark: #003060;
+  --on-surface-dark: #e3e2e6;
+  --on-surface-dark-rgb: 227 226 230;
+  --on-surface-variant-dark: #c4c6cf;
+  --on-surface-variant-dark-rgb: 196 198 207;
+  --outline-dark: #8d9199;
+  --outline-dark-rgb: 141 145 153;
+  --outline-variant-dark: #43474e;
+  --surface1-dark: #1a1c1e;
+  --surface1-dark-rgb: 26 28 30;
+  --surface2-dark: #2f3033;
+  --surface3-dark: #3a3b3e;
+  --inverse-on-surface-dark: #1a1c1e;
+  --inverse-surface-dark: #e3e2e6;
+
+  --surface-shadow-dark: var(--brand-hue) 50% 3%;
+  --shadow-strength-dark: 0.8;
+
+  // Other
+  --body-margin-default: 70px;
+}
+
+:root {
+  color-scheme: light;
+
+  /* set defaults */
+  --primary: var(--primary-light);
+  --primary-rgb: var(--primary-light-rgb);
+  --on-primary: var(--on-primary-light);
+  --on-surface: var(--on-surface-light);
+  --on-surface-rgb: var(--on-surface-light-rgb);
+  --on-surface-variant: var(--on-surface-variant-light);
+  --on-surface-variant-rgb: var(--on-surface-variant-light-rgb);
+  --outline: var(--outline-light);
+  --outline-rgb: var(--outline-light-rgb);
+  --outline-variant: var(--outline-variant-light);
+  --surface1: var(--surface1-light);
+  --surface1-rgb: var(--surface1-light-rgb);
+  --surface2: var(--surface2-light);
+  --surface3: var(--surface3-light);
+  --inverse-on-surface: var(--inverse-on-surface-light);
+  --inverse-surface: var(--inverse-surface-light);
+
+  // Computed values
+  --background-outline: rgb(var(--on-surface-light-rgb) / 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --primary: var(--primary-dark);
+    --primary-rgb: var(--primary-dark-rgb);
+    --on-primary: var(--on-primary-dark);
+    --on-surface: var(--on-surface-dark);
+    --on-surface-rgb: var(--on-surface-dark-rgb);
+    --on-surface-variant: var(--on-surface-variant-dark);
+    --on-surface-variant-rgb: var(--on-surface-variant-dark-rgb);
+    --outline: var(--outline-dark);
+    --outline-rgb: var(--outline-dark-rgb);
+    --outline-variant: var(--outline-variant-dark);
+    --surface1: var(--surface1-dark);
+    --surface1-rgb: var(--surface1-dark-rgb);
+    --surface2: var(--surface2-dark);
+    --surface3: var(--surface3-dark);
+    --inverse-on-surface: var(--inverse-on-surface-dark);
+    --inverse-surface: var(--inverse-surface-dark);
+
+    // Computed values
+    --background-outline: rgb(var(--on-surface-dark-rgb) / 0.1);
+  }
+}
+
+[color-scheme='light'] {
+  color-scheme: light;
+
+  --primary: var(--primary-light);
+  --primary-rgb: var(--primary-light-rgb);
+  --on-primary: var(--on-primary-light);
+  --on-surface: var(--on-surface-light);
+  --on-surface-rgb: var(--on-surface-light-rgb);
+  --on-surface-variant: var(--on-surface-variant-light);
+  --on-surface-variant-rgb: var(--on-surface-variant-light-rgb);
+  --outline: var(--outline-light);
+  --outline-rgb: var(--outline-light-rgb);
+  --outline-variant: var(--outline-variant-light);
+  --surface1: var(--surface1-light);
+  --surface1-rgb: var(--surface1-light-rgb);
+  --surface2: var(--surface2-light);
+  --surface3: var(--surface3-light);
+  --inverse-on-surface: var(--inverse-on-surface-light);
+  --inverse-surface: var(--inverse-surface-light);
+
+  // Computed values
+  --background-outline: rgb(var(--on-surface-light-rgb) / 0.08);
+}
+
+[color-scheme='dark'] {
+  color-scheme: dark;
+
+  --primary: var(--primary-dark);
+  --primary-rgb: var(--primary-dark-rgb);
+  --on-primary: var(--on-primary-dark);
+  --on-surface: var(--on-surface-dark);
+  --on-surface-rgb: var(--on-surface-dark-rgb);
+  --on-surface-variant: var(--on-surface-variant-dark);
+  --on-surface-variant-rgb: var(--on-surface-variant-dark-rgb);
+  --outline: var(--outline-dark);
+  --outline-rgb: var(--outline-dark-rgb);
+  --outline-variant: var(--outline-variant-dark);
+  --surface1: var(--surface1-dark);
+  --surface1-rgb: var(--surface1-dark-rgb);
+  --surface2: var(--surface2-dark);
+  --surface3: var(--surface3-dark);
+  --inverse-on-surface: var(--inverse-on-surface-dark);
+  --inverse-surface: var(--inverse-surface-dark);
+
+  // Computed values
+  --background-outline: rgb(var(--on-surface-dark-rgb) / 0.1);
+}
+
+// .rad-shadow {
+//   border: 1px solid hsl(var(--brand-hue) 10% 50% / 15%);
+//   box-shadow: 0 1rem 0.5rem -0.5rem;
+//   box-shadow: 0 2.8px 2.2px
+//       hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.03)),
+//     0 6.7px 5.3px
+//       hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.01)),
+//     0 12.5px 10px
+//       hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.02)),
+//     0 22.3px 17.9px
+//       hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.02)),
+//     0 41.8px 33.4px
+//       hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.03)),
+//     0 100px 80px hsl(var(--surface-shadow) / var(--shadow-strength));
+// }
+
+// Global Reset
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  @media (prefers-reduced-motion: no-preference) {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  color: var(--on-surface);
+  background-color: var(--surface1);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+li {
+  list-style-type: none;
+}
+
+button {
+  border: none;
+  font-family: inherit;
+  touch-action: manipulation;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+// Generic class for all the svg elements inside the Icons component
+.icons-default {
+  stroke: var(--on-surface);
+}

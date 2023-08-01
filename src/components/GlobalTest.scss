@@ -1,0 +1,35 @@
+.b-wrapper {
+  min-height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5rem;
+  background: var(--surface2);
+}
+
+.b1 {
+  padding: 0.5rem 1rem;
+  background: var(--primary);
+  border-radius: 16px;
+  color: var(--on-primary);
+  font-size: 0.9rem;
+  &:is(:focus-visible) {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  font-weight: 500;
+}
+
+.b2 {
+  color: var(--primary);
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.2rem 0.5rem;
+
+  border-radius: 16px;
+  &:is(:focus-visible) {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}

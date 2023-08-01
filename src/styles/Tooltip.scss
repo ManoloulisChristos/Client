@@ -1,0 +1,192 @@
+.tooltip-wrapper {
+  position: relative;
+  inline-size: max-content;
+}
+
+// If the tooltip has wrapper it will be a sibling with the element that has-tooltip
+.has-tooltip-with-wrapper {
+  &:is(:hover, :focus-visible) ~ .tooltip {
+    opacity: 1;
+  }
+
+  &:hover ~ .tooltip {
+    transition-delay: 200ms;
+  }
+}
+
+// If there is no wrapper it is a descendant
+.has-tooltip {
+  &:is(:hover, :focus-visible) .tooltip {
+    opacity: 1;
+  }
+
+  &:hover .tooltip {
+    transition-delay: 200ms;
+  }
+}
+
+.has-tooltip,
+.has-tooltip-with-wrapper {
+  // Changing the var values inside the 2nd nest is ok because it is the tooltip that gets selected and it is its own
+  // variables and scope
+  // Initial position
+  &:not(:hover) {
+    & ~ .tooltip:is([tip-position='top'], :not([tip-position])) {
+      --_y: 3px;
+    }
+    & ~ .tooltip:is([tip-position='right'], :not([tip-position])) {
+      --_x: -3px;
+    }
+    & ~ .tooltip:is([tip-position='bottom'], :not([tip-position])) {
+      --_y: -3px;
+    }
+    & ~ .tooltip:is([tip-position='left'], :not([tip-position])) {
+      --_x: 3px;
+    }
+  }
+}
+
+.tooltip {
+  --_p-inline: 1.5ch;
+  --_p-block: 0.75ch;
+  --_triangle-size: 7px;
+  --_shadow-alpha: 50%;
+
+  --_top-tip: conic-gradient(
+      from 150deg at top,
+      #0000,
+      #000 1deg 60deg,
+      #0000 61deg
+    )
+    top / 100% 50% no-repeat;
+
+  --_right-tip: conic-gradient(
+      from -120deg at right,
+      #0000,
+      #000 1deg 60deg,
+      #0000 61deg
+    )
+    right / 50% 100% no-repeat;
+
+  --_bottom-tip: conic-gradient(
+      from -30deg at bottom,
+      #0000,
+      #000 1deg 60deg,
+      #0000 61deg
+    )
+    bottom / 100% 50% no-repeat;
+
+  --_left-tip: conic-gradient(
+      from 60deg at left,
+      #0000,
+      #000 1deg 60deg,
+      #0000 61deg
+    )
+    left / 50% 100% no-repeat;
+
+  pointer-events: none;
+  user-select: none;
+
+  position: absolute;
+  z-index: 1;
+  inline-size: max-content;
+  max-inline-size: 25ch;
+  text-align: start;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: initial;
+  padding: var(--_p-block) var(--_p-inline);
+  margin: 0;
+  border-radius: 6px;
+  background: var(--surface3);
+  color: var(--on-surface);
+
+  //////Disabled Shadow//////
+
+  // will-change: filter;
+  // filter: drop-shadow(0 3px 3px hsl(0 0% 0% / var(--_shadow-alpha)))
+  //   drop-shadow(0 12px 12px hsl(0 0% 0% / var(--_shadow-alpha)));
+
+  // @media (prefers-color-scheme: light) {
+  //   --_shadow-alpha: 15%;
+  // }
+
+  // [color-scheme='light'] & {
+  //   --_shadow-alpha: 15%;
+  // }
+
+  opacity: 0;
+  transform: translateX(var(--_x, 0)) translateY(var(--_y, 0)) translateZ(0);
+  // fixes blurry text on animation
+  backface-visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+
+  @media (prefers-color-scheme: light) {
+    --_shadow-alpha: 15%;
+  }
+
+  &::after {
+    content: '';
+    background: var(--surface3);
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    mask: var(--_tip);
+  }
+
+  &:is([tip-position='top'], :not([tip-position]), [tip-position='bottom']) {
+    text-align: center;
+  }
+
+  // Top
+  &:is([tip-position='top'], :not([tip-position])) {
+    inset-inline-start: 50%;
+    inset-block-end: calc(100% + var(--_p-block) + var(--_triangle-size));
+    --_x: -50%;
+
+    &::after {
+      --_tip: var(--_bottom-tip);
+      inset-block-end: calc(var(--_triangle-size) * -1);
+      border-block-end: var(--_triangle-size) solid transparent;
+    }
+  }
+
+  // Right
+  &[tip-position='right'] {
+    inset-inline-start: calc(100% + var(--_p-inline) + var(--_triangle-size));
+    inset-block-end: 50%;
+    --_y: 50%;
+
+    &::after {
+      --_tip: var(--_left-tip);
+      inset-inline-start: calc(var(--_triangle-size) * -1);
+      border-inline-start: var(--_triangle-size) solid transparent;
+    }
+  }
+
+  // Bottom
+  &[tip-position='bottom'] {
+    inset-inline-start: 50%;
+    inset-block-start: calc(100% + var(--_p-block) + var(--_triangle-size));
+    --_x: -50%;
+
+    &::after {
+      --_tip: var(--_top-tip);
+      inset-block-start: calc(var(--_triangle-size) * -1);
+      border-block-start: var(--_triangle-size) solid transparent;
+    }
+  }
+
+  // Left
+  &[tip-position='left'] {
+    inset-inline-end: calc(100% + var(--_p-inline) + var(--_triangle-size));
+    inset-block-start: 50%;
+    --_y: -50%;
+
+    &::after {
+      --_tip: var(--_right-tip);
+      inset-inline-end: calc(var(--_triangle-size) * -1);
+      border-block-end: var(--_triangle-size) solid transparent;
+    }
+  }
+}

@@ -1,0 +1,117 @@
+const IconWrapper = ({ width, height, svgClassName, children }) => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    width={width}
+    height={height}
+    viewBox='0 0 24 24'
+    fill='none'
+    strokeWidth='1.5'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    className={`icons-default ${svgClassName}`}
+    aria-hidden='true'
+    focusable='false'>
+    {children}
+  </svg>
+);
+
+const ClockIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <circle cx='12' cy='12' r='10'></circle>
+    <polyline points='12 6 12 12 16 14'></polyline>
+  </IconWrapper>
+);
+
+const CalendarIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <rect x='3' y='4' width='18' height='18' rx='2' ry='2'></rect>
+    <line x1='16' y1='2' x2='16' y2='6'></line>
+    <line x1='8' y1='2' x2='8' y2='6'></line>
+    <line x1='3' y1='10' x2='21' y2='10'></line>
+  </IconWrapper>
+);
+
+const QuestionMarkIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <path d='M442.616-369.231q0-58.923 15.654-95 15.654-36.076 64.347-78 40.692-35.461 54.153-59.5 13.462-24.038 13.462-53.577 0-44.154-31.616-72.885t-80.924-28.731q-37.385 0-67.5 19.538-30.116 19.538-45.962 61.461l-65.998-28.076q23.308-59.461 72.269-90.806 48.961-31.346 107.191-31.346 80.923 0 132.692 47.654 51.768 47.653 51.768 121.73 0 38.923-17.346 73.807-17.346 34.885-60.73 73.731-44.077 38.769-55.5 64.346-11.424 25.577-12.424 75.654h-73.536Zm35.076 205.23q-21.538 0-36.768-15.231-15.23-15.23-15.23-36.768t15.23-36.768q15.23-15.231 36.768-15.231t36.768 15.231q15.231 15.23 15.231 36.768t-15.231 36.768q-15.23 15.231-36.768 15.231Z' />
+  </IconWrapper>
+);
+
+const StarIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon>
+  </IconWrapper>
+);
+
+const InfoIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <circle cx='12' cy='12' r='10'></circle>
+    <line x1='12' y1='16' x2='12' y2='12'></line>
+    <line x1='12' y1='8' x2='12.01' y2='8'></line>
+  </IconWrapper>
+);
+
+const PlusIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <line x1='12' y1='5' x2='12' y2='19'></line>
+    <line x1='5' y1='12' x2='19' y2='12'></line>
+  </IconWrapper>
+);
+
+const iconsMap = {
+  clock: ClockIcon,
+  calendar: CalendarIcon,
+  questionMark: QuestionMarkIcon,
+  star: StarIcon,
+  info: InfoIcon,
+  plus: PlusIcon,
+};
+
+// All the icons are wrapped with an svg element which has a standard viewbox since all icons come from material
+// The component takes a "name" prop which desides which icon to render from the map object
+// plus a width and a height for html output and a css className for each individual icon if further customization is needed
+// Caution!!!
+// The svg element has a default class of "icons" applied to it which is located in the index.scss folder
+// All props must be strings, name is required
+
+const Icons = ({ name, width = '22', height = '22', svgClassName = null }) => {
+  const checkIfString = (value, strName) => {
+    if (typeof value === 'string' || value instanceof String) {
+      return value;
+    } else {
+      console.error(
+        `Icons Component "${strName}" prop only accepts Strings, your value was coerced into a String`
+      );
+      return String(value);
+    }
+  };
+
+  const validName = checkIfString(name, 'name');
+  const validWidth = checkIfString(width, 'width');
+  const validHeight = checkIfString(height, 'height');
+  let validSvgClassName = svgClassName;
+  if (svgClassName !== null) {
+    validSvgClassName = checkIfString(svgClassName, 'svgClassName');
+  }
+
+  let Component;
+  if (Object.hasOwn(iconsMap, validName)) {
+    Component = iconsMap[validName];
+  } else {
+    const iconsMapKeys = Object.keys(iconsMap).join('", "');
+    console.error(
+      `Icons Component "name" prop is required and only accepts the values ["${iconsMapKeys}"] `
+    );
+    // eslint-disable-next-line react/display-name
+    Component = () => null;
+  }
+  return (
+    <Component
+      width={validWidth}
+      height={validHeight}
+      svgClassName={validSvgClassName}
+    />
+  );
+};
+
+export default Icons;

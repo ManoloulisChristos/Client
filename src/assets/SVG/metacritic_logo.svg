@@ -1,0 +1,64 @@
+   <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='118'
+            height='118'
+            viewBox='0 0 118 118'>
+            <defs>
+              <linearGradient id='b'>
+                <stop offset='0' stop-color='#3c638a' />
+                <stop offset='.454' stop-color='#036' />
+                <stop offset='1' stop-color='#00264b' />
+              </linearGradient>
+              <linearGradient id='a'>
+                <stop offset='0' stop-color='#ffd739' />
+                <stop offset='.492' stop-color='#f1c204' />
+                <stop offset='1' stop-color='#c49d00' />
+              </linearGradient>
+              <linearGradient
+                id='c'
+                x1='-107.555'
+                x2='-24.388'
+                y1='-34.349'
+                y2='48.818'
+                gradientTransform='translate(124.655 51.961)'
+                gradientUnits='userSpaceOnUse'
+              />
+              <linearGradient
+                id='d'
+                x1='23.375'
+                x2='95.518'
+                y1='22.187'
+                y2='94.33'
+                gradientUnits='userSpaceOnUse'
+              />
+            </defs>
+            <circle cx='59' cy='59' r='59' fill='url(#c)' />
+            <circle
+              cx='59'
+              cy='59'
+              r='49.075'
+              fill='#036'
+              stroke='url(#d)'
+              stroke-width='3.849'
+            />
+            <text
+              x='-38.255'
+              y='104.575'
+              fill='#fff'
+              stroke-width='.875'
+              font-family='sans-serif'
+              font-size='13.997'
+              font-weight='700'
+              letter-spacing='-.026'
+              style='line-height: 21.86963844px'
+              transform='rotate(-45) scale(.92132 1.0854)'
+              word-spacing='0'>
+              <tspan x='-38.255' y='104.575'>
+                metacritic
+              </tspan>
+            </text>
+            <path
+              fill='#fffff5'
+              d='M 46,37 C 34.538168,31.379754 22.640377,45.008915 25.5,56.5 l -5,-4.5 -9,9 34,34 L 56,84.5 36.5,65 C 28.014787,56.514787 37.515748,46.015748 46,54.5 L 66,74.5 76.5,64 57,44.5 C 48.513064,36.013064 58.016951,25.516951 66.5,34 L 86.5,54 97,43.5 73,19.5 C 60.302662,6.8026621 40.891805,23.280685 46,37 Z'
+            />
+          </svg>

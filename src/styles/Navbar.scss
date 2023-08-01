@@ -1,0 +1,224 @@
+.header-container {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  block-size: 70px;
+  inline-size: 100vw;
+  z-index: 10;
+  background-color: rgb(var(--surface1-rgb) / 0.9);
+  backdrop-filter: blur(2px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  inline-size: 60%;
+
+  &__logo {
+    font-size: 2rem;
+    color: var(--on-surface);
+  }
+
+  &__divider {
+    display: flex;
+    align-items: center;
+    gap: 5ch;
+  }
+
+  // &__nav {
+  // }
+
+  &__list {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  // &__item {
+  // }
+
+  &__link {
+    padding: 0.65rem;
+    color: var(--on-surface-variant);
+
+    border-radius: 4px;
+
+    &:is(:hover, :focus-visible) {
+      color: var(--primary);
+      background-color: var(--background-outline);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 0;
+    }
+  }
+}
+
+///// Form component /////
+.autocomplete {
+  position: relative;
+  inline-size: min(500px, 45vw);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &__input {
+    block-size: 4ch;
+    inline-size: 100%;
+    // 1px extra, when it is focused, it goes to 0 so border can go up 1px
+    padding: 1px calc(1ch + 1px);
+    padding-right: calc(3.6rem + 1px);
+    border: 1px solid rgb(var(--outline-rgb) / 0.7);
+    border-radius: 12px;
+
+    font-family: Inter;
+    font-size: 1rem;
+    background-color: var(--surface1);
+    color: var(--on-surface);
+
+    .autocomplete:hover &:not(:focus-visible) {
+      border: 1px solid rgb(var(--outline-rgb) / 1);
+    }
+
+    &:focus-visible {
+      padding: 0 1ch;
+      padding-right: 3.6rem;
+      outline: none;
+      border: 2px solid var(--primary);
+      background-color: var(--surface1);
+    }
+
+    &::placeholder {
+      font-weight: 300;
+      color: rgb(var(--on-surface-variant-rgb) / 0.8);
+    }
+
+    // remove browser's default clear button on search input (X)
+    &::-webkit-search-cancel-button {
+      display: none !important;
+    }
+  }
+
+  // Listbox
+
+  &__list {
+    display: none;
+    position: absolute;
+    inset-block-start: 110%;
+    inset-inline-start: 0;
+    z-index: 10;
+    inline-size: 100%;
+
+    border: 1px solid var(--outline-variant);
+    border-radius: 6px;
+
+    background-color: var(--surface1);
+    color: var(--on-surface);
+
+    &[is-open='true'] {
+      display: block;
+    }
+  }
+
+  &__item {
+    &:not(:last-child) {
+      border-block-end: 1px solid var(--outline-variant);
+    }
+  }
+
+  &__link {
+    padding-block: 0.5ch;
+    padding-inline-end: 1ch;
+    padding-inline-start: calc(1ch + 2px);
+    display: block;
+    line-height: 1.2rem;
+
+    .autocomplete__item[aria-selected='true'] & {
+      padding-inline-start: 1ch;
+      border-inline-start: 2px solid var(--primary);
+      background-color: rgb(var(--on-surface-rgb) / 0.08);
+    }
+  }
+
+  &__title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__year {
+    font-size: 1.6ex;
+    color: var(--on-surface-variant);
+  }
+
+  &__cast {
+    font-size: 1.6ex;
+    color: var(--on-surface-variant);
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__italic {
+    font-size: 0.9rem;
+    color: var(--on-surface-variant);
+    line-height: 1.5rem;
+
+    &--2 {
+      max-inline-size: 40ch;
+      white-space: nowrap;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+  }
+
+  &__inverse {
+    max-inline-size: 10ch;
+    margin-inline-start: 1ch;
+    padding: 0.4ex 0.5ch;
+    background-color: var(--inverse-surface);
+    color: var(--inverse-on-surface);
+    border-radius: 4px;
+  }
+
+  &__button {
+    background-color: transparent;
+    position: absolute;
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 6px;
+
+    &:hover {
+      background-color: var(--background-outline);
+    }
+
+    &:focus-visible {
+      outline-offset: 1px;
+      outline: 2px solid var(--primary);
+    }
+
+    &--clear {
+      right: 2.325rem;
+    }
+
+    &--submit {
+      right: 0.625rem;
+    }
+  }
+
+  &__icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    fill: var(--on-surface-variant);
+  }
+}
