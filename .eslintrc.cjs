@@ -23,7 +23,7 @@ module.exports = {
     ],
     'react/no-unknown-property': [
       'error',
-      { ignore: ['tip-position', 'is-open'] },
+      { ignore: ['tip-position', 'is-open', 'hide'] },
     ],
     'react/prop-types': 0,
     'no-unused-vars': 1,

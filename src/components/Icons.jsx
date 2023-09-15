@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 const IconWrapper = ({ width, height, svgClassName, children }) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
@@ -13,6 +15,13 @@ const IconWrapper = ({ width, height, svgClassName, children }) => (
     focusable='false'>
     {children}
   </svg>
+);
+
+const CloseIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <line x1='18' y1='6' x2='6' y2='18'></line>
+    <line x1='6' y1='6' x2='18' y2='18'></line>
+  </IconWrapper>
 );
 
 const ClockIcon = ({ width, height, svgClassName }) => (
@@ -47,7 +56,8 @@ const InfoIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
     <circle cx='12' cy='12' r='10'></circle>
     <line x1='12' y1='16' x2='12' y2='12'></line>
-    <line x1='12' y1='8' x2='12.01' y2='8'></line>
+    {/* <line x1='12' y1='8' x2='12.01' y2='8'></line> */}
+    <circle cx='12' cy='8' r='.3'></circle>
   </IconWrapper>
 );
 
@@ -65,16 +75,25 @@ const iconsMap = {
   star: StarIcon,
   info: InfoIcon,
   plus: PlusIcon,
+  close: CloseIcon,
 };
 
-// All the icons are wrapped with an svg element which has a standard viewbox since all icons come from material
+// All the icons are wrapped with an svg element which has a standard viewbox since all icons come from feathericons.com
 // The component takes a "name" prop which desides which icon to render from the map object
-// plus a width and a height for html output and a css className for each individual icon if further customization is needed
-// Caution!!!
+// plus a width and a height for HTML so the browser knows how to calculate the layout and a CSS className
+// for each individual icon if further customization is needed
+
+////// Caution!!! //////
 // The svg element has a default class of "icons" applied to it which is located in the index.scss folder
 // All props must be strings, name is required
 
-const Icons = ({ name, width = '22', height = '22', svgClassName = null }) => {
+const Icons = memo(function Icons({
+  name,
+  width = '22',
+  height = '22',
+  svgClassName = null,
+}) {
+  // Type checking2
   const checkIfString = (value, strName) => {
     if (typeof value === 'string' || value instanceof String) {
       return value;
@@ -112,6 +131,6 @@ const Icons = ({ name, width = '22', height = '22', svgClassName = null }) => {
       svgClassName={validSvgClassName}
     />
   );
-};
+});
 
 export default Icons;

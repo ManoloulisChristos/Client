@@ -7,20 +7,47 @@ const moviesApiSlice = apiSlice.injectEndpoints({
     }),
     getMovieToBlob: build.query({
       async queryFn(_arg, _queryApi, _extraOptions, fetchWithBQ) {
-        const response = await fetch(
-          'https://m.media-amazon.com/images/M/MV5BNzA5ZDNlZWMtM2NhNS00NDJjLTk4NDItYTRmY2EwMWZlMTY3XkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SY1000_SX677_AL_.jpg'
-        );
-        const blob = await response.blob();
+        const movies = await fetchWithBQ(`/search/title/${_arg}`);
+        if (movies.error) return { error: movies.error };
 
-        const result = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(blob);
-          reader.onloadend = () => resolve(reader.result);
+        // try {
+        //   const postersToBlob = await fetch(movies.data?.[0].movies[0].poster);
+        //   const blob = await postersToBlob.blob();
+        //   const result = await new Promise((resolve) => {
+        //     const reader = new FileReader();
+        //     reader.readAsDataURL(blob);
+        //     reader.onloadend = () => resolve(reader.result);
+        //   });
+        //   movies.data.push(result);
+        // } catch (error) {
+        //   movies.data.push('error');
+        // }
+
+        const postersToBlob = movies.data?.[0].movies.map(async (movie) => {
+          try {
+            const getImages = await fetch(movie.poster);
+            const blob = await getImages.blob();
+
+            const result = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.readAsDataURL(blob);
+              reader.onloadend = () => resolve(reader.result);
+            });
+            return result;
+          } catch (error) {
+            return '/no_image.png';
+          }
         });
 
-        return { data: result };
+        const final = await Promise.allSettled(postersToBlob);
+        final.forEach((img, i) => {
+          movies.data[0].movies[i].poster = img.value;
+        });
+
+        return movies.data ? { data: movies.data } : { error: movies.error };
       },
     }),
+
     getMoviesWithTitle: build.query({
       query: (title) => `/search/title/${title}`,
     }),

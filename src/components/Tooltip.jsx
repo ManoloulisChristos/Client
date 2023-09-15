@@ -1,5 +1,11 @@
 import '../styles/Tooltip.scss';
 
+// Problem!!!
+// For some reason that i do not know the tooltip is dropping a significant amount of frames when it animates in and out
+// The reason is uknown, the only things that animate are opacity and transforms translate
+// The cpu is not loaded, the task that runs before the animation starts is 8ms at most, which is under 16ms.
+// I can not find the reason why this is happening so i leave it as is for now.
+
 ////// IMPORTANT!!! /////
 // 1. The element that the tooltip is referring to, either inside the wrapper or out of it must have the
 // class 'has-tooltip' or 'has-tooltip-with-wrapper'
@@ -18,12 +24,11 @@ import '../styles/Tooltip.scss';
 // tooltip only as a descriptor with aria-describedby for extra information
 
 // -- An exception to this is: when there is a button with only an image and information must be provided both for
-// screen readers and as a description for sighted users, using just a label with visually hidden class is not enough
+// screen readers and as a description for sighted users, using just a label that is visually hidden is not enough
 // so the tooltip is used instead to cover both cases
 
 const Tooltip = ({ children, id = '', text, tip, hasWrapper }) => {
   // Type Checking
-
   const checkIfString = (value, strName) => {
     if (typeof value === 'string' || value instanceof String) {
       return value;

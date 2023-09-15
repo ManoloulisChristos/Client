@@ -83,8 +83,8 @@
   --outline-variant-dark: #43474e;
   --surface1-dark: #1a1c1e;
   --surface1-dark-rgb: 26 28 30;
-  --surface2-dark: #2f3033;
-  --surface3-dark: #3a3b3e;
+  --surface2-dark: #3a3b3e;
+  --surface3-dark: #2f3033;
   --inverse-on-surface-dark: #1a1c1e;
   --inverse-surface-dark: #e3e2e6;
 
@@ -93,6 +93,7 @@
 
   // Other
   --body-margin-default: 70px;
+  --focus: 2px solid var(--primary);
 }
 
 :root {
@@ -117,6 +118,7 @@
   --inverse-surface: var(--inverse-surface-light);
 
   // Computed values
+
   --background-outline: rgb(var(--on-surface-light-rgb) / 0.08);
 }
 

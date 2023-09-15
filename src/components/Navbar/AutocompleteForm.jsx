@@ -274,8 +274,8 @@ const AutocompleteForm = () => {
     );
   };
 
-  // Checks if i have an input value, if the length is 1, i use currentData, otherwise just data
-  // Calls the content fuction and passes the results and a boolean if i have data or not.
+  // Checks if there is an input value, if the length is 1 use currentData, otherwise just data
+  // Calls the content fuction and passes the results and a boolean if there are data or not.
   let listbox;
 
   if (!inputValue) {

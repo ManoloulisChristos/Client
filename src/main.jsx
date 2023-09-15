@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './app/store';
-import './index.scss';
+import './main.scss';
 import App from './App';
 import ErrorPage from './error-page';
 import MoviesList from './features/Movies/MoviesList';
