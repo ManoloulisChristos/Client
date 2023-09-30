@@ -119,9 +119,8 @@
   //   --_shadow-alpha: 15%;
   // }
 
-  will-change: opacity, transform;
   opacity: 0;
-  transform: translateX(var(--_x, 0)) translateY(var(--_y, 0)) translateZ(0);
+  transform: translateX(var(--_x, 0)) translateY(var(--_y, 0));
   // fixes blurry text on animation
   backface-visibility: hidden;
   transition: opacity 0.2s ease, transform 0.2s ease;

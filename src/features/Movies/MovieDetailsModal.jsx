@@ -17,8 +17,23 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
     </span>
   );
 
+  const lightDismiss = (e) => {
+    if (e.target.nodeName === 'DIALOG') {
+      ref.current.close();
+    }
+  };
+
+  const handleDialogClose = (e) => {
+    e.currentTarget.setAttribute('inert', '');
+  };
+
   return (
-    <dialog className='movie-modal' ref={ref}>
+    <dialog
+      className='movie-modal'
+      ref={ref}
+      onClick={lightDismiss}
+      onClose={handleDialogClose}
+      inert=''>
       <article className='movie-modal__article'>
         <header className='movie-modal__header'>
           <h3 className='movie-modal__title'>
@@ -96,11 +111,18 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
         </div>
         <footer className='movie-modal__footer'>
           <button className='movie-modal__button movie-modal__button--watchlist'>
-            <Icons name='plus' /> Watchlist
+            <Icons
+              name='plus'
+              svgClassName='movie-modal__icon movie-modal__icon--plus'
+            />{' '}
+            Watchlist
           </button>
-          <button className='movie-modal__button movie-modal__button--rate'>
-            <Icons name='star' />
-            rate
+          <button className='movie-modal__button movie-modal__button--more'>
+            <Icons
+              name='chevronRight'
+              svgClassName='movie-modal__icon movie-modal__icon--right'
+            />
+            More
           </button>
         </footer>
       </article>

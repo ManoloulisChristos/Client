@@ -54,7 +54,10 @@ const Card = memo(function Card({ movie, dialogRef, setDialogData }) {
             className='card__button card__button--info has-tooltip-with-wrapper'
             aria-labelledby={`${movie._id}-info`}
             onClick={() => {
+              console.log('before', dialogRef.current.getAnimations());
               dialogRef.current.showModal();
+              dialogRef.current.removeAttribute('inert');
+              console.log('after', dialogRef.current.getAnimations());
               setDialogData(movie);
             }}>
             <Icons name={'info'} svgClassName='card__i' />

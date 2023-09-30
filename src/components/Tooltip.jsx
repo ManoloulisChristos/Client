@@ -1,10 +1,14 @@
 import '../styles/Tooltip.scss';
 
 // Problem!!!
-// For some reason that i do not know the tooltip is dropping a significant amount of frames when it animates in and out
-// The reason is uknown, the only things that animate are opacity and transforms translate
-// The cpu is not loaded, the task that runs before the animation starts is 8ms at most, which is under 16ms.
-// I can not find the reason why this is happening so i leave it as is for now.
+// When i measure the performance with chrome dev-tools, it displays a lot of dropped frames even though only opacity and transform
+// properties are animated. A big chunk is also shown when the delay on the animation is applied which has the same duration as the delay
+// When tested with just a button and hidden element appearing on hover, the same thing appeared as a result with just changing the opacity.
+// will-change CSS property does not make any difference.
+// All tasks on the CPU run under 8ms, no memory leaks or GPU load.
+// Switching the display from 170hz to 60hz helps a lot with the tests, but i still get some chunks of frames dropped even though
+// there is nothing running, no tasks to CPU or GPU.
+// On close inspection when a task is running through the animation, i get normal frames and when there is nothing i get dropped frames
 
 ////// IMPORTANT!!! /////
 // 1. The element that the tooltip is referring to, either inside the wrapper or out of it must have the

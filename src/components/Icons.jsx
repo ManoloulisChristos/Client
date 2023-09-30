@@ -68,6 +68,27 @@ const PlusIcon = ({ width, height, svgClassName }) => (
   </IconWrapper>
 );
 
+const HelpCircleIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <circle cx='12' cy='12' r='10'></circle>
+    <path d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'></path>
+    <line x1='12' y1='17' x2='12.01' y2='17'></line>
+  </IconWrapper>
+);
+
+const ChevronRightIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <polyline points='9 18 15 12 9 6'></polyline>
+  </IconWrapper>
+);
+
+const ArrowRightIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <line x1='5' y1='12' x2='19' y2='12'></line>
+    <polyline points='12 5 19 12 12 19'></polyline>
+  </IconWrapper>
+);
+
 const iconsMap = {
   clock: ClockIcon,
   calendar: CalendarIcon,
@@ -76,6 +97,9 @@ const iconsMap = {
   info: InfoIcon,
   plus: PlusIcon,
   close: CloseIcon,
+  helpCircle: HelpCircleIcon,
+  chevronRight: ChevronRightIcon,
+  arrowRight: ArrowRightIcon,
 };
 
 // All the icons are wrapped with an svg element which has a standard viewbox since all icons come from feathericons.com
