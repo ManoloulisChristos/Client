@@ -9,7 +9,7 @@
   outline-offset: 6px;
 
   &:focus-visible {
-    outline: 2px solid var(--primary);
+    outline: 2px solid hsl(var(--primary));
   }
 }
 
@@ -20,11 +20,11 @@
 
   // Moon
   &__mask {
-    fill: var(--on-surface-variant);
+    fill: hsl(var(--on-surface-variant));
 
     .theme-button:hover &,
     .theme-button:focus-visible & {
-      fill: var(--on-surface);
+      fill: hsl(var(--on-surface));
     }
 
     transform-origin: center center;
@@ -56,11 +56,11 @@
 
   // Sun
   &__circle {
-    fill: var(--on-surface-variant);
+    fill: hsl(var(--on-surface-variant));
 
     .theme-button:hover &,
     .theme-button:focus-visible & {
-      fill: var(--on-surface);
+      fill: hsl(var(--on-surface));
     }
 
     transform-origin: center center;
@@ -82,12 +82,12 @@
 
   // Sun beams
   &__lines {
-    stroke: var(--on-surface-variant);
+    stroke: hsl(var(--on-surface-variant));
     stroke-width: 2px;
 
     .theme-button:hover &,
     .theme-button:focus-visible & {
-      fill: var(--on-surface);
+      fill: hsl(var(--on-surface));
     }
 
     transform-origin: center center;

@@ -6,7 +6,7 @@
     gap: 0.7rem;
     max-inline-size: 30ch;
     padding-block-end: 1.2ex;
-    background-color: var(--surface2);
+    background-color: hsl(var(--surface2));
     border-radius: 12px;
   }
 
@@ -30,7 +30,7 @@
     padding-inline: 0.6ch;
     font-size: 1rem;
     font-weight: 400;
-    color: (var(--on-surface));
+    color: hsl(var(--on-surface));
     text-align: left;
 
     &:hover {
@@ -79,7 +79,7 @@
   &__number {
     font-size: 0.9rem;
     font-weight: 400;
-    color: (var(--on-surface-variant));
+    color: hsl(var(--on-surface-variant));
   }
 
   &__duration {
@@ -90,7 +90,7 @@
 
   &__time {
     font-size: 0.9rem;
-    color: var(--on-surface-variant);
+    color: hsl(var(--on-surface-variant));
     font-weight: 400;
   }
 
@@ -112,8 +112,8 @@
       justify-content: center;
       gap: 0.2ch;
       padding: 0.5ch 0ch;
-      background-color: var(--surface3);
-      color: var(--primary);
+      background-color: hsl(var(--surface3));
+      color: hsl(var(--primary));
       font-size: 1rem;
       align-self: center;
       border-radius: 6px;
@@ -146,6 +146,6 @@
   }
 
   &__plus {
-    stroke: var(--primary);
+    stroke: hsl(var(--primary));
   }
 }

@@ -7,13 +7,13 @@
   z-index: 10;
   width: 100vw;
   height: 2px;
-  background-color: var(--surface1);
+  background-color: hsl(var(--surface1));
 
   &__progress {
     display: block;
     width: 100vw;
     height: 100%;
-    background-color: var(--primary);
+    background-color: hsl(var(--primary));
     transform: scaleX(var(--_load));
     transform-origin: left;
     transition: transform 0.5s ease;

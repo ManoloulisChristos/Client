@@ -1,6 +1,6 @@
 import '../styles/Tooltip.scss';
 
-// Problem!!!
+// Problem!!! (happens only when using chrome in linux(pop-os))
 // When i measure the performance with chrome dev-tools, it displays a lot of dropped frames even though only opacity and transform
 // properties are animated. A big chunk is also shown when the delay on the animation is applied which has the same duration as the delay
 // When tested with just a button and hidden element appearing on hover, the same thing appeared as a result with just changing the opacity.

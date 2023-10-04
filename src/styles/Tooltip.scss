@@ -98,8 +98,8 @@
   padding: var(--_p-block) var(--_p-inline);
   margin: 0;
   border-radius: 6px;
-  background: var(--surface3);
-  color: var(--on-surface);
+  background: hsl(var(--surface4));
+  color: hsl(var(--on-surface));
 
   //////Disabled Shadow//////
 
@@ -127,7 +127,7 @@
 
   &::after {
     content: '';
-    background: var(--surface3);
+    background: hsl(var(--surface4));
     position: absolute;
     z-index: -1;
     inset: 0;

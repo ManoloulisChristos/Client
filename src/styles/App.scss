@@ -14,7 +14,7 @@
   font-size: 1.5rem;
   text-align: center;
 
-  background-color: rgba(var(--surface1-rgb), 0.9);
+  background-color: hsl(var(--surface1) / 0.9);
   backdrop-filter: blur(2px);
 
   transform: translateY(-5rem);
@@ -32,55 +32,4 @@
 .main {
   min-block-size: calc(200vh - 70px);
   margin-block-start: 70px;
-}
-
-.container {
-  // margin-top: calc(70px + 2rem);
-  padding-inline: 1rem;
-  margin-inline: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 2vh;
-  height: 500px;
-  max-width: 30%;
-  background-color: rgb(var(--primary-rgb) / 0.03);
-
-  border-radius: 6px;
-
-  &__title {
-    color: var(--on-surface);
-  }
-  &__paragraph {
-    color: var(--on-surface-variant);
-  }
-
-  &__wrap {
-    display: flex;
-    width: 50%;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-  &__cancel {
-    color: var(--primary);
-    background-color: transparent;
-    font-weight: 500;
-    outline-offset: 4px;
-    border-radius: 4px;
-    &:focus-visible {
-      outline: 2px solid var(--primary);
-    }
-  }
-  &__submit {
-    padding: 0.625rem 1.5rem;
-    background-color: var(--primary);
-    color: var(--on-primary);
-    font-weight: 500;
-    border-radius: 24px;
-    outline-offset: 2px;
-    &:focus-visible {
-      outline: 2px solid var(--primary);
-    }
-  }
 }

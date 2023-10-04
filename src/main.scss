@@ -44,55 +44,62 @@
     url('./fonts/inter-v12-latin-700.woff') format('woff');
 }
 
-// Some custom properties with whole expressions eg rgb(var() / 1) are declared directly in color shemes blocks
 * {
   /* brand foundation */
   --brand-hue: 212;
 
   /* light */
-  --primary-light: #215fa6;
+  --primary-light: var(--brand-hue) 67% 39%;
   --primary-light-rgb: 33 95 166;
-  --on-primary-light: #ffffff;
-  --on-surface-light: #1a1c1e;
+  --on-primary-light: 0deg 0% 100%;
+  --on-surface-light: 210deg 7% 11%;
   --on-surface-light-rgb: 26 28 30;
-  --on-surface-variant-light: #43474e;
+  --on-surface-variant-light: 218deg 8% 28%;
   --on-surface-variant-light-rgb: 67 71 78;
-  --outline-light: #74777f;
+  --outline-light: 224deg 5% 48%;
   --outline-light-rgb: 116 119 127;
-  --outline-variant-light: #c4c6cf;
-  --surface1-light: #faf9fd;
-  --surface1-light-rgb: 250 249 253;
-  --surface2-light: #f1f0f4;
-  --surface3-light: #e3e2e6;
-  --inverse-on-surface-light: #f1f0f4;
-  --inverse-surface-light: #2f3033;
-  --surface-shadow-light: var(--brand-hue) 10% 20%;
-  --shadow-strength-light: 0.02;
+  --outline-variant-light: 229deg 10% 79%;
+  --surface1-light: var(--brand-hue) 7% 95%;
+  --surface2-light: var(--brand-hue) 7% 90%;
+  --surface3-light: var(--brand-hue) 7% 85%;
+  --surface4-light: var(--brand-hue) 7% 80%;
+  // --surface1-light: #faf9fd;
+  // --surface1-light-rgb: 250 249 253;
+  // --surface2-light: #f1f0f4;
+  // --surface3-light: #e3e2e6;
+  --inverse-on-surface-light: 255deg 15% 95%;
+  --inverse-surface-light: 225deg 4% 19%;
+  // --surface-shadow-light: var(--brand-hue) 10% 20%;
+  // --shadow-strength-light: 0.02;
 
   /* dark */
-  --primary-dark: #a8caff;
+  --primary-dark: var(--brand-hue) 100% 83%;
   --primary-dark-rgb: 166 200 255;
-  --on-primary-dark: #003060;
-  --on-surface-dark: #e3e2e6;
+  --on-primary-dark: var(--brand-hue) 100%, 19%;
+  --on-surface-dark: 255deg 7% 89%;
   --on-surface-dark-rgb: 227 226 230;
-  --on-surface-variant-dark: #c4c6cf;
+  --on-surface-variant-dark: 229deg 10% 79%;
   --on-surface-variant-dark-rgb: 196 198 207;
-  --outline-dark: #8d9199;
+  --outline-dark: 220deg 6% 58%;
   --outline-dark-rgb: 141 145 153;
-  --outline-variant-dark: #43474e;
-  --surface1-dark: #1a1c1e;
-  --surface1-dark-rgb: 26 28 30;
-  --surface2-dark: #2f3033;
-  --surface3-dark: #3a3b3e;
-  --inverse-on-surface-dark: #1a1c1e;
-  --inverse-surface-dark: #e3e2e6;
+  --outline-variant-dark: 218deg 8% 28%;
+  --surface1-dark: var(--brand-hue) 7% 11%;
+  --surface2-dark: var(--brand-hue) 7% 15%;
+  --surface3-dark: var(--brand-hue) 7% 20%;
+  --surface4-dark: var(--brand-hue) 7% 25%;
+  // --surface1-dark: hsl(210, 7%, 11%);
+  // --surface1-dark-rgb: 26 28 30;
+  // --surface2-dark: #2f3033;
+  // --surface3-dark: #3a3b3e;
+  --inverse-on-surface-dark: 210deg 7% 11%;
+  --inverse-surface-dark: 255deg 7% 89%;
 
   --surface-shadow-dark: var(--brand-hue) 50% 3%;
   --shadow-strength-dark: 0.8;
 
   // Other
   --body-margin-default: 70px;
-  --focus: 2px solid var(--primary);
+  --focus: 2px solid hsl(var(--primary));
 }
 
 :root {
@@ -113,12 +120,13 @@
   --surface1-rgb: var(--surface1-light-rgb);
   --surface2: var(--surface2-light);
   --surface3: var(--surface3-light);
+  --surface4: var(--surface4-light);
   --inverse-on-surface: var(--inverse-on-surface-light);
   --inverse-surface: var(--inverse-surface-light);
 
   // Computed values
 
-  --background-outline: rgb(var(--on-surface-light-rgb) / 0.08);
+  --background-outline: var(--on-surface-light) / 0.08;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -139,11 +147,12 @@
     --surface1-rgb: var(--surface1-dark-rgb);
     --surface2: var(--surface2-dark);
     --surface3: var(--surface3-dark);
+    --surface4: var(--surface4-dark);
     --inverse-on-surface: var(--inverse-on-surface-dark);
     --inverse-surface: var(--inverse-surface-dark);
 
     // Computed values
-    --background-outline: rgb(var(--on-surface-dark-rgb) / 0.1);
+    --background-outline: var(--on-surface-dark) / 0.1;
   }
 }
 
@@ -164,11 +173,12 @@
   --surface1-rgb: var(--surface1-light-rgb);
   --surface2: var(--surface2-light);
   --surface3: var(--surface3-light);
+  --surface4: var(--surface4-light);
   --inverse-on-surface: var(--inverse-on-surface-light);
   --inverse-surface: var(--inverse-surface-light);
 
   // Computed values
-  --background-outline: rgb(var(--on-surface-light-rgb) / 0.08);
+  --background-outline: var(--on-surface-light) / 0.08;
 }
 
 [color-scheme='dark'] {
@@ -188,11 +198,12 @@
   --surface1-rgb: var(--surface1-dark-rgb);
   --surface2: var(--surface2-dark);
   --surface3: var(--surface3-dark);
+  --surface4: var(--surface4-dark);
   --inverse-on-surface: var(--inverse-on-surface-dark);
   --inverse-surface: var(--inverse-surface-dark);
 
   // Computed values
-  --background-outline: rgb(var(--on-surface-dark-rgb) / 0.1);
+  --background-outline: var(--on-surface-dark) / 0.1;
 }
 
 // .rad-shadow {
@@ -230,8 +241,8 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
     'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  color: var(--on-surface);
-  background-color: var(--surface1);
+  color: hsl(var(--on-surface));
+  background-color: hsl(var(--surface1));
 }
 
 a {
@@ -264,5 +275,5 @@ button {
 
 // Generic class for all the svg elements inside the Icons component
 .icons-default {
-  stroke: var(--on-surface);
+  stroke: hsl(var(--on-surface));
 }
