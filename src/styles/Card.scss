@@ -4,10 +4,11 @@
     flex-flow: column;
     justify-content: center;
     gap: 0.7rem;
-    max-inline-size: 30ch;
+    max-inline-size: 22ch;
     padding-block-end: 1.2ex;
     background-color: hsl(var(--surface2));
     border-radius: 12px;
+    box-shadow: var(--shadow-small);
   }
 
   &__img {
@@ -117,6 +118,10 @@
       font-size: 1rem;
       align-self: center;
       border-radius: 6px;
+      box-shadow: var(--shadow-small);
+      &:hover {
+        filter: brightness(97%);
+      }
     }
 
     &--info {

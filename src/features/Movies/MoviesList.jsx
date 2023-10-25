@@ -12,10 +12,10 @@ import {
 } from '../ProgressBar/progressBarSlice';
 import { useDispatch } from 'react-redux';
 import ProgressBar from '../ProgressBar/ProgressBar';
-import MovieDetailsModal from './MovieDetailsModal';
+
 // The data are coming as an array with 2 objects
-// 1. The movies that are requested nested inside as an Array
-// 2. The total count of the documents nested inside an Object
+// 1. The movies that are requested, are nested inside as an Array
+// 2. The total count of the documents is nested inside an Object
 
 const MoviesList = () => {
   const params = useParams();
@@ -33,10 +33,7 @@ const MoviesList = () => {
     currentTitle: '',
   });
 
-  const [dialogData, setDialogData] = useState();
-
   const counterRef = useRef(new Set());
-  const dialogRef = useRef(null);
 
   const {
     data: moviesArr,
@@ -55,6 +52,10 @@ const MoviesList = () => {
     }));
   }
 
+  // When the title changes >> update the previous values to the current ones (current has values from the previous render at this moment)
+  // but leave the current value intact and update it in the layoutEffect because the Set in the ref has to be updated first and
+  // it ensures that currentData exists.
+
   if (prevTitle !== title) {
     setPrevTitle(title);
     setShow(false);
@@ -67,8 +68,11 @@ const MoviesList = () => {
     dispatch(reset());
   }
 
+  // Here a check for duplicate movies is happening to populate the Set with already loaded images
+  // eg: when a user searches for 'super' and then 'superman' some images are already in the browsers cache and ProgressBar needs to know that
   useLayoutEffect(() => {
     if (currentData) {
+      // The Set has the values from the last render
       const set = counterRef.current;
       const currMovies = currentData?.[0].movies;
       const duplicates = new Set();
@@ -110,13 +114,10 @@ const MoviesList = () => {
     movies = content?.[0].movies;
   }
 
-  console.log(currentData);
-
   return (
     <>
       <ProgressBar />
 
-      <MovieDetailsModal movie={dialogData} ref={dialogRef} />
       {initial ? (
         <div style={{ fontSize: '6rem' }}>Skeleton</div>
       ) : (
@@ -134,12 +135,7 @@ const MoviesList = () => {
           </hgroup>
           <ul className='movies__section'>
             {movies?.map((movie) => (
-              <Card
-                movie={movie}
-                key={`${movie?._id}`}
-                dialogRef={dialogRef}
-                setDialogData={setDialogData}
-              />
+              <Card movie={movie} key={`${movie?._id}`} />
             ))}
           </ul>
         </section>
@@ -167,6 +163,8 @@ const RenderImages = memo(function RenderImages({
 }) {
   const dispatch = useDispatch();
 
+  // If i get an error on an image the src value is set to the fallback image from the onError event
+  // and the onLoad event triggers either way adding it to the Set
   const handleLoad = () => {
     counterRef.current.add(id);
     dispatch(loadValue(counterRef.current.size));

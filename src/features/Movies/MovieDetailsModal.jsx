@@ -29,6 +29,7 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
 
   return (
     <dialog
+      id={`movie-modal-${movie._id}`}
       className='movie-modal'
       ref={ref}
       onClick={lightDismiss}
@@ -42,6 +43,9 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
             </Link>
           </h3>
           <button
+            aria-haspopup='dialog'
+            aria-controls={`movie-modal-${movie._id}`}
+            aria-expanded='true'
             className='movie-modal__close-icon'
             onClick={() => ref.current.close()}>
             <span className='visually-hidden'>Close Modal</span>

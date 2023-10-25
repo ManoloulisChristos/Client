@@ -6,9 +6,12 @@
     padding-inline: 1rem;
   }
   &__header {
-    font-size: 2.5rem;
+    --_size-min: 1.6;
+    --_size-max: 2.5;
+    font-size: var(--size-clamp);
   }
   &__result {
+    white-space: nowrap;
   }
   &__count {
     color: var(--on-surface-variant);

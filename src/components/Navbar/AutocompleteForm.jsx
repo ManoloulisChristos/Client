@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Tooltip from '../Tooltip';
 import '../../styles/Navbar.scss';
 
-const AutocompleteForm = () => {
+const AutocompleteForm = ({ searchModalRef }) => {
   const [inputValue, setInputValue] = useState('');
   const [querySkip, setQuerySkip] = useState(true);
   const [isOpen, setIsOpen] = useState('false');
@@ -68,6 +68,14 @@ const AutocompleteForm = () => {
   };
 
   const handleInputBlur = (e) => {
+    // This condition ensures that click events on the listbox link elements are registered because without it the onBlur runs first
+    // making the onClick obselete
+    // When the input loses focus the related target is the one that receives the input's focus if this target is a link ('A')
+    // i dont want the listbox to close before the click happens
+    // Caution!!!
+    // link elements are before the input in the DOM as well so they when the user hits shift + tab the condintion goes to false,
+    // leaving the listbox open. This is handled in the switch statement because the onKeydown runs before the onBlur.
+
     if (e.relatedTarget?.nodeName !== 'A') {
       setVisualFocusZeroWithCondition();
       setIsNotOpenWithCondition();
@@ -120,21 +128,13 @@ const AutocompleteForm = () => {
         setIsNotOpenWithCondition();
         break;
 
+      // Default behavior happens in the 2 first statements >>> onSubmit is triggered
       case 'Enter':
         if (inputValue && visualFocus === 0) {
-          setIsNotOpenWithCondition();
-          setQuerySkip(true);
-          navigate(`/search/title/${inputValue}`);
           break;
         }
-        // taking extra measures with conditions plus break statements because if it escapes, it cascades to the next
-        // statement and two navigations happen
+
         if (inputValue && isOpen && visualFocus === size) {
-          e.preventDefault();
-          setIsNotOpenWithCondition();
-          setVisualFocusZeroWithCondition();
-          setQuerySkip(true);
-          navigate(`/search/title/${inputValue}`);
           break;
         }
         if (inputValue && isOpen && visualFocus !== 0 && visualFocus !== size) {
@@ -149,6 +149,7 @@ const AutocompleteForm = () => {
         break;
       case 'Tab':
         setVisualFocusZeroWithCondition();
+        if (e.shiftKey) setIsNotOpenWithCondition();
         break;
       default:
         break;
@@ -163,7 +164,19 @@ const AutocompleteForm = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (inputValue) {
+      e.preventDefault();
+      setIsNotOpenWithCondition();
+      setVisualFocusZeroWithCondition();
+      setQuerySkip(true);
+      navigate(`/search/title/${inputValue}`);
+      closeSearchModal();
+    }
+  };
+
+  const closeSearchModal = () => {
+    if (!searchModalRef.current) return;
+    searchModalRef.current.close();
   };
 
   // results value switches between data & currentData when the inputValue's length is 1
@@ -207,6 +220,7 @@ const AutocompleteForm = () => {
                       setVisualFocusZeroWithCondition();
                       setIsNotOpenWithCondition();
                       setInputValue('');
+                      closeSearchModal();
                     }}
                     to={`/search/id/${item?._id}`}>
                     <div className='autocomplete__title'>
@@ -251,6 +265,7 @@ const AutocompleteForm = () => {
               setQuerySkip(true);
               setVisualFocusZeroWithCondition();
               setIsNotOpenWithCondition();
+              closeSearchModal();
             }}
             to={`/search/title/${inputValue}`}>
             <div className='autocomplete__italic'>

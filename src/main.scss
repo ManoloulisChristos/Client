@@ -50,56 +50,81 @@
 
   /* light */
   --primary-light: var(--brand-hue) 67% 39%;
-  --primary-light-rgb: 33 95 166;
   --on-primary-light: 0deg 0% 100%;
   --on-surface-light: 210deg 7% 11%;
-  --on-surface-light-rgb: 26 28 30;
   --on-surface-variant-light: 218deg 8% 28%;
-  --on-surface-variant-light-rgb: 67 71 78;
   --outline-light: 224deg 5% 48%;
-  --outline-light-rgb: 116 119 127;
   --outline-variant-light: 229deg 10% 79%;
-  --surface1-light: var(--brand-hue) 7% 95%;
-  --surface2-light: var(--brand-hue) 7% 90%;
-  --surface3-light: var(--brand-hue) 7% 85%;
-  --surface4-light: var(--brand-hue) 7% 80%;
-  // --surface1-light: #faf9fd;
-  // --surface1-light-rgb: 250 249 253;
-  // --surface2-light: #f1f0f4;
-  // --surface3-light: #e3e2e6;
+  --surface1-light: var(--brand-hue) 0% 96%;
+  --surface2-light: var(--brand-hue) 0% 92%;
+  --surface3-light: var(--brand-hue) 0% 89%;
+  --surface4-light: var(--brand-hue) 0% 86%;
   --inverse-on-surface-light: 255deg 15% 95%;
   --inverse-surface-light: 225deg 4% 19%;
-  // --surface-shadow-light: var(--brand-hue) 10% 20%;
-  // --shadow-strength-light: 0.02;
+  --shadow-color-light: 0deg 0% 50%;
 
   /* dark */
   --primary-dark: var(--brand-hue) 100% 83%;
-  --primary-dark-rgb: 166 200 255;
   --on-primary-dark: var(--brand-hue) 100%, 19%;
   --on-surface-dark: 255deg 7% 89%;
-  --on-surface-dark-rgb: 227 226 230;
   --on-surface-variant-dark: 229deg 10% 79%;
-  --on-surface-variant-dark-rgb: 196 198 207;
   --outline-dark: 220deg 6% 58%;
-  --outline-dark-rgb: 141 145 153;
   --outline-variant-dark: 218deg 8% 28%;
-  --surface1-dark: var(--brand-hue) 7% 11%;
-  --surface2-dark: var(--brand-hue) 7% 15%;
-  --surface3-dark: var(--brand-hue) 7% 20%;
-  --surface4-dark: var(--brand-hue) 7% 25%;
-  // --surface1-dark: hsl(210, 7%, 11%);
-  // --surface1-dark-rgb: 26 28 30;
-  // --surface2-dark: #2f3033;
-  // --surface3-dark: #3a3b3e;
+  --surface1-dark: var(--brand-hue) 2% 10%;
+  --surface2-dark: var(--brand-hue) 2% 15%;
+  --surface3-dark: var(--brand-hue) 2% 20%;
+  --surface4-dark: var(--brand-hue) 2% 25%;
   --inverse-on-surface-dark: 210deg 7% 11%;
   --inverse-surface-dark: 255deg 7% 89%;
+  --shadow-color-dark: 215deg 40% 2%;
 
-  --surface-shadow-dark: var(--brand-hue) 50% 3%;
-  --shadow-strength-dark: 0.8;
+  // Shadows
+  --shadow-small: 0.5px 1px 1px hsl(var(--shadow-color) / 0.7);
+  --shadow-medium: 1px 2px 2px hsl(var(--shadow-color) / 0.333),
+    2px 4px 4px hsl(var(--shadow-color) / 0.333),
+    3px 6px 6px hsl(var(--shadow-color) / 0.333);
+  --shadow-large: 1px 2px 2px hsl(var(--shadow-color) / 0.2),
+    2px 4px 4px hsl(var(--shadow-color) / 0.2),
+    4px 8px 8px hsl(var(--shadow-color) / 0.2),
+    8px 16px 16px hsl(var(--shadow-color) / 0.2),
+    16px 32px 32px hsl(var(--shadow-color) / 0.2);
 
   // Other
   --body-margin-default: 70px;
   --focus: 2px solid hsl(var(--primary));
+
+  /// Dynamic Size Calculations ///
+
+  // Inside the code block of the use-case, local variables of min-max size must be declared as plain numbers
+  // This clamp function can be used for font-size as well as length units eg padding
+
+  --root-font-size: 16; //also accessed by JS on page load if user changed the font-size
+  --max-vw: 1500;
+  --min-vw: 320;
+  // m = (y2-y1)/(x2-x1)
+  --slope: calc(
+    (var(--size-max) - var(--size-min)) /
+      ((var(--max-vw) - var(--min-vw)) / var(--root-font-size))
+  );
+
+  // b = y - mx
+  // b= y-axis-intersection
+  // m = slope
+  // Caution!!! >> pixel values in widths must be converted into rems
+  --Y-axis-intersection: calc(
+    var(--size-min) - (var(--slope) * (var(--min-vw) / var(--root-font-size)))
+  );
+  --dynamic-range: (
+    (var(--Y-axis-intersection) * 1rem) + ((var(--slope) * 100) * 1vw)
+  );
+
+  --size-min: var(--_size-min, 1rem);
+  --size-max: var(--_size-max, 2rem);
+  --size-clamp: clamp(
+    calc(var(--size-min) * 1rem),
+    var(--dynamic-range),
+    calc(var(--size-max) * 1rem)
+  );
 }
 
 :root {
@@ -107,23 +132,18 @@
 
   /* set defaults */
   --primary: var(--primary-light);
-  --primary-rgb: var(--primary-light-rgb);
   --on-primary: var(--on-primary-light);
   --on-surface: var(--on-surface-light);
-  --on-surface-rgb: var(--on-surface-light-rgb);
   --on-surface-variant: var(--on-surface-variant-light);
-  --on-surface-variant-rgb: var(--on-surface-variant-light-rgb);
   --outline: var(--outline-light);
-  --outline-rgb: var(--outline-light-rgb);
   --outline-variant: var(--outline-variant-light);
   --surface1: var(--surface1-light);
-  --surface1-rgb: var(--surface1-light-rgb);
   --surface2: var(--surface2-light);
   --surface3: var(--surface3-light);
   --surface4: var(--surface4-light);
   --inverse-on-surface: var(--inverse-on-surface-light);
   --inverse-surface: var(--inverse-surface-light);
-
+  --shadow-color: var(--shadow-color-light);
   // Computed values
 
   --background-outline: var(--on-surface-light) / 0.08;
@@ -134,22 +154,18 @@
     color-scheme: dark;
 
     --primary: var(--primary-dark);
-    --primary-rgb: var(--primary-dark-rgb);
     --on-primary: var(--on-primary-dark);
     --on-surface: var(--on-surface-dark);
-    --on-surface-rgb: var(--on-surface-dark-rgb);
     --on-surface-variant: var(--on-surface-variant-dark);
-    --on-surface-variant-rgb: var(--on-surface-variant-dark-rgb);
     --outline: var(--outline-dark);
-    --outline-rgb: var(--outline-dark-rgb);
     --outline-variant: var(--outline-variant-dark);
     --surface1: var(--surface1-dark);
-    --surface1-rgb: var(--surface1-dark-rgb);
     --surface2: var(--surface2-dark);
     --surface3: var(--surface3-dark);
     --surface4: var(--surface4-dark);
     --inverse-on-surface: var(--inverse-on-surface-dark);
     --inverse-surface: var(--inverse-surface-dark);
+    --shadow-color: var(--shadow-color-dark);
 
     // Computed values
     --background-outline: var(--on-surface-dark) / 0.1;
@@ -160,22 +176,18 @@
   color-scheme: light;
 
   --primary: var(--primary-light);
-  --primary-rgb: var(--primary-light-rgb);
   --on-primary: var(--on-primary-light);
   --on-surface: var(--on-surface-light);
-  --on-surface-rgb: var(--on-surface-light-rgb);
   --on-surface-variant: var(--on-surface-variant-light);
-  --on-surface-variant-rgb: var(--on-surface-variant-light-rgb);
   --outline: var(--outline-light);
-  --outline-rgb: var(--outline-light-rgb);
   --outline-variant: var(--outline-variant-light);
   --surface1: var(--surface1-light);
-  --surface1-rgb: var(--surface1-light-rgb);
   --surface2: var(--surface2-light);
   --surface3: var(--surface3-light);
   --surface4: var(--surface4-light);
   --inverse-on-surface: var(--inverse-on-surface-light);
   --inverse-surface: var(--inverse-surface-light);
+  --shadow-color: var(--shadow-color-light);
 
   // Computed values
   --background-outline: var(--on-surface-light) / 0.08;
@@ -185,42 +197,22 @@
   color-scheme: dark;
 
   --primary: var(--primary-dark);
-  --primary-rgb: var(--primary-dark-rgb);
   --on-primary: var(--on-primary-dark);
   --on-surface: var(--on-surface-dark);
-  --on-surface-rgb: var(--on-surface-dark-rgb);
   --on-surface-variant: var(--on-surface-variant-dark);
-  --on-surface-variant-rgb: var(--on-surface-variant-dark-rgb);
   --outline: var(--outline-dark);
-  --outline-rgb: var(--outline-dark-rgb);
   --outline-variant: var(--outline-variant-dark);
   --surface1: var(--surface1-dark);
-  --surface1-rgb: var(--surface1-dark-rgb);
   --surface2: var(--surface2-dark);
   --surface3: var(--surface3-dark);
   --surface4: var(--surface4-dark);
   --inverse-on-surface: var(--inverse-on-surface-dark);
   --inverse-surface: var(--inverse-surface-dark);
+  --shadow-color: var(--shadow-color-dark);
 
   // Computed values
   --background-outline: var(--on-surface-dark) / 0.1;
 }
-
-// .rad-shadow {
-//   border: 1px solid hsl(var(--brand-hue) 10% 50% / 15%);
-//   box-shadow: 0 1rem 0.5rem -0.5rem;
-//   box-shadow: 0 2.8px 2.2px
-//       hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.03)),
-//     0 6.7px 5.3px
-//       hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.01)),
-//     0 12.5px 10px
-//       hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.02)),
-//     0 22.3px 17.9px
-//       hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.02)),
-//     0 41.8px 33.4px
-//       hsl(var(--surface-shadow) / calc(var(--shadow-strength) + 0.03)),
-//     0 100px 80px hsl(var(--surface-shadow) / var(--shadow-strength));
-// }
 
 // Global Reset
 *,

@@ -24,6 +24,15 @@ const CloseIcon = ({ width, height, svgClassName }) => (
   </IconWrapper>
 );
 
+const MinimizeIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <polyline points='4 14 10 14 10 20'></polyline>
+    <polyline points='20 10 14 10 14 4'></polyline>
+    <line x1='14' y1='10' x2='21' y2='3'></line>
+    <line x1='3' y1='21' x2='10' y2='14'></line>
+  </IconWrapper>
+);
+
 const ClockIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
     <circle cx='12' cy='12' r='10'></circle>
@@ -100,6 +109,7 @@ const iconsMap = {
   helpCircle: HelpCircleIcon,
   chevronRight: ChevronRightIcon,
   arrowRight: ArrowRightIcon,
+  minimize: MinimizeIcon,
 };
 
 // All the icons are wrapped with an svg element which has a standard viewbox since all icons come from feathericons.com

@@ -1,27 +1,57 @@
 .tooltip-wrapper {
   position: relative;
   inline-size: max-content;
+  block-size: max-content;
 }
 
-// If the tooltip has wrapper it will be a sibling with the element that has-tooltip
+.hidden-tooltip-50em {
+  display: none;
+  @media only screen and (max-width: 50em) {
+    display: block;
+  }
+}
+
+.hidden-tooltip-72em {
+  display: none;
+  @media only screen and (max-width: 72em) {
+    display: block;
+  }
+}
+
+// Disable hover effect for touch-screens
+@media (pointer: fine) {
+  // If the tooltip has wrapper it will be a sibling with the element that has-tooltip
+  .has-tooltip-with-wrapper {
+    &:is(:hover) ~ .tooltip {
+      opacity: 1;
+    }
+
+    &:hover ~ .tooltip {
+      transition-delay: 200ms;
+    }
+  }
+
+  // If there is no wrapper it is a descendant
+  .has-tooltip {
+    &:is(:hover) .tooltip {
+      opacity: 1;
+    }
+
+    &:hover .tooltip {
+      transition-delay: 200ms;
+    }
+  }
+}
+
 .has-tooltip-with-wrapper {
-  &:is(:hover, :focus-visible) ~ .tooltip {
+  &:is(:focus-visible) ~ .tooltip {
     opacity: 1;
-  }
-
-  &:hover ~ .tooltip {
-    transition-delay: 200ms;
   }
 }
 
-// If there is no wrapper it is a descendant
 .has-tooltip {
-  &:is(:hover, :focus-visible) .tooltip {
+  &:is(:focus-visible) .tooltip {
     opacity: 1;
-  }
-
-  &:hover .tooltip {
-    transition-delay: 200ms;
   }
 }
 
@@ -50,7 +80,6 @@
   --_p-inline: 1.5ch;
   --_p-block: 0.75ch;
   --_triangle-size: 7px;
-  --_shadow-alpha: 50%;
 
   --_top-tip: conic-gradient(
       from 150deg at top,
@@ -88,7 +117,7 @@
   user-select: none;
 
   position: absolute;
-  z-index: 1;
+  z-index: 9999999999999;
   inline-size: max-content;
   max-inline-size: 25ch;
   text-align: start;
@@ -101,29 +130,30 @@
   background: hsl(var(--surface4));
   color: hsl(var(--on-surface));
 
-  //////Disabled Shadow//////
-
-  // will-change: filter;
-  // filter: drop-shadow(0 3px 3px hsl(0 0% 0% / var(--_shadow-alpha)))
-  //   drop-shadow(0 12px 12px hsl(0 0% 0% / var(--_shadow-alpha)));
-
-  // @media (prefers-color-scheme: light) {
-  //   --_shadow-alpha: 15%;
-  // }
-
-  // [color-scheme='light'] & {
-  //   --_shadow-alpha: 15%;
-  // }
-
-  //  @media (prefers-color-scheme: light) {
-  //   --_shadow-alpha: 15%;
-  // }
+  box-shadow: var(--shadow-medium);
 
   opacity: 0;
-  transform: translateX(var(--_x, 0)) translateY(var(--_y, 0));
+  transform: translateX(var(--_x, 0)) translateY(var(--_y, 0)) translateZ(0);
   // fixes blurry text on animation
   backface-visibility: hidden;
   transition: opacity 0.2s ease, transform 0.2s ease;
+
+  // use font smoothing only for dark mode because the text looks blurry
+  @media (prefers-color-scheme: dark) {
+    -moz-osx-font-smoothing: antialiased;
+    -webkit-font-smoothing: antialiased;
+    font-smooth: antialiased;
+  }
+
+  [color-scheme='dark'] & {
+    -moz-osx-font-smoothing: antialiased;
+    -webkit-font-smoothing: antialiased;
+    font-smooth: antialiased;
+  }
+
+  @media only screen and (max-width: 72em) {
+    font-size: 14px;
+  }
 
   &::after {
     content: '';

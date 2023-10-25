@@ -16,6 +16,7 @@ const GlobalTest = () => {
         <div className='test__box5'></div>
         <div className='test__box6'></div>
       </div>
+
       {/* <div className='b-wrapper'>
         <button className='b1'> Button</button>
         <button className='b2'> Button</button>
