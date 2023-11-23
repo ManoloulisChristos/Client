@@ -66,11 +66,13 @@ const ThemeButton = () => {
       id={'theme-tooltip'}
       hasWrapper={true}>
       <button
+        type='button'
         className='theme-button has-tooltip-with-wrapper'
         id='theme-toggle'
         aria-pressed={`${theme === 'light' ? 'false' : 'true'}`}
         aria-describedby='theme-tooltip'
         onClick={onThemeChange}>
+        <span className='visually-hidden'>dark theme</span>
         <svg
           className='theme'
           aria-hidden='true'
@@ -108,7 +110,6 @@ const ThemeButton = () => {
             <line x1='18.36' y1='5.64' x2='19.78' y2='4.22' />
           </g>
         </svg>
-        <span className='visually-hidden'>dark theme</span>
       </button>
     </Tooltip>
   );

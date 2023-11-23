@@ -15,6 +15,8 @@ import '../styles/Tooltip.scss';
 // class 'has-tooltip' or 'has-tooltip-with-wrapper'
 // 2. All props must be text - exept hasWrapper which is boolean
 // 3. tip-position takes the values: ['top', 'bottom', 'left', 'right']
+// 4. hidden_50em/72em takes boolean values and it is used for items that are not displayed above those viewports
+//  because the tooltip is used as a wrapper it must be hidden so all items plus the the tooltip dont show anywhere
 
 // Info on usage:
 // For normal elements: use it as a wrapper component with the element that the tooltip refers to as a child(see ThemeButton)

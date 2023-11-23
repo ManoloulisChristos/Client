@@ -2,8 +2,6 @@ import { useState, useLayoutEffect, useRef, useCallback, memo } from 'react';
 import { useGetMoviesWithTitleQuery } from './moviesApiSlice';
 import { useParams } from 'react-router-dom';
 import Card from '../../components/Card';
-import '../../styles/MoviesList.scss';
-
 import {
   sizeValue,
   loadValue,
@@ -12,6 +10,9 @@ import {
 } from '../ProgressBar/progressBarSlice';
 import { useDispatch } from 'react-redux';
 import ProgressBar from '../ProgressBar/ProgressBar';
+import Spinner from '../../components/Spinner';
+import '../../styles/MoviesList.scss';
+import MovieListToolbar from './MoviesListToolbar';
 
 // The data are coming as an array with 2 objects
 // 1. The movies that are requested, are nested inside as an Array
@@ -35,12 +36,7 @@ const MoviesList = () => {
 
   const counterRef = useRef(new Set());
 
-  const {
-    data: moviesArr,
-    currentData,
-    isLoading,
-    isFetching,
-  } = useGetMoviesWithTitleQuery(title);
+  const { currentData } = useGetMoviesWithTitleQuery(title);
 
   if (initial && currentData && !trackMovies.current.length) {
     setTrackMovies((s) => ({
@@ -110,7 +106,7 @@ const MoviesList = () => {
   if (!initial) {
     content = show ? trackMovies.current : trackMovies.previous;
     searchTitle = show ? trackMovies.currentTitle : trackMovies.previousTitle;
-    totalResults = content?.[0].countResults?.count.lowerBound ?? 0;
+    totalResults = content?.[0]?.countResults?.count.lowerBound ?? 0;
     movies = content?.[0].movies;
   }
 
@@ -119,12 +115,13 @@ const MoviesList = () => {
       <ProgressBar />
 
       {initial ? (
-        <div style={{ fontSize: '6rem' }}>Skeleton</div>
+        <Spinner />
       ) : (
         <section
           aria-labelledby='movies-search-title'
           aria-describedby='progress-bar'
           aria-busy={!show}
+          id='movies-list-section'
           className={`movies__wrapper }`}>
           <hgroup>
             <h1 className='movies__header' id='movies-search-title'>
@@ -133,20 +130,23 @@ const MoviesList = () => {
             </h1>
             <p className='movies__count'>{totalResults} total results</p>
           </hgroup>
-          <ul className='movies__section'>
-            {movies?.map((movie) => (
-              <Card movie={movie} key={`${movie?._id}`} />
-            ))}
-          </ul>
+          <div className='movies__divider'>
+            <MovieListToolbar />
+            <ul className='movies__list'>
+              {movies?.map((movie) => (
+                <Card movie={movie} key={`${movie?._id}`} />
+              ))}
+            </ul>
+          </div>
         </section>
       )}
-      {currentData?.[0].movies.map((movie) => (
+      {currentData?.[0].movies?.map((movie) => (
         <RenderImages
-          key={movie._id}
+          key={movie?._id}
           src={movie?.poster ?? '/no_image.png'}
           counterRef={counterRef}
           imagesReady={imagesReady}
-          id={movie._id}
+          id={movie?._id}
         />
       ))}
     </>

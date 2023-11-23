@@ -1,5 +1,8 @@
 .movies {
   &__wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4vh;
     max-inline-size: 140ch;
     margin-inline: auto;
     margin-block-start: calc(var(--body-margin-default) + 2rem);
@@ -15,14 +18,21 @@
   }
   &__count {
     color: var(--on-surface-variant);
+    --_size-min: 0.9;
+    --_size-max: 1;
+    font-size: var(--size-clamp);
   }
-  &__section {
-    margin-block-start: 4rem;
+
+  &__list {
+    margin-block-start: 1rem;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     justify-content: center;
     justify-items: center;
     gap: 1rem;
+    // For some reason that i cannot find overflow occurs when resizing the screen at some points when the grid auto-fill happens
+    //  even though the measures are always smaller by at least 15-25px from the edges of the screen
+    overflow-x: hidden;
   }
   &--hide {
     display: none;

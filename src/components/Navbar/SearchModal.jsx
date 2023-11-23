@@ -45,6 +45,7 @@ const SearchModal = forwardRef(function SearchModal(props, ref) {
             id='search-modal-minimize-tooltip'
             hasWrapper={true}>
             <button
+              type='button'
               className='search-modal__minimize has-tooltip-with-wrapper'
               aria-labelledby='search-modal-minimize-tooltip'
               aria-controls='search-modal'

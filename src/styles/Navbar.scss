@@ -33,10 +33,9 @@
   align-items: center;
   inline-size: 100%;
 
-  // @media only screen and (max-width: 50em) {
-  //   grid-template-columns: 1fr 1fr 1fr;
-  //   // grid-template-rows: auto;
-  // }
+  @media only screen and (max-width: 50em) {
+    grid-template-columns: 1fr 1fr;
+  }
 
   &__logo {
     font-size: 2rem;
@@ -44,9 +43,6 @@
   }
 
   &__search-button {
-    // @media only screen and (max-width: 50em) {
-    //   grid-column: 2 / -1;
-    // }
   }
 
   &__search-icon {
@@ -59,13 +55,13 @@
     display: flex;
     align-items: center;
     gap: 2vw;
-
-    // @media only screen and (max-width: 50em) {
-    //   grid-column: 2 / -1;
-    // }
+    @media only screen and (max-width: 50em) {
+      gap: 3vw;
+    }
   }
 
   &__nav {
+    margin-inline-end: 1rem;
     @media only screen and (max-width: 72em) {
       visibility: hidden;
       position: fixed;

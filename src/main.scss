@@ -98,9 +98,11 @@
   // Inside the code block of the use-case, local variables of min-max size must be declared as plain numbers
   // This clamp function can be used for font-size as well as length units eg padding
 
-  --root-font-size: 16; //also accessed by JS on page load if user changed the font-size
+  --root-font-size: 16; //also accessed by JS on page load if the user changed the font-size
   --max-vw: 1500;
   --min-vw: 320;
+  --size-min: var(--_size-min, 1rem);
+  --size-max: var(--_size-max, 2rem);
   // m = (y2-y1)/(x2-x1)
   --slope: calc(
     (var(--size-max) - var(--size-min)) /
@@ -110,7 +112,7 @@
   // b = y - mx
   // b= y-axis-intersection
   // m = slope
-  // Caution!!! >> pixel values in widths must be converted into rems
+  // Caution!!! >> pixel values in widths(pixels) must be converted into rems
   --Y-axis-intersection: calc(
     var(--size-min) - (var(--slope) * (var(--min-vw) / var(--root-font-size)))
   );
@@ -118,8 +120,6 @@
     (var(--Y-axis-intersection) * 1rem) + ((var(--slope) * 100) * 1vw)
   );
 
-  --size-min: var(--_size-min, 1rem);
-  --size-max: var(--_size-max, 2rem);
   --size-clamp: clamp(
     calc(var(--size-min) * 1rem),
     var(--dynamic-range),

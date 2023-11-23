@@ -17,6 +17,28 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
     </span>
   );
 
+  const calcDuration = (time) => {
+    if (time) {
+      const hours = Math.floor(time / 60);
+      const min = time % 60;
+
+      return (
+        <>
+          {hours !== 0 ? (
+            <>
+              {hours}h
+              <span className='visually-hidden'>
+                our{hours > 1 ? 's' : null}
+              </span>
+            </>
+          ) : null}
+          {min}m<span className='visually-hidden'>inutes</span>
+        </>
+      );
+    }
+    return noInfoSpan;
+  };
+
   const lightDismiss = (e) => {
     if (e.target.nodeName === 'DIALOG') {
       ref.current.close();
@@ -29,7 +51,7 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
 
   return (
     <dialog
-      id={`movie-modal-${movie._id}`}
+      id={`movie-modal-${movie._id ?? 0}`}
       className='movie-modal'
       ref={ref}
       onClick={lightDismiss}
@@ -39,16 +61,16 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
         <header className='movie-modal__header'>
           <h3 className='movie-modal__title'>
             <Link className='movie-modal__link'>
-              {movie?.title ?? 'Uknown Title'}
+              {movie.title ?? 'Uknown Title'}
             </Link>
           </h3>
           <button
-            aria-haspopup='dialog'
-            aria-controls={`movie-modal-${movie._id}`}
+            type='button'
+            aria-controls={`movie-modal-${movie._id ?? 0}`}
             aria-expanded='true'
             className='movie-modal__close-icon'
             onClick={() => ref.current.close()}>
-            <span className='visually-hidden'>Close Modal</span>
+            <span className='visually-hidden'>Close Dialog</span>
             <Icons name='close' />
           </button>
         </header>
@@ -57,7 +79,7 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
             <Link aria-hidden='true' tabIndex='-1'>
               <img
                 className='movie-modal__image'
-                src={movie?.poster ?? '/no_image.png'}
+                src={movie.poster ?? '/no_image.png'}
                 onError={(e) => (e.target.src = '/no_image.png')}
                 alt=''
                 width='70'
@@ -68,20 +90,20 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
               <ul className='movie-modal__info' aria-label='information'>
                 <li className='movie-modal__item movie-modal__item--information'>
                   <span className='visually-hidden'>year, </span>
-                  {movie?.year ?? noInfoSpan}
+                  {movie.year ?? noInfoSpan}
                 </li>
                 <li className='movie-modal__item movie-modal__item--information'>
                   <span className='visually-hidden'>duration, </span>
-                  {'2h 30m' ?? noInfoSpan}
+                  {calcDuration(movie.runtime)}
                 </li>
                 <li className='movie-modal__item movie-modal__item--information'>
                   <span className='visually-hidden'>classification, </span>
-                  {movie?.rated ?? noInfoSpan}
+                  {movie.rated ?? noInfoSpan}
                 </li>
               </ul>
 
-              <ul className='movie-modal__genres'>
-                {movie?.genres.map((data, i) => (
+              <ul className='movie-modal__genres' aria-label='genres'>
+                {movie.genres?.map((data, i) => (
                   <li
                     key={`${data}-${i}`}
                     className='movie-modal__item movie-modal__item--genres'>
@@ -94,34 +116,38 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
                 <li className='movie-modal__item movie-modal__item--ratings'>
                   <img src={imdb} alt='' width='22' height='22' />
                   <span className='visually-hidden'>imdb, </span>
-                  {movie?.imdb?.rating ?? noInfoSpan}
+                  {movie.imdb?.rating ?? noInfoSpan}
                 </li>
                 <li className='movie-modal__item movie-modal__item--ratings'>
                   <img src={tomatoes} alt='' width='22' height='22' />
                   <span className='visually-hidden'>rotten tomatoes, </span>
-                  {movie?.tomatoes?.critic?.rating ?? noInfoSpan}
+                  {movie.tomatoes?.critic?.rating ?? noInfoSpan}
                 </li>
                 <li
                   className='movie-modal__item movie-modal__item--ratings'
                   aria-label='genres'>
                   <img src={metacritic} alt='' width='22' height='22' />
                   <span className='visually-hidden'>metacritic, </span>
-                  {movie?.metacritic ?? noInfoSpan}
+                  {movie.metacritic ?? noInfoSpan}
                 </li>
               </ul>
             </div>
           </div>
-          <p className='movie-modal__plot'>{movie?.plot}</p>
+          <p className='movie-modal__plot'>{movie.plot ?? null}</p>
         </div>
         <footer className='movie-modal__footer'>
-          <button className='movie-modal__button movie-modal__button--watchlist'>
+          <button
+            type='button'
+            className='movie-modal__button movie-modal__button--watchlist'>
             <Icons
               name='plus'
               svgClassName='movie-modal__icon movie-modal__icon--plus'
             />{' '}
-            Watchlist
+            <span className='visually-hidden'>Add to </span>Watchlist
           </button>
-          <button className='movie-modal__button movie-modal__button--more'>
+          <button
+            type='button'
+            className='movie-modal__button movie-modal__button--more'>
             <Icons
               name='chevronRight'
               svgClassName='movie-modal__icon movie-modal__icon--right'
