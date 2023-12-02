@@ -8,6 +8,7 @@ const ProgressBar = () => {
 
   const normalized = loaded / size;
 
+  // When testing with NVDA SR the progress if the min-max values are set between 0-1 are not announced correctly so 0-100 is a must
   return (
     <>
       <div className='progress-bar'>
@@ -17,9 +18,9 @@ const ProgressBar = () => {
           role='progressbar'
           aria-label='Loading:'
           aria-valuemin='0'
-          aria-valuemax='1'
-          aria-valuenow={normalized}
-          hide={`${!isLoading}`}
+          aria-valuemax='100'
+          aria-valuenow={normalized * 100}
+          data-progressbar-hide={`${!isLoading}`}
           ref={(node) => {
             if (node)
               node.style.setProperty('--_load', isLoading ? normalized : 0);

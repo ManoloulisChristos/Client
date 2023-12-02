@@ -1,13 +1,12 @@
 import Icons from './Icons';
 import '../styles/Card.scss';
 import { Link, useNavigate } from 'react-router-dom';
-import { memo, useRef } from 'react';
+import { memo } from 'react';
 import Tooltip from './Tooltip';
-import MovieDetailsModal from '../features/Movies/MovieDetailsModal';
 
-const Card = memo(function Card({ movie }) {
+const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
   const navigate = useNavigate();
-  const dialogRef = useRef(null);
+
   const handleError = (e) => {
     e.target.src = '/no_image.png';
   };
@@ -63,9 +62,10 @@ const Card = memo(function Card({ movie }) {
                   className='card__button card__button--info has-tooltip-with-wrapper'
                   aria-labelledby={`${movie._id}-info`}
                   aria-haspopup='dialog'
-                  aria-controls={`movie-modal-${movie._id}`}
+                  aria-controls='movie-details-modal'
                   aria-expanded='false'
                   onClick={() => {
+                    setDialogMovie(movie);
                     dialogRef.current.showModal();
                     dialogRef.current.removeAttribute('inert');
                   }}>
@@ -83,7 +83,6 @@ const Card = memo(function Card({ movie }) {
               </button>
             </div>
           </li>
-          <MovieDetailsModal movie={movie} ref={dialogRef} />
         </>
       ) : null}
     </>

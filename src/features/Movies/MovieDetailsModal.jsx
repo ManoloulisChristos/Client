@@ -51,7 +51,7 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
 
   return (
     <dialog
-      id={`movie-modal-${movie._id ?? 0}`}
+      id='movie-details-modal'
       className='movie-modal'
       ref={ref}
       onClick={lightDismiss}
@@ -61,12 +61,12 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
         <header className='movie-modal__header'>
           <h3 className='movie-modal__title'>
             <Link className='movie-modal__link'>
-              {movie.title ?? 'Uknown Title'}
+              {movie?.title ?? 'Uknown Title'}
             </Link>
           </h3>
           <button
             type='button'
-            aria-controls={`movie-modal-${movie._id ?? 0}`}
+            aria-controls='movie-details-modal'
             aria-expanded='true'
             className='movie-modal__close-icon'
             onClick={() => ref.current.close()}>
@@ -79,7 +79,7 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
             <Link aria-hidden='true' tabIndex='-1'>
               <img
                 className='movie-modal__image'
-                src={movie.poster ?? '/no_image.png'}
+                src={movie?.poster ?? '/no_image.png'}
                 onError={(e) => (e.target.src = '/no_image.png')}
                 alt=''
                 width='70'
@@ -90,20 +90,20 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
               <ul className='movie-modal__info' aria-label='information'>
                 <li className='movie-modal__item movie-modal__item--information'>
                   <span className='visually-hidden'>year, </span>
-                  {movie.year ?? noInfoSpan}
+                  {movie?.year ?? noInfoSpan}
                 </li>
                 <li className='movie-modal__item movie-modal__item--information'>
                   <span className='visually-hidden'>duration, </span>
-                  {calcDuration(movie.runtime)}
+                  {calcDuration(movie?.runtime)}
                 </li>
                 <li className='movie-modal__item movie-modal__item--information'>
                   <span className='visually-hidden'>classification, </span>
-                  {movie.rated ?? noInfoSpan}
+                  {movie?.rated ?? noInfoSpan}
                 </li>
               </ul>
 
               <ul className='movie-modal__genres' aria-label='genres'>
-                {movie.genres?.map((data, i) => (
+                {movie?.genres?.map((data, i) => (
                   <li
                     key={`${data}-${i}`}
                     className='movie-modal__item movie-modal__item--genres'>
@@ -116,24 +116,24 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
                 <li className='movie-modal__item movie-modal__item--ratings'>
                   <img src={imdb} alt='' width='22' height='22' />
                   <span className='visually-hidden'>imdb, </span>
-                  {movie.imdb?.rating ?? noInfoSpan}
+                  {movie?.imdb?.rating ?? noInfoSpan}
                 </li>
                 <li className='movie-modal__item movie-modal__item--ratings'>
                   <img src={tomatoes} alt='' width='22' height='22' />
                   <span className='visually-hidden'>rotten tomatoes, </span>
-                  {movie.tomatoes?.critic?.rating ?? noInfoSpan}
+                  {movie?.tomatoes?.critic?.rating ?? noInfoSpan}
                 </li>
                 <li
                   className='movie-modal__item movie-modal__item--ratings'
                   aria-label='genres'>
                   <img src={metacritic} alt='' width='22' height='22' />
                   <span className='visually-hidden'>metacritic, </span>
-                  {movie.metacritic ?? noInfoSpan}
+                  {movie?.metacritic ?? noInfoSpan}
                 </li>
               </ul>
             </div>
           </div>
-          <p className='movie-modal__plot'>{movie.plot ?? null}</p>
+          <p className='movie-modal__plot'>{movie?.plot ?? null}</p>
         </div>
         <footer className='movie-modal__footer'>
           <button

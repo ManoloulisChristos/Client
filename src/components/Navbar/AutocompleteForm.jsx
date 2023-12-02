@@ -310,7 +310,11 @@ const AutocompleteForm = ({ searchModalRef }) => {
   }
 
   return (
-    <form role='search' className='autocomplete' onSubmit={handleSubmit}>
+    <form
+      id='autocomplete-form'
+      role='search'
+      className='autocomplete'
+      onSubmit={handleSubmit}>
       <label htmlFor='autocomplete-input' className='visually-hidden'>
         Search for movies and Tv-Shows
       </label>

@@ -55,6 +55,7 @@
   --on-surface-variant-light: 218deg 8% 28%;
   --outline-light: 224deg 5% 48%;
   --outline-variant-light: 229deg 10% 79%;
+  --surface0-light: var(--brand-hue) 0% 100%;
   --surface1-light: var(--brand-hue) 0% 96%;
   --surface2-light: var(--brand-hue) 0% 92%;
   --surface3-light: var(--brand-hue) 0% 89%;
@@ -70,6 +71,7 @@
   --on-surface-variant-dark: 229deg 10% 79%;
   --outline-dark: 220deg 6% 58%;
   --outline-variant-dark: 218deg 8% 28%;
+  --surface0-dark: var(--brand-hue) 2% 0%;
   --surface1-dark: var(--brand-hue) 2% 10%;
   --surface2-dark: var(--brand-hue) 2% 15%;
   --surface3-dark: var(--brand-hue) 2% 20%;
@@ -137,6 +139,7 @@
   --on-surface-variant: var(--on-surface-variant-light);
   --outline: var(--outline-light);
   --outline-variant: var(--outline-variant-light);
+  --surface0: var(--surface0-light);
   --surface1: var(--surface1-light);
   --surface2: var(--surface2-light);
   --surface3: var(--surface3-light);
@@ -159,6 +162,7 @@
     --on-surface-variant: var(--on-surface-variant-dark);
     --outline: var(--outline-dark);
     --outline-variant: var(--outline-variant-dark);
+    --surface0: var(--surface0-dark);
     --surface1: var(--surface1-dark);
     --surface2: var(--surface2-dark);
     --surface3: var(--surface3-dark);
@@ -181,6 +185,7 @@
   --on-surface-variant: var(--on-surface-variant-light);
   --outline: var(--outline-light);
   --outline-variant: var(--outline-variant-light);
+  --surface0: var(--surface0-light);
   --surface1: var(--surface1-light);
   --surface2: var(--surface2-light);
   --surface3: var(--surface3-light);
@@ -202,6 +207,7 @@
   --on-surface-variant: var(--on-surface-variant-dark);
   --outline: var(--outline-dark);
   --outline-variant: var(--outline-variant-dark);
+  --surface0: var(--surface0-dark);
   --surface1: var(--surface1-dark);
   --surface2: var(--surface2-dark);
   --surface3: var(--surface3-dark);
