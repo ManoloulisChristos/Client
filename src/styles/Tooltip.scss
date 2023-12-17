@@ -1,3 +1,5 @@
+/////// Warning!!! ///////
+// The tooltip causes overflow when it is attached to an element at the edge of the page
 .tooltip-wrapper {
   position: relative;
   inline-size: max-content;
@@ -18,7 +20,7 @@
   }
 }
 
-// Disable hover effect for touch-screens
+// Hover only when a pointer device is detected
 @media (pointer: fine) {
   // If the tooltip has wrapper it will be a sibling with the element that has-tooltip
   .has-tooltip-with-wrapper {

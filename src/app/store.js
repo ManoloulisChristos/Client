@@ -3,6 +3,7 @@ import { apiSlice } from '../features/api/apiSlice';
 import authReducer from '../features/auth/authSlice';
 import toastsReducer from '../features/toast/toastsSlice';
 import progressBarReducer from '../features/ProgressBar/progressBarSlice';
+import moviesToolbarReducer from '../features/Movies/moviesToolbarSlice';
 
 export default configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export default configureStore({
     auth: authReducer,
     toasts: toastsReducer,
     progressBar: progressBarReducer,
+    moviesToolbar: moviesToolbarReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),

@@ -1,19 +1,22 @@
 .movies-list-toolbar {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-around;
   align-items: center;
-  max-inline-size: 55ch;
-  margin-block-end: 2rem;
+  max-inline-size: 50ch;
+  margin-block-end: 2.5rem;
   padding-inline: 1rem;
   padding-block: 0.6rem;
   border-radius: 12px;
   background-color: hsl(var(--surface2));
   border: 2px solid transparent;
   box-shadow: var(--shadow-small);
+
   &:focus-within {
     border: 2px solid hsl(var(--primary));
   }
+
   &__sort-span {
+    color: hsl(var(--on-surface-variant));
   }
 
   &__menu-container {
@@ -23,36 +26,39 @@
   }
 
   &__menu-wrapper {
+    position: relative;
   }
+
   &__button {
-    font-size: 1rem;
-    // background-color: hsl(0deg 0% 100%);
-    background-color: hsl(var(--surface3));
-    padding-inline: 0.6rem;
-    padding-block: 0.3rem;
+    padding: 0.3rem;
     border-radius: 12px;
-    &:hover {
-      // background-color: hsl(var(--primary) / 0.2);
+    background-color: transparent;
+
+    @media (pointer: fine) {
+      &:is(:hover, :focus-visible) {
+        background-color: hsl(var(--background-outline));
+      }
     }
+
+    &:focus-visible {
+      outline: 2px solid hsl(var(--primary));
+    }
+
     &--menu {
       position: relative;
       display: flex;
       align-items: center;
-      gap: 0.5ch;
+      inline-size: 10ch;
       padding-inline: 0.6rem;
       padding-block: 0.3rem;
       border-radius: 12px;
+      font-size: 1rem;
       font-weight: 500;
       color: hsl(var(--primary));
-      // background-color: hsl(var(--surface0) / 1);
       background-color: hsl(var(--surface2));
       border: 1px solid hsl(var(--outline));
-      &:hover,
+
       &:focus-visible {
-        background-color: hsl(var(--background-outline));
-      }
-      &:focus-visible {
-        outline: 2px solid hsl(var(--primary));
         outline-offset: 2px;
       }
     }
@@ -61,36 +67,205 @@
     }
     &--radio {
     }
+
+    &--sort {
+      &[aria-disabled='true']:hover {
+        background-color: transparent;
+        cursor: not-allowed;
+      }
+    }
+    &--go {
+      padding: 0.3rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: hsl(var(--on-surface-variant));
+      border: 1px solid hsl(var(--outline));
+      border-radius: 12px;
+
+      &:not([aria-disabled='true']):hover {
+        color: hsl(var(--inverse-surface));
+      }
+
+      &[aria-disabled='true'] {
+        &:hover {
+          background-color: transparent;
+          cursor: not-allowed;
+        }
+      }
+
+      &:focus-visible {
+        outline-offset: 2px;
+      }
+    }
   }
+
   &__menu {
     position: absolute;
+    inset-block-start: 110%;
     display: none;
+    inline-size: 100%;
+    padding-block: 0.2ch;
+    border-radius: 6px;
+    background-color: hsl(var(--surface1));
+    box-shadow: var(--shadow-medium);
+
     &[data-open='true'] {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      @media (prefers-reduced-motion: no-preference) {
+        animation: menu-slide-down 0.3s ease;
+      }
     }
   }
-  &__icon {
-    &--triangle {
-      transform: rotate(180deg);
-      fill: hsl(var(--primary));
-      stroke: hsl(var(--primary));
+  @keyframes menu-slide-down {
+    0% {
+      transform: translateY(-20%);
+      opacity: 0;
+      z-index: -1;
     }
-
-    &--repeat {
-      transform: rotate(0deg);
+    100% {
+      transform: translateY(0%);
+      opacity: 1;
+      z-index: 10;
     }
   }
 
   &__menu-item {
   }
   &__item-button {
+    inline-size: 100%;
+    text-align: left;
+    padding-block: 0.2ex;
+    padding-inline-start: 1ch;
+    font-size: 1rem;
+    background-color: transparent;
+    border-block: 2px solid transparent;
+
+    &[aria-checked='true'] {
+      color: hsl(var(--primary) / 0.8);
+    }
+    &:is(:hover, :focus-visible) {
+      background-color: hsl(var(--background-outline));
+    }
+    &:focus-visible {
+      outline: none;
+      border-color: hsl(var(--primary));
+    }
   }
-  &__sort-button {
-  }
+
   &__radiogroup {
     display: flex;
     align-items: center;
   }
   &__radio-button {
+  }
+
+  &__spin-wrapper {
+    display: flex;
+    gap: 1ch;
+  }
+
+  &__spin-button {
+    display: flex;
+    gap: 1ch;
+    padding-block: 0.3rem;
+    padding-inline: 0.6rem;
+    border: 1px solid hsl(var(--outline));
+    border-radius: 12px;
+
+    &:focus-visible {
+      outline: 2px solid hsl(var(--primary));
+      outline-offset: 2px;
+    }
+  }
+
+  &__spin-value {
+    font-variant-numeric: diagonal-fractions;
+    font-weight: 500;
+    inline-size: 2.5ch;
+    color: hsl(var(--on-surface));
+  }
+
+  &__spin-total {
+    font-size: 1.2rem;
+  }
+
+  &__spin-divider {
+    display: flex;
+    gap: 0.3ch;
+  }
+  &__spin-increase {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+  }
+  &__spin-decrease {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+  }
+
+  &__icon {
+    fill: hsl(var(--on-surface-variant));
+    stroke: hsl(var(--on-surface-variant));
+    &--triangle {
+      transform: rotate(180deg);
+      fill: hsl(var(--primary));
+      stroke: hsl(var(--primary));
+      margin-inline-start: auto;
+    }
+
+    &--sort {
+      .movies-list-toolbar__button--sort[aria-disabled='false'][aria-pressed='false']
+        &-arrow-up {
+        stroke: hsl(var(--primary));
+        fill: hsl(var(--primary));
+        @media (prefers-reduced-motion: no-preference) {
+          transition: fill 0.125s, stroke 0.125s;
+        }
+      }
+      .movies-list-toolbar__button--sort[aria-disabled='false'][aria-pressed='true']
+        &-arrow-down {
+        stroke: hsl(var(--primary));
+        fill: hsl(var(--primary));
+        @media (prefers-reduced-motion: no-preference) {
+          transition: fill 0.125s, stroke 0.125s;
+        }
+      }
+    }
+    &--grid {
+      .movies-list-toolbar__button--radio-one[aria-checked='true'] & {
+        stroke: hsl(var(--primary));
+        fill: hsl(var(--primary));
+        @media (prefers-reduced-motion: no-preference) {
+          transition: fill 0.125s, stroke 0.125s;
+        }
+      }
+    }
+
+    &--list {
+      .movies-list-toolbar__button--radio-two[aria-checked='true'] & {
+        stroke: hsl(var(--primary));
+        fill: hsl(var(--primary));
+        @media (prefers-reduced-motion: no-preference) {
+          transition: fill 0.125s, stroke 0.125s;
+        }
+      }
+    }
+
+    &--increase {
+      .movies-list-toolbar__spin-increase:hover & {
+        fill: hsl(var(--primary));
+        stroke: hsl(var(--primary));
+      }
+    }
+
+    &--decrease {
+      transform: rotate(180deg);
+      .movies-list-toolbar__spin-decrease:hover & {
+        fill: hsl(var(--primary));
+        stroke: hsl(var(--primary));
+      }
+    }
   }
 }

@@ -1,33 +1,36 @@
 import { useState, useLayoutEffect, useRef, useCallback, memo } from 'react';
 import { useGetMoviesWithTitleQuery } from './moviesApiSlice';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import Card from '../../components/Card';
-import {
-  sizeValue,
-  loadValue,
-  reset,
-  notLoading,
-} from '../ProgressBar/progressBarSlice';
-import { useDispatch } from 'react-redux';
-import ProgressBar from '../ProgressBar/ProgressBar';
+import ProgressBar from './ProgressBar';
 import Spinner from '../../components/Spinner';
-import '../../styles/MoviesList.scss';
-import MovieListToolbar from './MoviesListToolbar';
+import MoviesListToolbar from './MoviesListToolbar';
 import MovieDetailsModal from './MovieDetailsModal';
+import '../../styles/MoviesList.scss';
 
 // The data are coming as an array with 2 objects
-// 1. The movies that are requested, are nested inside as an Array
-// 2. The total count of the documents is nested inside an Object
+// 1. The movies that are nested inside as an Array of Objects
+// 2. The total count of the documents that is also nested inside an Object
 
 const MoviesList = () => {
   const params = useParams();
   const { title } = params;
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const dispatch = useDispatch();
+  //WRONG!!
+  // Pass all the query params into an object
+  const queryObj = {};
+  if (searchParams.toString) {
+    for (const [key, value] of searchParams) {
+      queryObj[key] = value;
+    }
+  }
 
   const [initial, setInitial] = useState(true);
-  const [show, setShow] = useState(false);
-  const [prevTitle, setPrevTitle] = useState(title);
+  const [show, setShow] = useState(false); //Responsible for showing new results and replacing old during rendering when the images are finished loading,
+  // the value is handled by the Render Images Component. In the case I get 0 movies back it is handled inside the Layout Effect,
+  // the value resets during rendering when the title in the URL changes
+  const [prevTitle, setPrevTitle] = useState(title); //Used to compare title values(prev-curr) during rendering
   const [trackMovies, setTrackMovies] = useState({
     previous: [],
     current: [],
@@ -35,12 +38,14 @@ const MoviesList = () => {
     currentTitle: '',
   });
   const [dialogMovie, setDialogMovie] = useState();
-  // Forces aria-live to announce the results even if it has the same number of results
-  const [hasDot, setHasDot] = useState(false);
   const counterRef = useRef(new Set());
   const dialogRef = useRef(null);
 
-  const { currentData } = useGetMoviesWithTitleQuery(title);
+  const [progressBarSize, setProgressBarSize] = useState(0);
+  const [progressBarLoaded, setProgressBarLoaded] = useState(0);
+  const [isProgressBarLoading, setIsProgressBarLoading] = useState(false);
+
+  const { currentData } = useGetMoviesWithTitleQuery(title, queryObj);
 
   if (initial && currentData && !trackMovies.current.length) {
     setTrackMovies((s) => ({
@@ -50,10 +55,12 @@ const MoviesList = () => {
       previousTitle: title,
       currentTitle: title,
     }));
+    setIsProgressBarLoading(true);
+    setProgressBarSize(currentData[0].movies.length);
   }
 
   // When the title changes >> update the previous values to the current ones (current has values from the previous render at this moment)
-  // but leave the current value intact and update it in the layoutEffect because the Set in the ref has to be updated first and
+  // but leave the current value intact and update it in the Layout Effect because the Set in the ref has to be updated first(cannot access refs during rendering) and
   // it ensures that currentData exists.
 
   if (prevTitle !== title) {
@@ -65,7 +72,8 @@ const MoviesList = () => {
       previousTitle: s.currentTitle,
       currentTitle: title,
     }));
-    dispatch(reset());
+    setProgressBarLoaded(0);
+    setProgressBarSize(0);
   }
 
   // Here a check for duplicate movies is happening to populate the Set with already loaded images
@@ -87,30 +95,32 @@ const MoviesList = () => {
         duplicates.forEach((item) => set.add(item));
       }
 
-      if (
-        trackMovies?.current[0]?.countResults?.count?.lowerBound ===
-        currentData?.[0]?.countResults?.count?.lowerBound
-      ) {
-        setHasDot((n) => !n);
-      }
-
       setTrackMovies((s) => ({
         ...s,
         current: currentData,
       }));
 
-      dispatch(sizeValue(currMovies.length));
+      if (currentData[0].movies.length) {
+        setProgressBarSize(currMovies.length);
+        setIsProgressBarLoading(true);
+      } else {
+        setShow(true);
+        setIsProgressBarLoading(false);
+        setInitial(false);
+      }
     }
-  }, [currentData, dispatch]);
+  }, [currentData]);
 
+  // Used only in Images Component to decide when all the images have been loaded
   const imagesReady = useCallback(() => {
-    const currMovies = currentData?.[0].movies;
+    const currMovies = currentData[0].movies;
+
     if (counterRef.current.size === currMovies.length) {
       setShow(true);
       setInitial(false);
-      dispatch(notLoading());
+      setIsProgressBarLoading(false);
     }
-  }, [currentData, dispatch]);
+  }, [currentData]);
 
   let content;
   let searchTitle;
@@ -125,8 +135,12 @@ const MoviesList = () => {
 
   return (
     <>
-      <ProgressBar />
-      {/* One dialog element is rendered here for all Card components, because rendering one for each Card slows down the whole app,
+      <ProgressBar
+        size={progressBarSize}
+        loaded={progressBarLoaded}
+        isLoading={isProgressBarLoading}
+      />
+      {/* Only one dialog element is rendered here for all Card components, because rendering one for each Card slows down the whole app,
        eg: I get more than 130ms recalculation of styles when a user presses the theme toggle button which is obvious and annoying.
        So one global id is used for all the buttons that control the opening of the dialog in all Card components  */}
       <MovieDetailsModal movie={dialogMovie} ref={dialogRef} />
@@ -149,23 +163,39 @@ const MoviesList = () => {
               htmlFor='autocomplete-input'
               name='search-total-results'
               className='movies__count'>
-              {totalResults} total results
-              <span className='visually-hidden'>{hasDot ? <>.</> : null}</span>
+              <span className='visually-hidden'>
+                {isProgressBarLoading ? (
+                  'Loading'
+                ) : (
+                  <>{totalResults} total results</>
+                )}
+              </span>
+              <span aria-hidden='true'>{totalResults} total results</span>
             </output>
           </hgroup>
-          <div className='movies__divider'>
-            <MovieListToolbar />
-            <ul className='movies__list'>
-              {movies?.map((movie) => (
-                <Card
-                  movie={movie}
-                  key={`${movie?._id}`}
-                  dialogRef={dialogRef}
-                  setDialogMovie={setDialogMovie}
-                />
-              ))}
-            </ul>
-          </div>
+          {movies.length ? (
+            <div className='movies__divider'>
+              <MoviesListToolbar
+                totalResults={totalResults}
+                moviesLoaded={show}
+              />
+              <ul className='movies__list'>
+                {movies?.map((movie) => (
+                  <Card
+                    movie={movie}
+                    key={`${movie?._id}`}
+                    dialogRef={dialogRef}
+                    setDialogMovie={setDialogMovie}
+                  />
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p>
+              Sorry! No results were found for your specific search, try
+              something else.
+            </p>
+          )}
         </section>
       )}
       {currentData?.[0].movies?.map((movie) => (
@@ -175,6 +205,7 @@ const MoviesList = () => {
           counterRef={counterRef}
           imagesReady={imagesReady}
           id={movie?._id}
+          setProgressBarLoaded={setProgressBarLoaded}
         />
       ))}
     </>
@@ -188,14 +219,13 @@ const RenderImages = memo(function RenderImages({
   imagesReady,
   counterRef,
   id,
+  setProgressBarLoaded,
 }) {
-  const dispatch = useDispatch();
-
   // If i get an error on an image the src value is set to the fallback image from the onError event
   // and the onLoad event triggers either way adding it to the Set
   const handleLoad = () => {
     counterRef.current.add(id);
-    dispatch(loadValue(counterRef.current.size));
+    setProgressBarLoaded(counterRef.current.size);
     imagesReady();
   };
 

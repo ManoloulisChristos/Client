@@ -65,7 +65,7 @@ const InfoIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
     <circle cx='12' cy='12' r='10'></circle>
     <line x1='12' y1='16' x2='12' y2='12'></line>
-    {/* <line x1='12' y1='8' x2='12.01' y2='8'></line> */}
+
     <circle cx='12' cy='8' r='.3'></circle>
   </IconWrapper>
 );
@@ -98,6 +98,14 @@ const ArrowRightIcon = ({ width, height, svgClassName }) => (
   </IconWrapper>
 );
 
+const ArrowRightCircleIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <circle cx='12' cy='12' r='10'></circle>
+    <polyline points='12 16 16 12 12 8'></polyline>
+    <line x1='8' y1='12' x2='16' y2='12'></line>
+  </IconWrapper>
+);
+
 const TriangleIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
     <path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path>
@@ -106,21 +114,26 @@ const TriangleIcon = ({ width, height, svgClassName }) => (
 
 const GridIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
-    <rect x='3' y='3' width='7' height='7'></rect>
-    <rect x='14' y='3' width='7' height='7'></rect>
-    <rect x='14' y='14' width='7' height='7'></rect>
-    <rect x='3' y='14' width='7' height='7'></rect>
+    <rect x='2' y='3' width='3' height='3'></rect>
+    <rect x='10' y='3' width='3' height='3'></rect>
+    <rect x='18' y='3' width='3' height='3'></rect>
+    <rect x='2' y='11' width='3' height='3'></rect>
+    <rect x='10' y='11' width='3' height='3'></rect>
+    <rect x='18' y='11' width='3' height='3'></rect>
+    <rect x='2' y='19' width='3' height='3'></rect>
+    <rect x='10' y='19' width='3' height='3'></rect>
+    <rect x='18' y='19' width='3' height='3'></rect>
   </IconWrapper>
 );
 
 const ListIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
-    <line x1='8' y1='6' x2='21' y2='6'></line>
-    <line x1='8' y1='12' x2='21' y2='12'></line>
-    <line x1='8' y1='18' x2='21' y2='18'></line>
-    <line x1='3' y1='6' x2='3.01' y2='6'></line>
-    <line x1='3' y1='12' x2='3.01' y2='12'></line>
-    <line x1='3' y1='18' x2='3.01' y2='18'></line>
+    <line x1='8' y1='6' x2='21' y2='6' strokeWidth='2.5'></line>
+    <line x1='8' y1='13' x2='21' y2='13' strokeWidth='2.5'></line>
+    <line x1='8' y1='20' x2='21' y2='20' strokeWidth='2.5'></line>
+    <line x1='3' y1='6' x2='3.01' y2='6' strokeWidth='2.5'></line>
+    <line x1='3' y1='13' x2='3.01' y2='13' strokeWidth='2.5'></line>
+    <line x1='3' y1='20' x2='3.01' y2='20' strokeWidth='2.5'></line>
   </IconWrapper>
 );
 
@@ -136,11 +149,21 @@ const ShuffleIcon = ({ width, height, svgClassName }) => (
 
 const SortIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
-    <line x1='1' y1='0' y2='24' x2='1'></line>
-    <line x1='0' y1='1' y2='1' x2='24'></line>
-    <polygon points='4.5 6 8 2 11.5 6'></polygon>
-    <line x1='8' y1='6' x2='8' y2='18'></line>
-    <polygon points='19.5 20 16 23 12.5 20'></polygon>
+    <g>
+      <polygon points='5 6 8 2 11 6'></polygon>
+      <line x1='8' y1='6' x2='8' y2='16' strokeWidth='2'></line>
+    </g>
+    <g>
+      <polygon points='19 19 16 23 13 19'></polygon>
+      <line x1='16' y1='9' x2='16' y2='19' strokeWidth='2'></line>
+    </g>
+  </IconWrapper>
+);
+
+const NotAllowedIconIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <circle cx='12' cy='12' r='11'></circle>
+    <line x1='4.5' y1='4' x2='20' y2='19.5'></line>
   </IconWrapper>
 );
 
@@ -155,12 +178,14 @@ const iconsMap = {
   helpCircle: HelpCircleIcon,
   chevronRight: ChevronRightIcon,
   arrowRight: ArrowRightIcon,
+  arrowRightCircle: ArrowRightCircleIcon,
   minimize: MinimizeIcon,
   triangle: TriangleIcon,
   grid: GridIcon,
   list: ListIcon,
   shuffle: ShuffleIcon,
   sort: SortIcon,
+  notAllowed: NotAllowedIconIcon,
 };
 
 // All the icons are wrapped with an svg element which has a standard viewbox since all icons come from feathericons.com

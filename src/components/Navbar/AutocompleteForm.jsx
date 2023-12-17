@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAutocompleteQuery } from '../../features/api/apiSlice';
-import { useNavigate } from 'react-router-dom';
 import Tooltip from '../Tooltip';
 import '../../styles/Navbar.scss';
 
@@ -15,6 +14,34 @@ const AutocompleteForm = ({ searchModalRef }) => {
   const itemsRef = useRef(null);
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  let queryValue = '?sortBy=Default&sort=-1&page=1'; //Default query
+  // Check to see if there are any search params and if there are and all values are correct change the queryValue variable and use it
+  // when a request is done to the movies-list component otherwise use the default
+  if (searchParams.toString()) {
+    let sortByValue = 'Default';
+    let sortValue = '-1'; //  -1 or 1 for descending ascending order does not work with sortBy = 'Default'
+
+    const sortByAcceptedValues = [
+      'Default',
+      'A-Z',
+      'Rating',
+      'Runtime',
+      'Year',
+    ];
+    const sortBy = searchParams.get('sortBy');
+    const sort = searchParams.get('sort');
+
+    if (sortByAcceptedValues.includes(sortBy)) {
+      sortByValue = sortBy;
+      if (sortBy !== 'Default' && (sort === 1 || sort === -1)) {
+        sortValue = sort;
+      }
+    }
+
+    queryValue = `?sortBy=${sortByValue}&sort=${sortValue}&page=1`;
+  }
+  // console.log(queryValue);
 
   const { data, currentData } = useAutocompleteQuery(inputValue, {
     skip: querySkip,
@@ -128,7 +155,7 @@ const AutocompleteForm = ({ searchModalRef }) => {
         setIsNotOpenWithCondition();
         break;
 
-      // Default behavior happens in the 2 first statements >>> onSubmit is triggered
+      // Default event behavior happens in the 2 first statements >>> onSubmit is triggered
       case 'Enter':
         if (inputValue && visualFocus === 0) {
           break;
@@ -169,7 +196,7 @@ const AutocompleteForm = ({ searchModalRef }) => {
       setIsNotOpenWithCondition();
       setVisualFocusZeroWithCondition();
       setQuerySkip(true);
-      navigate(`/search/title/${inputValue}`);
+      navigate(`/search/title/${inputValue}${queryValue}`);
       closeSearchModal();
     }
   };

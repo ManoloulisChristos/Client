@@ -1,11 +1,6 @@
-import { useSelector } from 'react-redux';
 import '../../styles/ProgressBar.scss';
 
-const ProgressBar = () => {
-  const size = useSelector((state) => state.progressBar.size);
-  const loaded = useSelector((state) => state.progressBar.loaded);
-  const isLoading = useSelector((state) => state.progressBar.isLoading);
-
+const ProgressBar = ({ size, loaded, isLoading }) => {
   const normalized = loaded / size;
 
   // When testing with NVDA SR the progress if the min-max values are set between 0-1 are not announced correctly so 0-100 is a must

@@ -49,7 +49,8 @@ const moviesApiSlice = apiSlice.injectEndpoints({
     }),
 
     getMoviesWithTitle: build.query({
-      query: (title) => `/search/title/${title}`,
+      query: (title, query) =>
+        `/search/title/${title}?sortBy=${query?.sortBy}&sort=${query?.sort}&page=${query?.page}`,
     }),
   }),
 });

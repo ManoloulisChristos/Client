@@ -10,6 +10,9 @@ import '../styles/Tooltip.scss';
 // there is nothing running, no tasks to CPU or GPU.
 // On close inspection when a task is running through the animation, i get normal frames and when there is nothing i get dropped frames
 
+/////// Warning!!! ///////
+// The tooltip causes overflow when it is attached to an element at the edge of the page and scrollbars appear.
+
 ////// IMPORTANT!!! /////
 // 1. The element that the tooltip is referring to, either inside the wrapper or out of it must have the
 // class 'has-tooltip' or 'has-tooltip-with-wrapper'

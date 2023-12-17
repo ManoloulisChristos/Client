@@ -271,6 +271,14 @@ button {
   white-space: nowrap;
 }
 
+// Imply the element is disabled when forced colors is enabled
+@media (forced-colors: active) {
+  [aria-disabled='true'] {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}
+
 // Generic class for all the svg elements inside the Icons component
 .icons-default {
   stroke: hsl(var(--on-surface));

@@ -6,7 +6,10 @@
     max-inline-size: 140ch;
     margin-inline: auto;
     margin-block-start: calc(var(--body-margin-default) + 2rem);
-    padding-inline: 1rem;
+    padding-inline: 1.4rem;
+    @media only screen and (max-width: 72em) {
+      padding-inline: 1rem;
+    }
   }
   &__header {
     --_size-min: 1.6;
@@ -32,7 +35,7 @@
     gap: 1rem;
     // For some reason that i cannot find overflow occurs when resizing the screen at some points when the grid auto-fill happens
     //  even though the measures are always smaller by at least 15-25px from the edges of the screen
-    overflow-x: hidden;
+    // overflow-x: hidden;
   }
   &--hide {
     display: none;
