@@ -6,49 +6,24 @@ import { updateView } from './moviesToolbarSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 
-function MovieListToolbar({ totalResults, newMoviesLoaded }) {
+function MovieListToolbar({
+  totalResults,
+  newMoviesLoaded,
+  sortByQuery,
+  sortQuery,
+  pageQuery,
+}) {
   const dispatch = useDispatch();
   const view = useSelector((state) => state.moviesToolbar.view); //state to persist the display view of the component between page transitions
 
   const [searchParams, setSearchParams] = useSearchParams();
-
-  // Checks the URLSearchParams and provides values to the component based on the URL both on updates and initial load!
-  let queryString = 'sortBy=Default&sort=-1&page=1'; //Default query
-  let sortByQuery = 'Default';
-  let sortQuery = '-1'; // -1 or 1 for descending/ascending order;
-  let pageQuery = '1';
-  const sortByAcceptedValues = ['Default', 'A-Z', 'Rating', 'Runtime', 'Year']; //The order of the items is important because it is the same as the menu-items
-  // Check to see if there are any search params and if there are and all values are correct change the queryString variable and use it
-  // when a request is done to the movies-list component otherwise use the default
-  if (searchParams.toString()) {
-    const sortBy = searchParams.get('sortBy');
-    const sort = searchParams.get('sort');
-    const page = searchParams.get('page');
-    if (sortByAcceptedValues.includes(sortBy)) {
-      sortByQuery = sortBy;
-      if (sort === '1' || sort === '-1') {
-        sortQuery = sort;
-      }
-    }
-    if (parseInt(page) > 1 && parseInt(page) < 1000) {
-      pageQuery = page;
-    }
-
-    queryString = `sortBy=${sortByQuery}&sort=${sortQuery}&page=${pageQuery}`;
-  }
-
-  const [trackQueryString, setTrackQueryString] = useState(queryString); //Whenever the query changes via the toolbar
-  // this must keep track of the new query so the component knows if a different URL is received and update the corresponding values.
-
+  const sortByAcceptedValues = ['Default', 'A-Z', 'Rating', 'Runtime', 'Year'];
   /////// All state values that are used for requesting data from the API are connected to the URL and vice versa ////////
   const [menuButtonValue, setMenuButtonValue] = useState(sortByQuery);
-  const [sortButtonPressed, setSortButtonPressed] = useState(() => {
-    if (sortQuery === '1') {
-      return false;
-    } else {
-      return true;
-    }
-  });
+  const [sortButtonPressed, setSortButtonPressed] = useState(() =>
+    sortQuery === '-1' ? true : false
+  );
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [toolbarIndex, setToolbarIndex] = useState(0);
   const [menuIndex, setMenuIndex] = useState(0);
@@ -70,18 +45,18 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
 
   const currentPage = Number(pageQuery); // Used to compare the current page with the spin-button value(number) and disable the go button if they are equal
 
-  // Handles the case when the URL changes from another source.
-  if (queryString !== trackQueryString) {
-    console.log('first');
-    setTrackQueryString(queryString);
+  const sortValueToString = sortButtonPressed ? '-1' : '1';
+
+  if (sortValueToString !== sortQuery) {
+    setSortButtonPressed(sortQuery === '-1' ? true : false);
+  }
+
+  if (menuButtonValue !== sortByQuery) {
     setMenuButtonValue(sortByQuery);
-    setMenuOptionChecked(sortByAcceptedValues.indexOf(sortByQuery));
-    if (sortQuery === '1') {
-      setSortButtonPressed(false);
-    } else {
-      setSortButtonPressed(true);
-    }
-    setSpinButtonValue(Number(pageQuery));
+  }
+
+  if (spinButtonValue.toString() !== pageQuery) {
+    setSpinButtonValue(parseInt(pageQuery));
   }
 
   // Updates the query string and also changes the URL accordingly (this forces an update to the movies list and new request)
@@ -97,7 +72,6 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
     }
     const params = new URLSearchParams(obj);
     setSearchParams(params);
-    setTrackQueryString(params.toString());
   };
 
   /////// How focus works ////////
@@ -114,15 +88,8 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
   // Although that the focus could be set inside the event handler directly and no problems occur, useEffect hook is used to keep
   // it in sync with the state of the index value
 
-  //////// Caviats (v2 of the component)////////
   // All the values of the indexes and the aria states are managed with Numbers based on insertion order and are hard-coded
-  // An improvement will be to manage them based on their values and be more dynamic
-
-  // Another thing to implement is the component to wait until the movies are fetched when you hit the back button before
-  // it updates its values and be in sync with MoviesList component, so the values must be dependent on props and not on the URL
-  // It needs more logic atm and i have already invested a lot of time in this component. Small details break the component like when the progressbar loads etc.
-  // It is a small detail because when the back button is hit it is usually in the cache exept when a lot of time has passed
-  // so the re-render is instant and wont cause (a lot of) confusion.
+  // An improvement will be to manage them based on their values and be more dynamic(v2 of the component)
 
   const getToolbarMap = () => {
     if (!toolbarItemsRef.current) {
@@ -636,6 +603,12 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
             Go
           </button>
         </Tooltip>
+        <button
+          onClick={() =>
+            setSearchParams({ sortBy: 'Runtime', sort: '-1', page: '2' })
+          }>
+          R
+        </button>
       </div>
     </div>
   );

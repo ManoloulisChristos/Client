@@ -15,12 +15,12 @@ const AutocompleteForm = ({ searchModalRef }) => {
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  let queryValue = '?sortBy=Default&sort=-1&page=1'; //Default query
-  // Check to see if there are any search params and if there are and all values are correct change the queryValue variable and use it
+  let queryString = 'sortBy=Default&sort=-1&page=1'; //Default query
+  // Check to see if there are any search params and if there are and all values are correct change the queryString variable and use it
   // when a request is done to the movies-list component otherwise use the default
   if (searchParams.toString()) {
     let sortByValue = 'Default';
-    let sortValue = '-1'; //  -1 or 1 for descending ascending order does not work with sortBy = 'Default'
+    let sortValue = '-1'; //  -1 or 1 for descending ascending order
 
     const sortByAcceptedValues = [
       'Default',
@@ -34,14 +34,13 @@ const AutocompleteForm = ({ searchModalRef }) => {
 
     if (sortByAcceptedValues.includes(sortBy)) {
       sortByValue = sortBy;
-      if (sortBy !== 'Default' && (sort === 1 || sort === -1)) {
+      if (sort === 1 || sort === -1) {
         sortValue = sort;
       }
     }
 
-    queryValue = `?sortBy=${sortByValue}&sort=${sortValue}&page=1`;
+    queryString = `sortBy=${sortByValue}&sort=${sortValue}&page=1`;
   }
-  // console.log(queryValue);
 
   const { data, currentData } = useAutocompleteQuery(inputValue, {
     skip: querySkip,
@@ -196,7 +195,7 @@ const AutocompleteForm = ({ searchModalRef }) => {
       setIsNotOpenWithCondition();
       setVisualFocusZeroWithCondition();
       setQuerySkip(true);
-      navigate(`/search/title/${inputValue}${queryValue}`);
+      navigate(`/search/title/${inputValue}?${queryString}`);
       closeSearchModal();
     }
   };

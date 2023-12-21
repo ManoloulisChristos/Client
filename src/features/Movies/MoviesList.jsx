@@ -1,6 +1,14 @@
-import { useState, useLayoutEffect, useRef, useCallback, memo } from 'react';
+import {
+  useState,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+  memo,
+  useMemo,
+  useEffect,
+} from 'react';
 import { useGetMoviesWithTitleQuery } from './moviesApiSlice';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import Card from '../../components/Card';
 import ProgressBar from './ProgressBar';
 import Spinner from '../../components/Spinner';
@@ -15,14 +23,27 @@ import '../../styles/MoviesList.scss';
 const MoviesList = () => {
   const params = useParams();
   const { title } = params;
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  //WRONG!!
-  // Pass all the query params into an object
-  const queryObj = {};
-  if (searchParams.toString) {
-    for (const [key, value] of searchParams) {
-      queryObj[key] = value;
+  // Checks the URLSearchParams and asign defaults
+  let sortByQuery = 'Default';
+  let sortQuery = '-1'; // -1 or 1 for descending/ascending order;
+  let pageQuery = '1';
+  const sortByAcceptedValues = ['Default', 'A-Z', 'Rating', 'Runtime', 'Year'];
+  // Check to see if there are any search params and if there are check if all values are correct.
+  if (searchParams.toString()) {
+    const sortBy = searchParams.get('sortBy');
+    const sort = searchParams.get('sort');
+    const page = searchParams.get('page');
+    if (sortByAcceptedValues.includes(sortBy)) {
+      sortByQuery = sortBy;
+    }
+    if (sort === '1' || sort === '-1') {
+      sortQuery = sort;
+    }
+    if (parseInt(page) > 1 && parseInt(page) < 1000) {
+      pageQuery = page;
     }
   }
 
@@ -30,7 +51,7 @@ const MoviesList = () => {
   const [show, setShow] = useState(false); //Responsible for showing new results and replacing old during rendering when the images are finished loading,
   // the value is handled by the Render Images Component. In the case I get 0 movies back it is handled inside the Layout Effect,
   // the value resets during rendering when the title in the URL changes
-  const [prevTitle, setPrevTitle] = useState(title); //Used to compare title values(prev-curr) during rendering
+  const [prevLocationKey, setPrevLocationKey] = useState(location.key);
   const [trackMovies, setTrackMovies] = useState({
     previous: [],
     current: [],
@@ -45,8 +66,18 @@ const MoviesList = () => {
   const [progressBarLoaded, setProgressBarLoaded] = useState(0);
   const [isProgressBarLoading, setIsProgressBarLoading] = useState(false);
 
-  const { currentData } = useGetMoviesWithTitleQuery(title, queryObj);
+  const endpointObject = useMemo(
+    () => ({
+      title,
+      sortByQuery,
+      sortQuery,
+      pageQuery,
+    }),
+    [title, sortByQuery, sortQuery, pageQuery]
+  );
+  const { currentData } = useGetMoviesWithTitleQuery(endpointObject);
 
+  ///////// Page Load //////////
   if (initial && currentData && !trackMovies.current.length) {
     setTrackMovies((s) => ({
       ...s,
@@ -59,12 +90,32 @@ const MoviesList = () => {
     setProgressBarSize(currentData[0].movies.length);
   }
 
-  // When the title changes >> update the previous values to the current ones (current has values from the previous render at this moment)
+  useEffect(() => {
+    // When a user changes the URL manually all query values are checked and coerced to valid ones (above).
+    // If he then presses Enter this causes a full page load so I only need to check if the values are different from the expected ones
+    // only one time and that is the first time the component runs (this is the reason for disabling the linter).
+    // After that I coerce the URL to the valid one so it is in sync with what appears on the screen.
+    // The useEffect hook is used because setSearchParams cannot be used in conjunction with the setters of the component during rendering.
+    // (throws Error of multiple components rendering together, RouterProvider + MoviesList)
+    if (
+      `sortBy=${sortByQuery}&sort=${sortQuery}&page=${pageQuery}` !==
+      searchParams.toString()
+    ) {
+      setSearchParams({
+        sortBy: sortByQuery,
+        sort: sortQuery,
+        page: pageQuery,
+      });
+    }
+    //eslint-disable-next-line
+  }, []);
+
+  // When the location changes >> update the previous values to the current ones (current has values from the previous render at this moment)
   // but leave the current value intact and update it in the Layout Effect because the Set in the ref has to be updated first(cannot access refs during rendering) and
   // it ensures that currentData exists.
 
-  if (prevTitle !== title) {
-    setPrevTitle(title);
+  if (prevLocationKey !== location.key) {
+    setPrevLocationKey(location.key);
     setShow(false);
     setTrackMovies((s) => ({
       ...s,
@@ -100,6 +151,7 @@ const MoviesList = () => {
         current: currentData,
       }));
 
+      // Check if there are 0 movies in the request result or if i have movies
       if (currentData[0].movies.length) {
         setProgressBarSize(currMovies.length);
         setIsProgressBarLoading(true);
@@ -114,7 +166,7 @@ const MoviesList = () => {
   // Used only in Images Component to decide when all the images have been loaded
   const imagesReady = useCallback(() => {
     const currMovies = currentData[0].movies;
-
+    console.log(counterRef.current);
     if (counterRef.current.size === currMovies.length) {
       setShow(true);
       setInitial(false);
@@ -133,6 +185,9 @@ const MoviesList = () => {
     movies = content?.[0].movies;
   }
 
+  console.log(show);
+  // console.log(trackMovies?.current?.[0]?.movies, 'curr');
+  // console.log(trackMovies?.previous?.[0]?.movies, 'prev');
   return (
     <>
       <ProgressBar
@@ -177,7 +232,10 @@ const MoviesList = () => {
             <div className='movies__divider'>
               <MoviesListToolbar
                 totalResults={totalResults}
-                moviesLoaded={show}
+                newMoviesLoaded={show}
+                sortByQuery={sortByQuery}
+                sortQuery={sortQuery}
+                pageQuery={pageQuery}
               />
               <ul className='movies__list'>
                 {movies?.map((movie) => (
@@ -198,16 +256,18 @@ const MoviesList = () => {
           )}
         </section>
       )}
-      {currentData?.[0].movies?.map((movie) => (
-        <RenderImages
-          key={movie?._id}
-          src={movie?.poster ?? '/no_image.png'}
-          counterRef={counterRef}
-          imagesReady={imagesReady}
-          id={movie?._id}
-          setProgressBarLoaded={setProgressBarLoaded}
-        />
-      ))}
+      <div key={location.key}>
+        {currentData?.[0].movies?.map((movie) => (
+          <RenderImages
+            key={movie?._id}
+            src={movie?.poster ?? '/no_image.png'}
+            counterRef={counterRef}
+            imagesReady={imagesReady}
+            id={movie?._id}
+            setProgressBarLoaded={setProgressBarLoaded}
+          />
+        ))}
+      </div>
     </>
   );
 };
