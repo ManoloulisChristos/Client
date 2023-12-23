@@ -42,21 +42,17 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
 
   /////// All state values that are used for requesting data from the API are connected to the URL and vice versa ////////
   const [menuButtonValue, setMenuButtonValue] = useState(sortByQuery);
-  const [sortButtonPressed, setSortButtonPressed] = useState(() => {
-    if (sortQuery === '1') {
-      return false;
-    } else {
-      return true;
-    }
-  });
+  const [sortButtonPressed, setSortButtonPressed] = useState(
+    sortQuery === '-1' ? true : false
+  );
   const [menuOpen, setMenuOpen] = useState(false);
   const [toolbarIndex, setToolbarIndex] = useState(0);
   const [menuIndex, setMenuIndex] = useState(0);
-  const [menuOptionChecked, setMenuOptionChecked] = useState(() => {
-    return sortByAcceptedValues.indexOf(sortByQuery);
-  });
+  const [menuOptionChecked, setMenuOptionChecked] = useState(
+    sortByAcceptedValues.indexOf(sortByQuery)
+  );
   const [radioButtonChecked, setRadioButtonChecked] = useState(view);
-  const [spinButtonValue, setSpinButtonValue] = useState(Number(pageQuery));
+  const [spinButtonValue, setSpinButtonValue] = useState(parseInt(pageQuery));
   const toolbarItemsRef = useRef(null);
   const menuItemsRef = useRef(null);
   const initialRenderRef = useRef(true);
@@ -68,23 +64,18 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
     pageCount = Math.ceil(totalResults / 20);
   }
 
-  const currentPage = Number(pageQuery); // Used to compare the current page with the spin-button value(number) and disable the go button if they are equal
+  const currentPage = parseInt(pageQuery); // Used to compare the current page with the spin-button value(number) and disable the go button if they are equal
 
-  // Handles the case when the URL changes from another source.
-  if (queryString !== trackQueryString) {
-    console.log('first');
+  // Handles the case when the URL changes from another source(back-forward button) plus wait until the movies have loaded to be in sync with the MoviesList component.
+  if (queryString !== trackQueryString && newMoviesLoaded) {
     setTrackQueryString(queryString);
     setMenuButtonValue(sortByQuery);
     setMenuOptionChecked(sortByAcceptedValues.indexOf(sortByQuery));
-    if (sortQuery === '1') {
-      setSortButtonPressed(false);
-    } else {
-      setSortButtonPressed(true);
-    }
-    setSpinButtonValue(Number(pageQuery));
+    setSortButtonPressed(sortQuery === '-1' ? true : false);
+    setSpinButtonValue(parseInt(pageQuery));
   }
 
-  // Updates the query string and also changes the URL accordingly (this forces an update to the movies list and new request)
+  // Updates the query string and also changes the URL accordingly (this forces an update to the MoviesList and to request new data)
   // Must be used in conjunction with all state values of the component that handle query changes.
   const changeQueryString = (key, val) => {
     const obj = {
@@ -94,6 +85,11 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
     };
     if (key === 'sortBy' || key === 'sort' || key === 'page') {
       obj[key] = val.toString();
+      // force page request to be the first when the sort By option changes
+      if (key === 'sortBy') {
+        obj.page = '1';
+        setSpinButtonValue(1);
+      }
     }
     const params = new URLSearchParams(obj);
     setSearchParams(params);
@@ -117,12 +113,6 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
   //////// Caviats (v2 of the component)////////
   // All the values of the indexes and the aria states are managed with Numbers based on insertion order and are hard-coded
   // An improvement will be to manage them based on their values and be more dynamic
-
-  // Another thing to implement is the component to wait until the movies are fetched when you hit the back button before
-  // it updates its values and be in sync with MoviesList component, so the values must be dependent on props and not on the URL
-  // It needs more logic atm and i have already invested a lot of time in this component. Small details break the component like when the progressbar loads etc.
-  // It is a small detail because when the back button is hit it is usually in the cache exept when a lot of time has passed
-  // so the re-render is instant and wont cause (a lot of) confusion.
 
   const getToolbarMap = () => {
     if (!toolbarItemsRef.current) {

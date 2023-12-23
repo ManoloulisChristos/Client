@@ -62,6 +62,7 @@
   --surface4-light: var(--brand-hue) 0% 86%;
   --inverse-on-surface-light: 255deg 15% 95%;
   --inverse-surface-light: 225deg 4% 19%;
+  --inverse-surface-max-light: 0deg 0% 0%;
   --shadow-color-light: 0deg 0% 50%;
 
   /* dark */
@@ -78,6 +79,7 @@
   --surface4-dark: var(--brand-hue) 2% 25%;
   --inverse-on-surface-dark: 210deg 7% 11%;
   --inverse-surface-dark: 255deg 7% 89%;
+  --inverse-surface-max-dark: 0deg 0% 100%;
   --shadow-color-dark: 215deg 40% 2%;
 
   // Shadows
@@ -146,6 +148,7 @@
   --surface4: var(--surface4-light);
   --inverse-on-surface: var(--inverse-on-surface-light);
   --inverse-surface: var(--inverse-surface-light);
+  --inverse-surface-max: var(--inverse-surface-max-light);
   --shadow-color: var(--shadow-color-light);
   // Computed values
 
@@ -169,6 +172,7 @@
     --surface4: var(--surface4-dark);
     --inverse-on-surface: var(--inverse-on-surface-dark);
     --inverse-surface: var(--inverse-surface-dark);
+    --inverse-surface-max: var(--inverse-surface-max-dark);
     --shadow-color: var(--shadow-color-dark);
 
     // Computed values
@@ -192,6 +196,7 @@
   --surface4: var(--surface4-light);
   --inverse-on-surface: var(--inverse-on-surface-light);
   --inverse-surface: var(--inverse-surface-light);
+  --inverse-surface-max: var(--inverse-surface-max-light);
   --shadow-color: var(--shadow-color-light);
 
   // Computed values
@@ -214,6 +219,7 @@
   --surface4: var(--surface4-dark);
   --inverse-on-surface: var(--inverse-on-surface-dark);
   --inverse-surface: var(--inverse-surface-dark);
+  --inverse-surface-max: var(--inverse-surface-max-dark);
   --shadow-color: var(--shadow-color-dark);
 
   // Computed values

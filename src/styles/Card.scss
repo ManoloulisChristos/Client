@@ -11,10 +11,6 @@
     box-shadow: var(--shadow-small);
   }
 
-  &__img {
-    cursor: pointer;
-  }
-
   &__image {
     max-width: 100%;
     height: auto;
@@ -95,11 +91,6 @@
     font-weight: 400;
   }
 
-  &__controls {
-    display: flex;
-    justify-content: space-evenly;
-  }
-
   &__button {
     background-color: transparent;
     &:focus-visible {
@@ -136,18 +127,7 @@
 
   // SVG Icons
   &__i {
-    stroke: #000;
-    @media (prefers-color-scheme: dark) {
-      stroke: #fff;
-    }
-
-    [color-scheme='light'] & {
-      stroke: #000;
-    }
-
-    [color-scheme='dark'] & {
-      stroke: #fff;
-    }
+    stroke: hsl(var(--inverse-surface-max));
   }
 
   &__plus {

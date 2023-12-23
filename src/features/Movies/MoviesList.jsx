@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { useGetMoviesWithTitleQuery } from './moviesApiSlice';
 import { useLocation, useParams, useSearchParams } from 'react-router-dom';
-import Card from '../../components/Card';
+import Card from './Card';
 import ProgressBar from './ProgressBar';
 import Spinner from '../../components/Spinner';
 import MoviesListToolbar from './MoviesListToolbar';
@@ -94,7 +94,7 @@ const MoviesList = () => {
     // When a user changes the URL manually all query values are checked and coerced to valid ones (above).
     // If he then presses Enter this causes a full page load so I only need to check if the values are different from the expected ones
     // only one time and that is the first time the component runs (this is the reason for disabling the linter).
-    // After that I coerce the URL to the valid one so it is in sync with what appears on the screen.
+    // After that I coerce the URL to the valid one so it is in sync with what appears on screen.
     // The useEffect hook is used because setSearchParams cannot be used in conjunction with the setters of the component during rendering.
     // (throws Error of multiple components rendering together, RouterProvider + MoviesList)
     if (
@@ -166,7 +166,6 @@ const MoviesList = () => {
   // Used only in Images Component to decide when all the images have been loaded
   const imagesReady = useCallback(() => {
     const currMovies = currentData[0].movies;
-    console.log(counterRef.current);
     if (counterRef.current.size === currMovies.length) {
       setShow(true);
       setInitial(false);
@@ -185,9 +184,6 @@ const MoviesList = () => {
     movies = content?.[0].movies;
   }
 
-  console.log(show);
-  // console.log(trackMovies?.current?.[0]?.movies, 'curr');
-  // console.log(trackMovies?.previous?.[0]?.movies, 'prev');
   return (
     <>
       <ProgressBar
@@ -256,6 +252,9 @@ const MoviesList = () => {
           )}
         </section>
       )}
+      {/* the key is important because in the case when only the sort order changes for example, the same images appear so
+      the imagesReady function does not run and everything breaks. Workaround: in every new location based on the URL the images re-render
+      and they get pulled from the cache so the function runs and i everything that depends on it(everything...) get's updated. */}
       <div key={location.key}>
         {currentData?.[0].movies?.map((movie) => (
           <RenderImages
@@ -282,7 +281,7 @@ const RenderImages = memo(function RenderImages({
   setProgressBarLoaded,
 }) {
   // If i get an error on an image the src value is set to the fallback image from the onError event
-  // and the onLoad event triggers either way adding it to the Set
+  // and the onLoad event triggers normally because of the fallback being loaded in its place and the Set is populated correctly.
   const handleLoad = () => {
     counterRef.current.add(id);
     setProgressBarLoaded(counterRef.current.size);

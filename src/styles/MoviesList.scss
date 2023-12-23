@@ -33,9 +33,6 @@
     justify-content: center;
     justify-items: center;
     gap: 1rem;
-    // For some reason that i cannot find overflow occurs when resizing the screen at some points when the grid auto-fill happens
-    //  even though the measures are always smaller by at least 15-25px from the edges of the screen
-    // overflow-x: hidden;
   }
   &--hide {
     display: none;

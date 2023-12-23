@@ -1,11 +1,17 @@
-import Icons from './Icons';
-import '../styles/Card.scss';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { memo } from 'react';
-import Tooltip from './Tooltip';
+import { useSelector } from 'react-redux';
+import Icons from '../../components/Icons';
+import Tooltip from '../../components/Tooltip';
+import '../../styles/Card.scss';
 
 const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
-  const navigate = useNavigate();
+  const view = useSelector((state) => state.moviesToolbar.view);
+
+  let gridView = true;
+  if (view && view === 'list') {
+    gridView = false;
+  }
 
   const handleError = (e) => {
     e.target.src = '/no_image.png';
@@ -16,21 +22,20 @@ const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
       {movie ? (
         <>
           <li className='card__wrapper'>
-            {/* eslint-disable-next-line */}
-            <div
-              onClick={() => navigate(`/search/id/${movie._id}`)}
-              className='card__img'>
-              <Link aria-hidden='true' tabIndex='-1'>
-                <img
-                  className='card__image'
-                  height='309'
-                  width='220'
-                  src={movie.poster ?? '/no_image.png'}
-                  onError={handleError}
-                  alt={''}
-                />
-              </Link>
-            </div>
+            <Link
+              aria-hidden='true'
+              to={`/search/id/${movie._id}`}
+              tabIndex='-1'>
+              <img
+                className='card__image'
+                height='309'
+                width='220'
+                src={movie.poster ?? '/no_image.png'}
+                onError={handleError}
+                alt={''}
+              />
+            </Link>
+
             <h2 className='card__title' title={movie.title}>
               <Link className='card__link'>
                 {movie.title ?? 'Title not found'}
@@ -74,14 +79,12 @@ const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
               </Tooltip>
             </div>
 
-            <div className='card__controls'>
-              <button
-                type='button'
-                className='card__button card__button--watchlist'>
-                <Icons name={'plus'} svgClassName={'card__plus'} />
-                Watchlist
-              </button>
-            </div>
+            <button
+              type='button'
+              className='card__button card__button--watchlist'>
+              <Icons name={'plus'} svgClassName={'card__plus'} />
+              Watchlist
+            </button>
           </li>
         </>
       ) : null}
