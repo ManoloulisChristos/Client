@@ -6,7 +6,7 @@ import { updateView } from './moviesToolbarSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 
-function MovieListToolbar({ totalResults, newMoviesLoaded }) {
+function MovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
   const dispatch = useDispatch();
   const view = useSelector((state) => state.moviesToolbar.view); //state to persist the display view of the component between page transitions
 
@@ -51,7 +51,9 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
   const [menuOptionChecked, setMenuOptionChecked] = useState(
     sortByAcceptedValues.indexOf(sortByQuery)
   );
-  const [radioButtonChecked, setRadioButtonChecked] = useState(view);
+  const [radioButtonChecked, setRadioButtonChecked] = useState(
+    view === 'grid' ? 0 : 1
+  );
   const [spinButtonValue, setSpinButtonValue] = useState(parseInt(pageQuery));
   const toolbarItemsRef = useRef(null);
   const menuItemsRef = useRef(null);
@@ -63,8 +65,6 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
   if (totalResults) {
     pageCount = Math.ceil(totalResults / 20);
   }
-
-  const currentPage = parseInt(pageQuery); // Used to compare the current page with the spin-button value(number) and disable the go button if they are equal
 
   // Handles the case when the URL changes from another source(back-forward button) plus wait until the movies have loaded to be in sync with the MoviesList component.
   if (queryString !== trackQueryString && newMoviesLoaded) {
@@ -521,7 +521,7 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
             ref={(node) => insertNodesToMapRef(node, 2, getToolbarMap)}
             onClick={() => {
               setRadioButtonChecked(0);
-              dispatch(updateView(0));
+              dispatch(updateView('grid'));
             }}>
             <Icons
               name='grid'
@@ -548,7 +548,7 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
             ref={(node) => insertNodesToMapRef(node, 3, getToolbarMap)}
             onClick={() => {
               setRadioButtonChecked(1);
-              dispatch(updateView(1));
+              dispatch(updateView('list'));
             }}>
             <Icons
               name='list'
@@ -611,14 +611,14 @@ function MovieListToolbar({ totalResults, newMoviesLoaded }) {
           text={
             spinButtonValue === currentPage
               ? 'You are currently on the selected page'
-              : `Go to page ${spinButtonValue}`
+              : `To page ${spinButtonValue}`
           }
           hasWrapper={true}>
           <button
             type='button'
             className='movies-list-toolbar__button movies-list-toolbar__button--go has-tooltip-with-wrapper'
-            aria-label='Navigate'
             aria-describedby='movies-list-toolbar-go-button'
+            aria-details='Navigate to the selected page value of the spinbutton'
             aria-disabled={currentPage === spinButtonValue ? 'true' : 'false'}
             tabIndex={toolbarIndex === 5 ? 0 : -1}
             ref={(node) => insertNodesToMapRef(node, 5, getToolbarMap)}

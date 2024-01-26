@@ -1,38 +1,13 @@
 import '../../styles/Navbar.scss';
 
-import { useEffect, useState, forwardRef } from 'react';
+import { forwardRef } from 'react';
 import Tooltip from '../Tooltip';
 import Icons from '../Icons';
 
-const getWindowSizeOnPageLoad = () => {
-  if (typeof window !== 'undefined') {
-    if (window.innerWidth <= 800) {
-      return true;
-    }
-    return false;
-  }
-};
-
 const SearchModal = forwardRef(function SearchModal(props, ref) {
-  const [smallDevice, setSmallDevice] = useState(getWindowSizeOnPageLoad);
-  useEffect(() => {
-    const watchViewportWidth = () => {
-      if (window.innerWidth <= 800) {
-        setSmallDevice(true);
-      } else {
-        setSmallDevice(false);
-      }
-    };
-    window.addEventListener('resize', watchViewportWidth);
-
-    return () => {
-      window.removeEventListener('resize', watchViewportWidth);
-    };
-  }, []);
-
   return (
     <>
-      {smallDevice ? (
+      {props.show ? (
         <dialog
           className='search-modal'
           ref={ref}

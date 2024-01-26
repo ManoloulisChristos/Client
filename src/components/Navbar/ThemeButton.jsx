@@ -16,7 +16,7 @@ const getThemePreference = () => {
 };
 let initialRender = true;
 
-const ThemeButton = () => {
+const ThemeButton = ({ widthBellow550 }) => {
   const [theme, setTheme] = useState(getThemePreference);
 
   // If i have dark mode on Initial Render stop transition on moon entering (does not work in development)
@@ -62,7 +62,7 @@ const ThemeButton = () => {
   return (
     <Tooltip
       text={`Changes theme to ${theme === 'light' ? 'dark' : 'light'}`}
-      tip={'bottom'}
+      tip={widthBellow550 ? 'left' : 'bottom'}
       id={'theme-tooltip'}
       hasWrapper={true}>
       <button

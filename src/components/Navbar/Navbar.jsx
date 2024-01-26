@@ -6,11 +6,36 @@ import { useEffect, useRef, useState } from 'react';
 import SearchModal from './SearchModal';
 import Tooltip from '../Tooltip';
 
+const getWindowSizeOnPageLoad800 = () => {
+  if (typeof window !== 'undefined') {
+    if (window.innerWidth <= 800) {
+      return true;
+    }
+    return false;
+  }
+};
+
+const getWindowSizeOnPageLoad550 = () => {
+  if (typeof window !== 'undefined') {
+    if (window.innerWidth <= 550) {
+      return true;
+    }
+    return false;
+  }
+};
+
 const Navbar = ({ topLevelSentinelRef }) => {
   // When in smaller viewport sizes the burger button is displayed and the navigation is set to display: none,
   // that means it is out of reach in the tab sequence, display is controlled only through the burger button and when it is opened
   // focus is trapped inside until the user closes it again (links and burger button)
   const [navExpanded, setNavExpanded] = useState('false');
+
+  const [showSearchModal, setShowSearchModal] = useState(
+    getWindowSizeOnPageLoad800
+  );
+  const [widthBellow550, setWidthBellow550] = useState(
+    getWindowSizeOnPageLoad550
+  );
 
   // Nodes in the Map include all nav-links and the burger button
   const nodesMapRef = useRef(null);
@@ -104,13 +129,34 @@ const Navbar = ({ topLevelSentinelRef }) => {
     };
   }, [topLevelSentinelRef]);
 
+  useEffect(() => {
+    const watchViewportWidth = () => {
+      if (window.innerWidth <= 800) {
+        setShowSearchModal(true);
+      } else {
+        setShowSearchModal(false);
+      }
+
+      if (window.innerWidth <= 550) {
+        setWidthBellow550(true);
+      } else {
+        setWidthBellow550(false);
+      }
+    };
+    window.addEventListener('resize', watchViewportWidth);
+
+    return () => {
+      window.removeEventListener('resize', watchViewportWidth);
+    };
+  }, []);
+
   return (
     <>
       <div className='header-container' ref={headerContainerRef}>
         <header className='header'>
           <h2 className='header__logo'>LOGO</h2>
 
-          <SearchModal ref={searchModalRef}>
+          <SearchModal ref={searchModalRef} show={showSearchModal}>
             <AutocompleteForm searchModalRef={searchModalRef} />
           </SearchModal>
           <div className='header__divider'>
@@ -143,11 +189,13 @@ const Navbar = ({ topLevelSentinelRef }) => {
                 </svg>
               </button>
             </Tooltip>
-            <ThemeButton />
+            <ThemeButton widthBellow550={widthBellow550} />
             <Tooltip
-              text={navExpanded ? 'Close main menu' : 'Open main menu'}
+              text={
+                navExpanded === 'true' ? 'Close main menu' : 'Open main menu'
+              }
               id='burger-button-tooltip'
-              tip='bottom'
+              tip={widthBellow550 ? 'left' : 'bottom'}
               hasWrapper={true}
               hidden_72em={true}>
               <button

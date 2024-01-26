@@ -11,6 +11,11 @@
   border: 2px solid transparent;
   box-shadow: var(--shadow-small);
 
+  @media only screen and (max-width: 37.5em) {
+    flex-wrap: wrap;
+    max-inline-size: 250px;
+  }
+
   &:focus-within {
     border: 2px solid hsl(var(--primary));
   }
@@ -108,6 +113,7 @@
     border-radius: 6px;
     background-color: hsl(var(--surface1));
     box-shadow: var(--shadow-medium);
+    z-index: 6;
 
     &[data-open='true'] {
       display: flex;
@@ -182,7 +188,7 @@
   &__spin-value {
     font-variant-numeric: diagonal-fractions;
     font-weight: 500;
-    inline-size: 2.5ch;
+    inline-size: 3ch;
     color: hsl(var(--on-surface));
   }
 

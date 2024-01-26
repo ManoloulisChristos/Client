@@ -5,10 +5,15 @@
     gap: 4vh;
     max-inline-size: 140ch;
     margin-inline: auto;
+    // align-items: center;
     margin-block-start: calc(var(--body-margin-default) + 2rem);
+    margin-block-end: 5rem;
     padding-inline: 1.4rem;
     @media only screen and (max-width: 72em) {
       padding-inline: 1rem;
+    }
+    @media only screen and (max-width: 37.5em) {
+      padding-inline: 0.5rem;
     }
   }
   &__header {
@@ -26,7 +31,7 @@
     font-size: var(--size-clamp);
   }
 
-  &__list {
+  &__grid {
     margin-block-start: 1rem;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -34,11 +39,83 @@
     justify-items: center;
     gap: 1rem;
   }
-  &--hide {
-    display: none;
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    max-inline-size: 60ch;
+    padding-inline: 0.5rem;
+    padding-block: 0.5rem;
+    border: 1px solid hsl(var(--outline-variant));
+    border-radius: 12px;
+    background-color: hsl(var(--surface2));
   }
 
-  &--transparent {
-    opacity: 0.5;
+  &__navigation-list {
+    display: flex;
+    gap: 0.4rem;
+    justify-content: center;
+    &[data-display='list'] {
+      justify-content: flex-start;
+      @media only screen and (max-width: 37.5em) {
+        justify-content: center;
+      }
+    }
+    @media only screen and (max-width: 20.312em) {
+      gap: 0.2rem;
+    }
+  }
+
+  &__navigation-item {
+    @media only screen and (max-width: 29.375em) {
+      &--prev,
+      &--next {
+        display: none;
+      }
+    }
+  }
+
+  &__navigation-link {
+    font-variant-numeric: tabular-nums;
+    padding: 1ch 2ch;
+    background-color: hsl(var(--surface2));
+    border-radius: 6px;
+    &:not([aria-current='page'], [aria-disabled='true']):hover {
+      filter: brightness(97%);
+      @media (prefers-color-scheme: dark) {
+        filter: brightness(120%);
+      }
+
+      [color-scheme='dark'] & {
+        filter: brightness(120%);
+      }
+      [color-scheme='light'] & {
+        filter: brightness(97%);
+      }
+    }
+    &:focus-visible {
+      outline: var(--focus);
+    }
+
+    &[aria-current='page'] {
+      background-color: hsl(var(--primary));
+      color: hsl(var(--on-primary));
+    }
+
+    &[aria-disabled='true'] {
+      cursor: not-allowed;
+    }
+
+    @media only screen and (max-width: 37.5em) {
+      padding: 0.8ch 1.5ch;
+    }
+    @media only screen and (max-width: 18.75em) {
+      padding: 0.3ch 1ch;
+    }
+  }
+
+  &--hide {
+    display: none;
   }
 }

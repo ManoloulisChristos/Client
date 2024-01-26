@@ -103,11 +103,11 @@
   // This clamp function can be used for font-size as well as length units eg padding
 
   --root-font-size: 16; //also accessed by JS on page load if the user changed the font-size
-  --max-vw: 1500;
-  --min-vw: 320;
-  --size-min: var(--_size-min, 1rem);
-  --size-max: var(--_size-max, 2rem);
-  // m = (y2-y1)/(x2-x1)
+  --min-vw: var(--_min-vw, 370);
+  --max-vw: var(--_max-vw, 1500);
+  --size-min: var(--_size-min, 1);
+  --size-max: var(--_size-max, 2);
+  // slope: m = (y2-y1)/(x2-x1)
   --slope: calc(
     (var(--size-max) - var(--size-min)) /
       ((var(--max-vw) - var(--min-vw)) / var(--root-font-size))
@@ -262,6 +262,7 @@ button {
   border: none;
   font-family: inherit;
   touch-action: manipulation;
+  user-select: none;
   &:hover {
     cursor: pointer;
   }

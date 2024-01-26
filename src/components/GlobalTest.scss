@@ -1,8 +1,14 @@
-.btn-test:focus-visible {
-  outline: 1px solid red;
-
-  // border-color: red;
+.test__container {
+  display: flex;
+  max-inline-size: 20%;
 }
-.btn-test {
-  margin-left: 1rem;
+.test__fieldset {
+  display: flex;
+  padding-inline: 0.6rem;
+  gap: 0.3rem;
+  border-radius: 6px;
+}
+.test__legend {
+  text-align: center;
+  font-size: 0.7rem;
 }

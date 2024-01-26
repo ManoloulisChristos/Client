@@ -8,13 +8,19 @@ import {
   useEffect,
 } from 'react';
 import { useGetMoviesWithTitleQuery } from './moviesApiSlice';
-import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import {
+  Link,
+  useLocation,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import Card from './Card';
 import ProgressBar from './ProgressBar';
 import Spinner from '../../components/Spinner';
 import MoviesListToolbar from './MoviesListToolbar';
 import MovieDetailsModal from './MovieDetailsModal';
 import '../../styles/MoviesList.scss';
+import { useSelector } from 'react-redux';
 
 // The data are coming as an array with 2 objects
 // 1. The movies that are nested inside as an Array of Objects
@@ -62,6 +68,11 @@ const MoviesList = () => {
   const counterRef = useRef(new Set());
   const dialogRef = useRef(null);
 
+  const [trackPage, setTrackPage] = useState({
+    previous: parseInt(pageQuery),
+    current: parseInt(pageQuery),
+  }); //Keeps track of the pageQuery result based on the URL and to show the correct one between page transitions
+
   const [progressBarSize, setProgressBarSize] = useState(0);
   const [progressBarLoaded, setProgressBarLoaded] = useState(0);
   const [isProgressBarLoading, setIsProgressBarLoading] = useState(false);
@@ -77,6 +88,9 @@ const MoviesList = () => {
   );
   const { currentData } = useGetMoviesWithTitleQuery(endpointObject);
 
+  // Display option
+  const view = useSelector((state) => state.moviesToolbar.view);
+
   ///////// Page Load //////////
   if (initial && currentData && !trackMovies.current.length) {
     setTrackMovies((s) => ({
@@ -86,10 +100,12 @@ const MoviesList = () => {
       previousTitle: title,
       currentTitle: title,
     }));
+    // setNavigationIndexes();
     setIsProgressBarLoading(true);
     setProgressBarSize(currentData[0].movies.length);
   }
 
+  // Keeps in sync the URL (and coerces it to valid values) with what appears on the screen on page load
   useEffect(() => {
     // When a user changes the URL manually all query values are checked and coerced to valid ones (above).
     // If he then presses Enter this causes a full page load so I only need to check if the values are different from the expected ones
@@ -122,6 +138,11 @@ const MoviesList = () => {
       previous: s.current,
       previousTitle: s.currentTitle,
       currentTitle: title,
+    }));
+    setTrackPage((s) => ({
+      ...s,
+      previous: s.current,
+      current: parseInt(pageQuery),
     }));
     setProgressBarLoaded(0);
     setProgressBarSize(0);
@@ -163,6 +184,52 @@ const MoviesList = () => {
     }
   }, [currentData]);
 
+  const calculateNavigationIndexes = (pageCount, currentPage) => {
+    if (!pageCount) return;
+    let arr = []; //max array length will always be less or equal to 6
+    //[First, -1, 0, +1, +2, Last] this is the structure of the array where 0 is the current page,
+    // exept in edge cases covered bellow
+    if (pageCount <= 6) {
+      // return all
+      arr = [...Array(pageCount).keys()].map((val) => val + 1);
+    } else if (pageCount > 6 && currentPage <= 3) {
+      // return 5 first and the last page (-1 because the map adds always +1 so the array keys match the pages and avoid having a 0 as the element in the array)
+      arr = [...Array(5).keys(), pageCount - 1].map((val) => val + 1);
+    } else if (pageCount > 6 && pageCount - currentPage <= 3) {
+      //return the first and the 4 last pages when the current page is less than 3 indexes away from the last page
+      arr = [1];
+      let i = pageCount - 4;
+      while (i <= pageCount) {
+        arr.push(i);
+        i++;
+      }
+    } else if (
+      pageCount > 6 &&
+      currentPage > 3 &&
+      pageCount - currentPage > 3
+    ) {
+      arr = [1]; //add 1rst
+      for (let i = -1; i < 3; i++) {
+        // add middle
+        arr.push(currentPage + i);
+      }
+      arr = [...arr, pageCount]; // add last
+    }
+    return arr.map((val, i) => (
+      <li key={i} className='movies__navigation-item'>
+        <Link
+          className='movies__navigation-link'
+          to={`${location.pathname}?sortBy=${sortByQuery}&sort=${sortQuery}&page=${val}`}
+          aria-current={currentPage === val ? 'page' : 'false'}
+          onClick={(e) => {
+            if (currentPage === val) e.preventDefault();
+          }}>
+          {val}
+        </Link>
+      </li>
+    ));
+  };
+
   // Used only in Images Component to decide when all the images have been loaded
   const imagesReady = useCallback(() => {
     const currMovies = currentData[0].movies;
@@ -175,15 +242,22 @@ const MoviesList = () => {
 
   let content;
   let searchTitle;
+  let currentPage;
   let totalResults;
   let movies;
+  let pageCount;
   if (!initial) {
-    content = show ? trackMovies.current : trackMovies.previous;
-    searchTitle = show ? trackMovies.currentTitle : trackMovies.previousTitle;
+    content = show ? trackMovies.current : trackMovies.previous; // Manages what movies are shown based on the result of the loadedImages
+    searchTitle = show ? trackMovies.currentTitle : trackMovies.previousTitle; // Same for the title
+    currentPage = show ? trackPage.current : trackPage.previous; // Same for the page transitions
     totalResults = content?.[0]?.countResults?.count.lowerBound ?? 0;
     movies = content?.[0].movies;
+    pageCount = Math.ceil(totalResults / 20);
   }
 
+  const computedNavigationPages = (
+    <>{calculateNavigationIndexes(pageCount, currentPage)}</>
+  );
   return (
     <>
       <ProgressBar
@@ -203,7 +277,7 @@ const MoviesList = () => {
           aria-describedby='progress-bar'
           aria-busy={!show}
           id='movies-list-section'
-          className={`movies__wrapper }`}>
+          className={`movies__wrapper`}>
           <hgroup>
             <h1 className='movies__header' id='movies-search-title'>
               Search for:{' '}
@@ -225,25 +299,67 @@ const MoviesList = () => {
             </output>
           </hgroup>
           {movies.length ? (
-            <div className='movies__divider'>
-              <MoviesListToolbar
-                totalResults={totalResults}
-                newMoviesLoaded={show}
-                sortByQuery={sortByQuery}
-                sortQuery={sortQuery}
-                pageQuery={pageQuery}
-              />
-              <ul className='movies__list'>
-                {movies?.map((movie) => (
-                  <Card
-                    movie={movie}
-                    key={`${movie?._id}`}
-                    dialogRef={dialogRef}
-                    setDialogMovie={setDialogMovie}
-                  />
-                ))}
-              </ul>
-            </div>
+            <>
+              <div className='movies__merger'>
+                <MoviesListToolbar
+                  totalResults={totalResults}
+                  newMoviesLoaded={show}
+                  currentPage={currentPage}
+                />
+                <ul
+                  className={view === 'list' ? 'movies__list' : 'movies__grid'}>
+                  {movies?.map((movie) => (
+                    <Card
+                      movie={movie}
+                      key={`${movie?._id}`}
+                      dialogRef={dialogRef}
+                      setDialogMovie={setDialogMovie}
+                    />
+                  ))}
+                </ul>
+              </div>
+              <nav className='movies__navigation' aria-label='pagination'>
+                <ul
+                  className='movies__navigation-list'
+                  data-display={view === 'grid' ? 'grid' : 'list'}>
+                  <li className='movies__navigation-item movies__navigation-item--prev'>
+                    <Link
+                      className='movies__navigation-link'
+                      to={`${
+                        location.pathname
+                      }?sortBy=${sortByQuery}&sort=${sortQuery}&page=${
+                        currentPage - 1
+                      }`}
+                      aria-disabled={currentPage === 1 ? 'true' : 'false'}
+                      onClick={(e) => {
+                        if (currentPage === 1) {
+                          e.preventDefault();
+                        }
+                      }}>
+                      Prev
+                    </Link>
+                  </li>
+                  {computedNavigationPages}
+                  <li className='movies__navigation-item movies__navigation-item--next'>
+                    <Link
+                      className='movies__navigation-link'
+                      to={`${
+                        location.pathname
+                      }?sortBy=${sortByQuery}&sort=${sortQuery}&page=${
+                        currentPage + 1
+                      }`}
+                      aria-disabled={
+                        currentPage === pageCount ? 'true' : 'false'
+                      }
+                      onClick={(e) => {
+                        if (currentPage === pageCount) e.preventDefault();
+                      }}>
+                      Next
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
+            </>
           ) : (
             <p>
               Sorry! No results were found for your specific search, try

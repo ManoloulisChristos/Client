@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, ScrollRestoration } from 'react-router-dom';
 
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer';
@@ -38,6 +38,7 @@ function App() {
 
   return (
     <div className='App'>
+      <ScrollRestoration />
       <nav aria-label='Skip to content'>
         <ul className='off-screen'>
           <li>
