@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAutocompleteQuery } from '../../features/api/apiSlice';
 import Tooltip from '../Tooltip';
-import '../../styles/Navbar.scss';
+import '../../styles/AutocompleteForm.scss';
 
 const AutocompleteForm = ({ searchModalRef }) => {
   const [inputValue, setInputValue] = useState('');
@@ -350,6 +350,7 @@ const AutocompleteForm = ({ searchModalRef }) => {
         type='search'
         role='combobox'
         aria-autocomplete='list'
+        aria-haspopup='listbox'
         aria-controls='autocomplete-listbox'
         aria-activedescendant={`${
           visualFocus ? `autocomplete-item-${visualFocus}` : ''

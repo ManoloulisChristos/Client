@@ -280,10 +280,20 @@ const Navbar = ({ topLevelSentinelRef }) => {
                 </li>
                 <li className='header__item'>
                   <NavLink
+                    to={'/auth/login'}
                     id='nav-link-4'
                     ref={(n) => insertNodesToMapRef(n, 5)}
-                    className='header__link'>
-                    Login
+                    className='header__link header__link--login'>
+                    Sign in
+                  </NavLink>
+                </li>
+                <li className='header__item'>
+                  <NavLink
+                    to={'/auth/register'}
+                    id='nav-link-4'
+                    ref={(n) => insertNodesToMapRef(n, 6)}
+                    className='header__link header__link--login'>
+                    Sign up
                   </NavLink>
                 </li>
               </ul>

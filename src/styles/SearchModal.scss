@@ -1,0 +1,46 @@
+html:has(.search-modal[open]) {
+  overflow: hidden;
+}
+.search-modal {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto 1fr;
+  align-items: center;
+  gap: 0.4rem;
+
+  block-size: 100vh;
+  inline-size: 100vw;
+  padding-block-start: 1rem;
+  padding-inline: 1ch;
+  border: none;
+  border-radius: 12px;
+  margin: auto;
+  overflow-x: hidden;
+
+  &:not([open]) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &[open] {
+    opacity: 1;
+  }
+
+  &::backdrop {
+    backdrop-filter: blur(12px);
+  }
+  &__minimize {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+    background-color: hsl(var(--surface1));
+    padding: 0.1rem;
+    border: 1px solid hsl(var(--outline) / 0.7);
+    border-radius: 6px;
+  }
+
+  &__minimize-icon {
+    stroke: hsl(var(--on-surface-variant) / 0.8);
+  }
+}

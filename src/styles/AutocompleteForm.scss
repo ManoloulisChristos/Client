@@ -1,0 +1,181 @@
+.autocomplete {
+  display: none;
+  justify-self: center;
+  position: relative;
+  inline-size: min(500px, 45vw);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  @media only screen and (max-width: 50em) {
+    inline-size: 100%;
+  }
+
+  &__input {
+    block-size: 4ch;
+    inline-size: 100%;
+    // 1px extra padding so when it is focused it goes to 0 so border can go to 2px
+    padding: 1px calc(1ch + 1px);
+    padding-right: calc(3.6rem + 1px);
+    border: 1px solid hsl(var(--outline) / 0.7);
+    border-radius: 12px;
+
+    font-family: Inter;
+    font-size: 1rem;
+    background-color: hsl(var(--surface1));
+    color: hsl(var(--on-surface));
+
+    .autocomplete:hover &:not(:focus-visible) {
+      border: 1px solid hsl(var(--outline) / 1);
+    }
+
+    &:focus-visible {
+      padding: 0 1ch;
+      padding-right: 3.6rem;
+      outline: none;
+      border: 2px solid hsl(var(--primary));
+      background-color: hsl(var(--surface1));
+    }
+
+    &::placeholder {
+      font-weight: 300;
+      color: hsl(var(--on-surface-variant) / 0.8);
+    }
+
+    // remove browser's default clear button on search input (X)
+    &::-webkit-search-cancel-button {
+      display: none !important;
+    }
+
+    @media only screen and (max-width: 50em) {
+      font-size: 15px;
+    }
+  }
+
+  // Listbox
+
+  &__list {
+    display: none;
+    position: absolute;
+    inset-block-start: 110%;
+    inset-inline-start: 0;
+    z-index: 10;
+    inline-size: 100%;
+
+    border: 1px solid hsl(var(--outline-variant));
+    border-radius: 6px;
+
+    background-color: hsl(var(--surface1));
+    color: hsl(var(--on-surface));
+
+    &[is-open='true'] {
+      display: block;
+    }
+    @media only screen and (max-width: 50em) {
+      font-size: 14px;
+      inline-size: 112%;
+      max-block-size: 40vh;
+      overflow-y: scroll;
+      overscroll-behavior-y: contain;
+    }
+  }
+
+  &__item {
+    &:not(:last-child) {
+      border-block-end: 1px solid hsl(var(--outline-variant));
+    }
+  }
+
+  &__link {
+    padding-block: 0.5ch;
+    padding-inline-end: 1ch;
+    padding-inline-start: calc(1ch + 2px);
+    display: block;
+    line-height: 1.2rem;
+
+    @media (pointer: fine) {
+      .autocomplete__item[aria-selected='true'] & {
+        padding-inline-start: 1ch;
+        border-inline-start: 2px solid hsl(var(--primary));
+        background-color: hsl(var(--background-outline));
+      }
+    }
+  }
+
+  &__title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__year {
+    font-size: 1.6ex;
+    color: hsl(var(--on-surface-variant));
+  }
+
+  &__cast {
+    font-size: 1.6ex;
+    color: hsl(var(--on-surface-variant));
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__italic {
+    font-size: 0.9rem;
+    color: hsl(var(--on-surface-variant));
+    line-height: 1.5rem;
+
+    &--2 {
+      max-inline-size: 40ch;
+      white-space: nowrap;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+  }
+
+  &__inverse {
+    max-inline-size: 10ch;
+    margin-inline-start: 1ch;
+    padding: 0.4ex 0.5ch;
+    background-color: hsl(var(--inverse-surface));
+    color: hsl(var(--inverse-on-surface));
+    border-radius: 4px;
+  }
+
+  &__button {
+    background-color: transparent;
+    position: absolute;
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 6px;
+
+    &:hover {
+      background-color: hsl(var(--background-outline));
+    }
+
+    &:focus-visible {
+      outline-offset: 1px;
+      outline: 2px solid hsl(var(--primary));
+    }
+
+    &--clear {
+      right: 2.325rem;
+    }
+
+    &--submit {
+      right: 0.625rem;
+    }
+  }
+
+  &__icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    fill: hsl(var(--on-surface-variant));
+  }
+}

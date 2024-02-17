@@ -1,0 +1,33 @@
+.register {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  &__heading {
+    text-align: center;
+  }
+  &__form {
+    display: flex;
+    flex-direction: column;
+    inline-size: min(50ch, 90vw);
+  }
+  &__input-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__label-wrapper {
+    display: flex;
+  }
+  &__help-icon-wrapper {
+    margin-left: auto;
+  }
+  &__label {
+  }
+  &__input-wrapper {
+  }
+
+  &__show-password {
+    position: relative;
+  }
+}

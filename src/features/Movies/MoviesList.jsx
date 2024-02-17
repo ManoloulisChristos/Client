@@ -128,7 +128,7 @@ const MoviesList = () => {
 
   // When the location changes >> update the previous values to the current ones (current has values from the previous render at this moment)
   // but leave the current value intact and update it in the Layout Effect because the Set in the ref has to be updated first(cannot access refs during rendering) and
-  // it ensures that currentData exists.
+  // it ensures that currentData have been loaded.
 
   if (prevLocationKey !== location.key) {
     setPrevLocationKey(location.key);

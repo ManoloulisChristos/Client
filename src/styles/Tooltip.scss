@@ -1,5 +1,8 @@
 /////// Warning!!! ///////
 // The tooltip causes overflow when it is attached to an element at the edge of the page
+
+// Tooltip wrapper is the anchor of the tooltip. If it is used on an element that is absolutly positioned or otherwise the anchor
+// becomes the element itself and the tooltip must be a descedant of that element or provide another anchor as the parent.
 .tooltip-wrapper {
   position: relative;
   inline-size: max-content;

@@ -77,7 +77,7 @@ const PlusIcon = ({ width, height, svgClassName }) => (
   </IconWrapper>
 );
 
-const HelpCircleIcon = ({ width, height, svgClassName }) => (
+const HelpIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
     <circle cx='12' cy='12' r='10'></circle>
     <path d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'></path>
@@ -160,10 +160,23 @@ const SortIcon = ({ width, height, svgClassName }) => (
   </IconWrapper>
 );
 
-const NotAllowedIconIcon = ({ width, height, svgClassName }) => (
+const NotAllowedIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
     <circle cx='12' cy='12' r='11'></circle>
     <line x1='4.5' y1='4' x2='20' y2='19.5'></line>
+  </IconWrapper>
+);
+
+const EyeIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'></path>
+    <circle cx='12' cy='12' r='3'></circle>
+  </IconWrapper>
+);
+const EyeOffIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <path d='M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24'></path>
+    <line x1='1' y1='1' x2='23' y2='23'></line>
   </IconWrapper>
 );
 
@@ -175,7 +188,7 @@ const iconsMap = {
   info: InfoIcon,
   plus: PlusIcon,
   close: CloseIcon,
-  helpCircle: HelpCircleIcon,
+  help: HelpIcon,
   chevronRight: ChevronRightIcon,
   arrowRight: ArrowRightIcon,
   arrowRightCircle: ArrowRightCircleIcon,
@@ -185,7 +198,9 @@ const iconsMap = {
   list: ListIcon,
   shuffle: ShuffleIcon,
   sort: SortIcon,
-  notAllowed: NotAllowedIconIcon,
+  notAllowed: NotAllowedIcon,
+  eye: EyeIcon,
+  eyeOff: EyeOffIcon,
 };
 
 // All the icons are wrapped with an svg element which has a standard viewbox since all icons come from feathericons.com

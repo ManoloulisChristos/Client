@@ -1,4 +1,4 @@
-import '../../styles/Navbar.scss';
+import '../../styles/SearchModal.scss';
 
 import { forwardRef } from 'react';
 import Tooltip from '../Tooltip';

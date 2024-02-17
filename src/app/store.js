@@ -1,19 +1,20 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { apiSlice } from '../features/api/apiSlice';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import authReducer from '../features/auth/authSlice';
 import toastsReducer from '../features/toast/toastsSlice';
-import progressBarReducer from '../features/ProgressBar/progressBarSlice';
 import moviesToolbarReducer from '../features/Movies/moviesToolbarSlice';
 
-export default configureStore({
+export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
     auth: authReducer,
     toasts: toastsReducer,
-    progressBar: progressBarReducer,
     moviesToolbar: moviesToolbarReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true,
 });
+
+setupListeners(store.dispatch);
