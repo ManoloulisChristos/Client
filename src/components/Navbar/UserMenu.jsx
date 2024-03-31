@@ -1,0 +1,229 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Link, NavLink } from 'react-router-dom';
+import usePersist from '../../hooks/usePersist';
+import useAuth from '../../hooks/useAuth';
+import { useRefreshMutation } from '../../features/auth/authApiSlice';
+import Icons from '../Icons';
+import Tooltip from '../Tooltip';
+
+const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
+  const [persist] = usePersist();
+  const token = useAuth();
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuIndex, setMenuIndex] = useState(0);
+
+  const menuButtonRef = useRef(null);
+  const menuItemsRef = useRef(null);
+
+  const [refresh, { isLoading }] = useRefreshMutation({
+    fixedCacheKey: 'RefreshOnAppStart',
+  });
+
+  const getMenuItemsMap = () => {
+    if (!menuItemsRef.current) {
+      menuItemsRef.current = new Map();
+    }
+    return menuItemsRef.current;
+  };
+
+  const insertNodesToMapRef = (node, id) => {
+    const map = getMenuItemsMap();
+    if (node) {
+      map.set(id, node);
+    } else {
+      map.delete(id);
+    }
+  };
+
+  const incrementIndex = () => {
+    const map = getMenuItemsMap();
+    const incrementValue = (menuIndex + 1) % map.size;
+    setMenuIndex(incrementValue);
+  };
+
+  const decrementIndex = () => {
+    const map = getMenuItemsMap();
+    const decrementValue = (menuIndex - 1 + map.size) % map.size;
+    setMenuIndex(decrementValue);
+  };
+
+  const handleKeyDown = (e) => {
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'Down':
+        e.preventDefault();
+
+        if (e.target.nodeName === 'BUTTON') {
+          setMenuOpen(true);
+          getMenuItemsMap().get(menuIndex).focus();
+        } else {
+          incrementIndex();
+        }
+        break;
+      case 'ArrowUp':
+      case 'Up':
+        e.preventDefault();
+        if (e.target.nodeName === 'BUTTON') {
+          setMenuOpen(true);
+          getMenuItemsMap().get(menuIndex).focus();
+        } else {
+          decrementIndex();
+        }
+        break;
+      case 'Esc':
+      case 'Escape':
+        if (e.currentTarget.nodeName === 'UL') {
+          e.preventDefault();
+          setMenuOpen(false);
+          menuButtonRef.current.focus();
+        }
+        break;
+      case 'Home':
+        if (e.currentTarget.nodeName === 'UL') {
+          e.preventDefault();
+          setMenuIndex(0);
+        }
+        break;
+      case 'End':
+        if (e.currentTarget.nodeName === 'UL') {
+          e.preventDefault();
+          const map = getMenuItemsMap();
+          setMenuIndex(map.size - 1);
+        }
+
+        break;
+
+      case 'Tab':
+        setMenuOpen(false);
+        if (e.shiftKey) {
+          e.preventDefault();
+          navBarNodesMapRef.current.get(4).focus();
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  useLayoutEffect(() => {
+    const verifyRefreshToken = async () => {
+      if (!token && persist) {
+        await refresh();
+      }
+    };
+    verifyRefreshToken();
+  }, [persist, token, refresh]);
+
+  useEffect(() => {
+    if (menuOpen) {
+      getMenuItemsMap().get(menuIndex).focus();
+    }
+  }, [menuOpen, menuIndex]);
+
+  useEffect(() => {
+    const click = (e) => {
+      const isMenuButton = e.target.closest('#navigation-menu-button');
+      const isMenu = e.target.closest('#navigation-menu-list');
+      if (isMenu || isMenuButton) {
+        return;
+      } else {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) {
+      document.addEventListener('click', click, { capture: true });
+    }
+    return () =>
+      document.removeEventListener('click', click, { capture: true });
+  }, [menuOpen]);
+
+  return (
+    <div>
+      {!token && !isLoading ? (
+        <NavLink
+          ref={(node) => navBarInsertNodesToMapRef(node, 5)}
+          to={'/auth/login'}
+          id='nav-link-4'
+          className='header__link header__link--login'>
+          Sign in
+        </NavLink>
+      ) : (
+        <div className='header__menu-container'>
+          <Tooltip
+            text='User menu'
+            tip='bottom'
+            hasWrapper={true}
+            id='navigation-menu-button-tooltip'
+            tooltipClassName={
+              menuOpen
+                ? 'header__menu-button-tooltip--transparent'
+                : 'header__menu-button-tooltip'
+            }>
+            <button
+              ref={(node) => {
+                navBarInsertNodesToMapRef(node, 5);
+                menuButtonRef.current = node;
+              }}
+              id='navigation-menu-button'
+              className='header__menu-button has-tooltip-with-wrapper'
+              type='button'
+              aria-labelledby='navigation-menu-button-tooltip'
+              aria-haspopup='menu'
+              aria-controls='navigation-menu-list'
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((s) => !s)}
+              onKeyDown={handleKeyDown}>
+              <Icons name='user' svgClassName='header__menu-icon' />
+            </button>
+          </Tooltip>
+          <ul
+            role='menu'
+            className='header__menu-list'
+            id='navigation-menu-list'
+            data-open={menuOpen}
+            onKeyDown={handleKeyDown}>
+            <li role='none' className='header__menu-item'>
+              <Link
+                ref={(node) => insertNodesToMapRef(node, 0)}
+                role='menuitem'
+                className='header__menu-link'
+                tabIndex={menuIndex === 0 && menuOpen ? 0 : -1}>
+                Watchlist
+              </Link>
+            </li>
+            <li role='none' className='header__menu-item'>
+              <Link
+                ref={(node) => insertNodesToMapRef(node, 1)}
+                role='menuitem'
+                className='header__menu-link'
+                tabIndex={menuIndex === 1 && menuOpen ? 0 : -1}>
+                Ratings
+              </Link>
+            </li>
+            <li role='none' className='header__menu-item'>
+              <Link
+                ref={(node) => insertNodesToMapRef(node, 2)}
+                role='menuitem'
+                className='header__menu-link'
+                tabIndex={menuIndex === 2 && menuOpen ? 0 : -1}>
+                Settings
+              </Link>
+            </li>
+            <li role='none' className='header__menu-item'>
+              <Link
+                ref={(node) => insertNodesToMapRef(node, 3)}
+                role='menuitem'
+                className='header__menu-link'
+                tabIndex={menuIndex === 3 && menuOpen ? 0 : -1}>
+                Sign out
+              </Link>
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default UserMenu;

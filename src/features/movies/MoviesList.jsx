@@ -37,7 +37,7 @@ const MoviesList = () => {
   let sortQuery = '-1'; // -1 or 1 for descending/ascending order;
   let pageQuery = '1';
   const sortByAcceptedValues = ['Default', 'A-Z', 'Rating', 'Runtime', 'Year'];
-  // Check to see if there are any search params and if there are check if all values are correct.
+  // Check to see if there are any search params and if there are, check if all values are correct.
   if (searchParams.toString()) {
     const sortBy = searchParams.get('sortBy');
     const sort = searchParams.get('sort');
@@ -149,7 +149,8 @@ const MoviesList = () => {
   }
 
   // Here a check for duplicate movies is happening to populate the Set with already loaded images
-  // eg: when a user searches for 'super' and then 'superman' some images are already in the browsers cache and ProgressBar needs to know that
+  // eg: when a user searches for 'super' and then 'superman' some images are already in the browsers cache
+  // and ProgressBar needs to know that
   useLayoutEffect(() => {
     if (currentData) {
       // The Set has the values from the last render
@@ -188,7 +189,7 @@ const MoviesList = () => {
     if (!pageCount) return;
     let arr = []; //max array length will always be less or equal to 6
     //[First, -1, 0, +1, +2, Last] this is the structure of the array where 0 is the current page,
-    // exept in edge cases covered bellow
+    // except in edge cases covered bellow
     if (pageCount <= 6) {
       // return all
       arr = [...Array(pageCount).keys()].map((val) => val + 1);

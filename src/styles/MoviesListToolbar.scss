@@ -119,11 +119,11 @@
       display: flex;
       flex-direction: column;
       @media (prefers-reduced-motion: no-preference) {
-        animation: menu-slide-down 0.3s ease;
+        animation: toolbar-menu-slide-down 0.3s ease;
       }
     }
   }
-  @keyframes menu-slide-down {
+  @keyframes toolbar-menu-slide-down {
     0% {
       transform: translateY(-20%);
       opacity: 0;

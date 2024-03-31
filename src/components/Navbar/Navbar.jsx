@@ -5,6 +5,7 @@ import ThemeButton from './ThemeButton';
 import { useEffect, useRef, useState } from 'react';
 import SearchModal from './SearchModal';
 import Tooltip from '../Tooltip';
+import UserMenu from './UserMenu';
 
 const getWindowSizeOnPageLoad800 = () => {
   if (typeof window !== 'undefined') {
@@ -28,7 +29,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
   // When in smaller viewport sizes the burger button is displayed and the navigation is set to display: none,
   // that means it is out of reach in the tab sequence, display is controlled only through the burger button and when it is opened
   // focus is trapped inside until the user closes it again (links and burger button)
-  const [navExpanded, setNavExpanded] = useState('false');
+  const [navExpanded, setNavExpanded] = useState(false);
 
   const [showSearchModal, setShowSearchModal] = useState(
     getWindowSizeOnPageLoad800
@@ -66,8 +67,9 @@ const Navbar = ({ topLevelSentinelRef }) => {
 
     const trapFocus = (e) => {
       // If not Tab key then do nothing
-      if (e.key === 'Escape') {
-        setNavExpanded('false');
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        console.log(e.target.matches('.header__menu-link'));
+        setNavExpanded(false);
         return;
       }
       if (e.key !== 'Tab') {
@@ -88,7 +90,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
       nodesMapRef.current.get(trackFocusIndex.current).focus();
     };
 
-    if (navExpanded === 'true' && burgerButtonDisplayState === 'block') {
+    if (navExpanded && burgerButtonDisplayState === 'block') {
       document.addEventListener('keydown', trapFocus);
 
       return () => {
@@ -131,6 +133,12 @@ const Navbar = ({ topLevelSentinelRef }) => {
 
   useEffect(() => {
     const watchViewportWidth = () => {
+      // When navigation is open and the user resizes the window, removes the traping of focus in nav-links
+
+      if (window.innerWidth > 1152) {
+        setNavExpanded(false);
+      }
+
       if (window.innerWidth <= 800) {
         setShowSearchModal(true);
       } else {
@@ -191,9 +199,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
             </Tooltip>
             <ThemeButton widthBellow550={widthBellow550} />
             <Tooltip
-              text={
-                navExpanded === 'true' ? 'Close main menu' : 'Open main menu'
-              }
+              text={navExpanded ? 'Close main menu' : 'Open main menu'}
               id='burger-button-tooltip'
               tip={widthBellow550 ? 'left' : 'bottom'}
               hasWrapper={true}
@@ -204,11 +210,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
                 aria-labelledby='burger-button-tooltip'
                 aria-expanded={navExpanded}
                 aria-controls='main-navigation'
-                onClick={() => {
-                  navExpanded === 'false'
-                    ? setNavExpanded('true')
-                    : setNavExpanded('false');
-                }}
+                onClick={() => setNavExpanded((s) => !s)}
                 className='header__burger has-tooltip-with-wrapper'>
                 <svg
                   aria-hidden='true'
@@ -217,7 +219,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
                   width='30'>
                   <rect
                     className='header__rect header__rect--top'
-                    y={navExpanded === 'true' ? 45 : 25}
+                    y={navExpanded ? 45 : 25}
                     x='10'
                     width='80'
                     height='8'
@@ -231,7 +233,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
                     rx='5'></rect>
                   <rect
                     className='header__rect header__rect--bottom'
-                    y={navExpanded === 'true' ? 45 : 65}
+                    y={navExpanded ? 45 : 65}
                     x='10'
                     width='80'
                     height='8'
@@ -243,7 +245,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
               id='main-navigation'
               className='header__nav'
               aria-label='Main menu'
-              is-open={navExpanded}>
+              data-is-open={navExpanded}>
               <ul className='header__list'>
                 <li className='header__item'>
                   <NavLink
@@ -279,22 +281,10 @@ const Navbar = ({ topLevelSentinelRef }) => {
                   </NavLink>
                 </li>
                 <li className='header__item'>
-                  <NavLink
-                    to={'/auth/login'}
-                    id='nav-link-4'
-                    ref={(n) => insertNodesToMapRef(n, 5)}
-                    className='header__link header__link--login'>
-                    Sign in
-                  </NavLink>
-                </li>
-                <li className='header__item'>
-                  <NavLink
-                    to={'/auth/register'}
-                    id='nav-link-4'
-                    ref={(n) => insertNodesToMapRef(n, 6)}
-                    className='header__link header__link--login'>
-                    Sign up
-                  </NavLink>
+                  <UserMenu
+                    navBarInsertNodesToMapRef={insertNodesToMapRef}
+                    navBarNodesMapRef={nodesMapRef}
+                  />
                 </li>
               </ul>
             </nav>

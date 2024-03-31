@@ -1,12 +1,148 @@
 .login {
+  margin-block-start: 8rem;
+  margin-inline: auto;
+  inline-size: min(40ch, 90vw);
   &__heading {
+    --_size-min: 1.6;
+    --_size-max: 1.9;
+    text-align: center;
+    font-size: var(--size-clamp);
+    font-weight: 400;
+    margin-block-end: 2rem;
   }
+
+  &__generic-error {
+    background-color: hsl(var(--error-container));
+    color: hsl(var(--on-error-container));
+    margin-block-end: 1rem;
+    text-align: center;
+    border-radius: 6px;
+    &[data-error='true'] {
+      padding: 0.5rem 1rem;
+    }
+  }
+
   &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background-color: hsl(var(--surface2));
+    padding: 1rem 1.5rem;
+    border: 1px solid hsl(var(--outline-variant));
+    border-radius: 8px;
   }
+
+  &__input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
   &__label {
   }
-  &__input {
+
+  &__input-wrapper {
+    position: relative;
   }
-  &__button {
+
+  &__input {
+    inline-size: 100%;
+    padding: calc(0.2rem + 1px) calc(0.4rem + 1px);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 400;
+    border: 1px solid hsl(var(--outline) / 0.7);
+    border-radius: 6px;
+
+    &:hover {
+      border-color: hsl(var(--outline));
+    }
+    &:focus-visible {
+      outline: none;
+      padding: 0.2rem 0.4rem;
+      border: 2px solid hsl(var(--primary));
+    }
+    &[aria-invalid='true']:not(:focus-visible) {
+      border: 1px solid hsl(var(--error));
+    }
+  }
+
+  &__input-error {
+    color: hsl(var(--error));
+  }
+
+  &__show-password {
+    position: absolute;
+    inset-block-start: 0.22rem;
+    inset-inline-end: 0.5rem;
+    display: flex;
+    align-items: center;
+    padding: 0.15ch 0.2ch;
+    background-color: transparent;
+    border-radius: 6px;
+
+    &:hover {
+      background-color: hsl(var(--background-outline));
+    }
+
+    &:focus-visible {
+      outline: var(--focus);
+    }
+  }
+
+  &__checkbox-container {
+    display: flex;
+    gap: 0.8ch;
+    align-items: center;
+    margin-block-end: 0.5rem;
+  }
+
+  &__checkbox {
+    accent-color: hsl(var(--primary));
+    &:focus-visible {
+      outline: var(--focus);
+    }
+  }
+
+  &__submit {
+    inline-size: 100%;
+    padding: 0.4rem;
+    font-size: 1rem;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--on-primary));
+    border-radius: 6px;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
+  }
+
+  &__links {
+    line-height: 1.5rem;
+    margin-block-start: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: hsl(var(--surface2));
+    text-align: center;
+    border: 1px solid hsl(var(--outline-variant));
+    border-radius: 8px;
+  }
+
+  &__link {
+    color: hsl(var(--primary));
+    white-space: nowrap;
+    border-radius: 6px;
+
+    &:hover:not(:focus-visible) {
+      text-decoration: underline;
+    }
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
   }
 }

@@ -42,6 +42,7 @@ const Tooltip = ({
   text,
   tip,
   hasWrapper,
+  tooltipClassName = '',
   wrapperClassName = '',
   hidden_50em = false,
   hidden_72em = false,
@@ -79,6 +80,11 @@ const Tooltip = ({
   const validId = checkIfString(id, 'id');
 
   const validTip = checkTipAllowedValues(tip);
+
+  const validTooltipClassName = checkIfString(
+    tooltipClassName,
+    'tooltipClassName'
+  );
 
   const validWrapperClassName = checkIfString(
     wrapperClassName,
@@ -132,7 +138,7 @@ const Tooltip = ({
           };
         }
       }}
-      className='tooltip'
+      className={`tooltip ${validTooltipClassName}`}
       role='tooltip'
       tip-position={validTip}
       id={validId}>

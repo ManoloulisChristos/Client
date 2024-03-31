@@ -1,6 +1,6 @@
 import { apiSlice } from '../api/apiSlice';
 
-const moviesApiSlice = apiSlice.injectEndpoints({
+export const moviesApiSlice = apiSlice.injectEndpoints({
   endpoints: (build) => ({
     getMovieWithId: build.query({
       query: (id) => `search/id/${id}`,

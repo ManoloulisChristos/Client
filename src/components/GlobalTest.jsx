@@ -1,18 +1,19 @@
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './GlobalTest.scss';
-import Tooltip from './Tooltip';
 
 const GlobalTest = () => {
-  const [value, setValue] = useState(0);
-
+  const [count, setCount] = useState(5);
   return (
     <div className='test__container'>
-      <fieldset className='test__fieldset'>
-        <legend className='test__legend'> Hello</legend>
-        <button>One</button>
-        <button>O</button>
-        <button>O</button>
-      </fieldset>
+      <img
+        width='40'
+        height='40'
+        src='https://api.dicebear.com/8.x/initials/svg?seed=fef&radius=50&backgroundColor=5d4038&chars=1&fontFamily=Helvetica'
+        alt=''
+      />
+      <button onClick={() => setCount(1)}>1</button>
+      <button onClick={() => setCount(2)}>2</button>
+      <p>{count}</p>
     </div>
   );
 };

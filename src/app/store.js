@@ -3,7 +3,7 @@ import { apiSlice } from '../features/api/apiSlice';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import authReducer from '../features/auth/authSlice';
 import toastsReducer from '../features/toast/toastsSlice';
-import moviesToolbarReducer from '../features/Movies/moviesToolbarSlice';
+import moviesToolbarReducer from '../features/movies/moviesToolbarSlice';
 
 export const store = configureStore({
   reducer: {

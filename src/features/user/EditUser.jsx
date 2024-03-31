@@ -3,14 +3,13 @@ import { useGetUserQuery } from './userApiSlice';
 
 const EditUser = () => {
   const { id } = useParams();
-
-  const { data } = useGetUserQuery(id);
-
+  const { data: user } = useGetUserQuery(id, {
+    refetchOnMountOrArgChange: true,
+  });
+  console.log(user);
   const content = (
     <div>
-      {/* <p>{data.email}</p>
-      <p>{data.name}</p>
-      <p>{data.createdAt}</p> */}
+      <p>Hello user</p>
     </div>
   );
 

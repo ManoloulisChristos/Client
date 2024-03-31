@@ -1,7 +1,7 @@
 import { apiSlice } from '../api/apiSlice';
 import { setCredentials, clearCredentials } from './authSlice';
 
-const authApiSlice = apiSlice.injectEndpoints({
+export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -10,18 +10,22 @@ const authApiSlice = apiSlice.injectEndpoints({
         body: { ...credentials },
       }),
     }),
-    refresh: builder.mutation({
-      query: () => ({
-        url: '/auth/refresh',
-        method: 'GET',
+    register: builder.mutation({
+      query: (credentials) => ({
+        url: '/auth/register',
+        method: 'POST',
+        body: { ...credentials },
       }),
+    }),
+    refresh: builder.mutation({
+      query: () => '/auth/refresh',
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          const { accessToken } = data;
-          dispatch(setCredentials({ accessToken }));
-        } catch (err) {
-          console.log(err);
+          const { accessToken, userIdToken } = data;
+          dispatch(setCredentials({ accessToken, userIdToken }));
+        } catch (error) {
+          return error;
         }
       },
     }),
@@ -32,7 +36,7 @@ const authApiSlice = apiSlice.injectEndpoints({
       }),
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
+          await queryFulfilled;
           dispatch(clearCredentials());
           dispatch(apiSlice.util.resetApiState());
         } catch (err) {
@@ -40,8 +44,44 @@ const authApiSlice = apiSlice.injectEndpoints({
         }
       },
     }),
+    // ({ user, token }) =>
+    //     `/auth/verification?user=${user}&token=${token}`,
+    getVerification: builder.query({
+      query: ({ user, token }) =>
+        `/auth/verification?user=${user}&token=${token}`,
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data?.accessToken && data?.userIdToken) {
+            const { accessToken, userIdToken } = data;
+            dispatch(
+              setCredentials({
+                accessToken,
+                userIdToken,
+              })
+            );
+          }
+        } catch (error) {
+          return error;
+        }
+      },
+      keepUnusedDataFor: 0,
+    }),
+    sendVerificationEmail: builder.mutation({
+      query: ({ id }) => ({
+        url: '/auth/verification/resend',
+        method: 'POST',
+        body: { id },
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRefreshMutation, useLogoutMutation } =
-  authApiSlice;
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useRefreshMutation,
+  useLogoutMutation,
+  useGetVerificationQuery,
+  useSendVerificationEmailMutation,
+} = authApiSlice;

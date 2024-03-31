@@ -20,7 +20,7 @@
     border: 1px solid hsl(var(--outline) / 0.7);
     border-radius: 12px;
 
-    font-family: Inter;
+    font-family: inherit;
     font-size: 1rem;
     background-color: hsl(var(--surface1));
     color: hsl(var(--on-surface));
@@ -52,6 +52,43 @@
     }
   }
 
+  &__button {
+    background-color: transparent;
+    position: absolute;
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 6px;
+
+    &:hover {
+      background-color: hsl(var(--background-outline));
+    }
+
+    &:focus-visible {
+      outline-offset: 1px;
+      outline: 2px solid hsl(var(--primary));
+    }
+
+    &--clear {
+      right: 2.325rem;
+    }
+
+    &--submit {
+      right: 0.625rem;
+    }
+  }
+
+  &__icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    fill: hsl(var(--on-surface-variant));
+  }
+
   // Listbox
 
   &__list {
@@ -73,7 +110,7 @@
     }
     @media only screen and (max-width: 50em) {
       font-size: 14px;
-      inline-size: 112%;
+      inline-size: calc(100%);
       max-block-size: 40vh;
       overflow-y: scroll;
       overscroll-behavior-y: contain;
@@ -140,42 +177,5 @@
     background-color: hsl(var(--inverse-surface));
     color: hsl(var(--inverse-on-surface));
     border-radius: 4px;
-  }
-
-  &__button {
-    background-color: transparent;
-    position: absolute;
-    height: 1.5rem;
-    width: 1.5rem;
-    border-radius: 6px;
-
-    &:hover {
-      background-color: hsl(var(--background-outline));
-    }
-
-    &:focus-visible {
-      outline-offset: 1px;
-      outline: 2px solid hsl(var(--primary));
-    }
-
-    &--clear {
-      right: 2.325rem;
-    }
-
-    &--submit {
-      right: 0.625rem;
-    }
-  }
-
-  &__icon-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &__icon {
-    width: 1.125rem;
-    height: 1.125rem;
-    fill: hsl(var(--on-surface-variant));
   }
 }

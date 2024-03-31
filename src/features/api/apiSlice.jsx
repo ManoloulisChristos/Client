@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { setCredentials } from '../auth/authSlice';
+import { setCredentials, setCredentialsError } from '../auth/authSlice';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:5000/api/v1',
+  baseUrl: 'http://localhost:8080/api/v1',
   credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth.token;
@@ -17,21 +17,41 @@ const baseQuery = fetchBaseQuery({
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
-  if (result?.error?.status === 403) {
-    const refreshRestult = await baseQuery('/auth/refresh', api, extraOptions);
+  if (
+    result?.error?.data?.error === 'TokenExpiredError' &&
+    api.endpoint !== 'refresh'
+  ) {
+    // Access token expired. Hit refresh endpoint and get a new token.
+    const refreshResult = await baseQuery('/auth/refresh', api, extraOptions);
 
-    if (refreshRestult?.data) {
-      api.dispatch(setCredentials({ ...refreshRestult.data }));
-
+    if (refreshResult?.data) {
+      // Store access token and retry original request
+      api.dispatch(setCredentials(refreshResult.data));
       result = await baseQuery(args, api, extraOptions);
     } else {
-      if (refreshRestult?.error?.status === 403) {
-        refreshRestult.error.data.message = 'Your login has expired';
+      if (result?.error?.data?.error === 'TokenExpiredError') {
+        // Refresh token expired
+        api.dispatch(
+          setCredentialsError('Your session has expired. Please sign in again.')
+        );
+        refreshResult.error.data.message =
+          'Your session has expired. Please sign in again.';
+      } else {
+        // Refresh token error
+        api.dispatch(
+          setCredentialsError('Credentials are missing. Please sign in again.')
+        );
+        refreshResult.error.data.message =
+          'Credentials are missing. Please sign in again.';
       }
-      return refreshRestult;
+      return refreshResult;
     }
+  } else if (result?.error?.data?.error === 'JsonWebTokenError') {
+    // Access token error
+    api.dispatch(
+      setCredentialsError('Credentials are missing. Please sign in again.')
+    );
   }
-
   return result;
 };
 

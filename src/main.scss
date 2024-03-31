@@ -48,39 +48,56 @@
   /* brand foundation */
   --brand-hue: 212;
 
+  --on-secondary-light: hsl(255, 0%, 100%);
+  --secondary-light: hsl(194, 100%, 26%);
+  --on-secondary-dark: hsl(194, 100%, 14%);
+  --secondary-dark: hsl(194, 100%, 71%);
+
   /* light */
   --primary-light: var(--brand-hue) 67% 39%;
-  --on-primary-light: 0deg 0% 100%;
-  --on-surface-light: 210deg 7% 11%;
-  --on-surface-variant-light: 218deg 8% 28%;
-  --outline-light: 224deg 5% 48%;
-  --outline-variant-light: 229deg 10% 79%;
+  --on-primary-light: 0 0% 100%;
+  --on-surface-light: 210 7% 11%;
+  --on-surface-variant-light: 218 8% 28%;
+  --outline-light: 224 5% 48%;
+  --outline-variant-light: 229 10% 79%;
   --surface0-light: var(--brand-hue) 0% 100%;
   --surface1-light: var(--brand-hue) 0% 96%;
   --surface2-light: var(--brand-hue) 0% 92%;
   --surface3-light: var(--brand-hue) 0% 89%;
   --surface4-light: var(--brand-hue) 0% 86%;
-  --inverse-on-surface-light: 255deg 15% 95%;
-  --inverse-surface-light: 225deg 4% 19%;
-  --inverse-surface-max-light: 0deg 0% 0%;
-  --shadow-color-light: 0deg 0% 50%;
+  --on-secondary-light: 194 0% 100%;
+  --secondary-light: 194 100% 26%;
+  --inverse-on-surface-light: 255 15% 95%;
+  --inverse-surface-light: 225 4% 19%;
+  --inverse-surface-max-light: 0 0% 0%;
+  --on-error-light: 0 0% 100%;
+  --error-light: 0 75% 42%;
+  --on-error-container-light: 358 100% 13%;
+  --error-container-light: 6 100% 92%;
+  --shadow-color-light: 0 0% 50%;
 
   /* dark */
   --primary-dark: var(--brand-hue) 100% 83%;
-  --on-primary-dark: var(--brand-hue) 100%, 19%;
-  --on-surface-dark: 255deg 7% 89%;
-  --on-surface-variant-dark: 229deg 10% 79%;
-  --outline-dark: 220deg 6% 58%;
-  --outline-variant-dark: 218deg 8% 28%;
+  --on-primary-dark: var(--brand-hue) 100% 19%;
+  --on-surface-dark: 255 7% 89%;
+  --on-surface-variant-dark: 229 10% 79%;
+  --outline-dark: 220 6% 58%;
+  --outline-variant-dark: 218 8% 28%;
   --surface0-dark: var(--brand-hue) 2% 0%;
   --surface1-dark: var(--brand-hue) 2% 10%;
   --surface2-dark: var(--brand-hue) 2% 15%;
   --surface3-dark: var(--brand-hue) 2% 20%;
   --surface4-dark: var(--brand-hue) 2% 25%;
-  --inverse-on-surface-dark: 210deg 7% 11%;
-  --inverse-surface-dark: 255deg 7% 89%;
-  --inverse-surface-max-dark: 0deg 0% 100%;
-  --shadow-color-dark: 215deg 40% 2%;
+  --on-secondary-dark: 194 100% 14%;
+  --secondary-dark: 194 100% 61%;
+  --inverse-on-surface-dark: 210 7% 11%;
+  --inverse-surface-dark: 255 7% 89%;
+  --inverse-surface-max-dark: 0 0% 100%;
+  --error-dark: 6 100% 84%;
+  --on-error-dark: 357 100% 21%;
+  --error-container-dark: 356 100% 29%;
+  --on-error-container-dark: 6 100% 92%;
+  --shadow-color-dark: 215 40% 2%;
 
   // Shadows
   --shadow-small: 0.5px 1px 1px hsl(var(--shadow-color) / 0.7);
@@ -146,9 +163,15 @@
   --surface2: var(--surface2-light);
   --surface3: var(--surface3-light);
   --surface4: var(--surface4-light);
+  --on-secondary: var(--on-secondary-light);
+  --secondary: var(--secondary-light);
   --inverse-on-surface: var(--inverse-on-surface-light);
   --inverse-surface: var(--inverse-surface-light);
   --inverse-surface-max: var(--inverse-surface-max-light);
+  --error: var(--error-light);
+  --on-error: var(--on-error-light);
+  --error-container: var(--error-container-light);
+  --on-error-container: var(--on-error-container-light);
   --shadow-color: var(--shadow-color-light);
   // Computed values
 
@@ -170,9 +193,15 @@
     --surface2: var(--surface2-dark);
     --surface3: var(--surface3-dark);
     --surface4: var(--surface4-dark);
+    --on-secondary: var(--on-secondary-dark);
+    --secondary: var(--secondary-dark);
     --inverse-on-surface: var(--inverse-on-surface-dark);
     --inverse-surface: var(--inverse-surface-dark);
     --inverse-surface-max: var(--inverse-surface-max-dark);
+    --error: var(--error-dark);
+    --on-error: var(--on-error-dark);
+    --error-container: var(--error-container-dark);
+    --on-error-container: var(--on-error-container-dark);
     --shadow-color: var(--shadow-color-dark);
 
     // Computed values
@@ -194,9 +223,15 @@
   --surface2: var(--surface2-light);
   --surface3: var(--surface3-light);
   --surface4: var(--surface4-light);
+  --on-secondary: var(--on-secondary-light);
+  --secondary: var(--secondary-light);
   --inverse-on-surface: var(--inverse-on-surface-light);
   --inverse-surface: var(--inverse-surface-light);
   --inverse-surface-max: var(--inverse-surface-max-light);
+  --error: var(--error-light);
+  --on-error: var(--on-error-light);
+  --error-container: var(--error-container-light);
+  --on-error-container: var(--on-error-container-light);
   --shadow-color: var(--shadow-color-light);
 
   // Computed values
@@ -217,9 +252,15 @@
   --surface2: var(--surface2-dark);
   --surface3: var(--surface3-dark);
   --surface4: var(--surface4-dark);
+  --on-secondary: var(--on-secondary-dark);
+  --secondary: var(--secondary-dark);
   --inverse-on-surface: var(--inverse-on-surface-dark);
   --inverse-surface: var(--inverse-surface-dark);
   --inverse-surface-max: var(--inverse-surface-max-dark);
+  --error: var(--error-dark);
+  --on-error: var(--on-error-dark);
+  --error-container: var(--error-container-dark);
+  --on-error-container: var(--on-error-container-dark);
   --shadow-color: var(--shadow-color-dark);
 
   // Computed values
@@ -263,6 +304,7 @@ button {
   font-family: inherit;
   touch-action: manipulation;
   user-select: none;
+  // -webkit-tap-highlight-color: transparent;
   &:hover {
     cursor: pointer;
   }

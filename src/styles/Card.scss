@@ -15,8 +15,8 @@
     aspect-ratio: 0.7;
     object-fit: cover;
     object-position: top center;
-    border-top-right-radius: 12px;
-    border-top-left-radius: 12px;
+    border-start-start-radius: 12px;
+    border-start-end-radius: 12px;
   }
   &__title {
     flex-grow: 1;
@@ -51,17 +51,9 @@
 
   &__information {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
     align-items: center;
-    gap: 1.5ch;
     padding-inline: 0.6ch;
-  }
-
-  &__star {
-    fill: #f5c518;
-    stroke: #f5c518;
-    width: 16px;
-    height: 16px;
   }
 
   &__rating {
@@ -69,6 +61,37 @@
     align-items: center;
     gap: 0.3ch;
     font-variant-numeric: tabular-nums;
+  }
+
+  &__star {
+    fill: #f5c518;
+    stroke: #f5c518;
+    width: 16px;
+    height: 16px;
+    &--blue {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: hsl(var(--primary));
+      stroke-width: 2px;
+    }
+  }
+
+  &__button-rating {
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.3ch;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+
+    &:is(:hover, :focus-visible) {
+      background-color: hsl(var(--background-outline));
+    }
+
+    &:focus-visible {
+      outline: var(--focus);
+    }
   }
 
   &__number {
@@ -129,6 +152,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      // margin-inline-start: 1ch;
       outline-offset: 2px;
       border-radius: 50%;
     }

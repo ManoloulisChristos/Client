@@ -1,61 +1,44 @@
-import { Outlet, Link } from 'react-router-dom';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRefreshMutation } from './authApiSlice';
+import { Outlet } from 'react-router-dom';
 import usePersist from '../../hooks/usePersist';
-import { useSelector } from 'react-redux';
-import { selectCurrentToken } from './authSlice';
+import useAuth from '../../hooks/useAuth';
 
 const PersistLogin = () => {
   const [persist] = usePersist();
-  const token = useSelector(selectCurrentToken);
-  const effectRan = useRef(false);
-
-  // Gives extra time for RTK-Query to get the request settled
-  const [trueSuccess, setTrueSuccess] = useState(false);
-
-  const [refresh, { isUninitialized, isLoading, isSuccess, isError, error }] =
+  const token = useAuth();
+  const effectRun = useRef(false);
+  const [refresh, { isError, isLoading, isSuccess, error }] =
     useRefreshMutation();
 
   useEffect(() => {
-    if (effectRan.current === true || import.meta.env.PROD) {
-      // React 18 Strict Mode
-
+    if (effectRun.current || import.meta.env.PROD) {
       const verifyRefreshToken = async () => {
-        try {
+        if (persist && !token) {
           await refresh();
-          setTrueSuccess(true);
-        } catch (err) {
-          console.error(err);
         }
       };
-
-      if (!token && persist) verifyRefreshToken();
+      verifyRefreshToken();
     }
 
-    return () => (effectRan.current = true);
-
-    // eslint-disable-next-line
-  }, []);
+    return () => (effectRun.current = true);
+  }, [persist, refresh, token]);
 
   let content;
-  if (!persist) {
-    content = <Outlet />;
-  } else if (isLoading) {
-    content = <div>Loading...</div>;
-  } else if (isError) {
-    console.log(error);
-    content = (
-      <p className='errmsg'>
-        {`${error?.data?.msg} - `}
-        <Link to='/auth/login'>Please login again</Link>.
-      </p>
-    );
-  } else if (isSuccess && trueSuccess) {
-    content = <Outlet />;
-  } else if (token && isUninitialized) {
+  if (persist) {
+    if (token) {
+      content = <Outlet />;
+    } else if (isLoading) {
+      content = <h1>Loading...</h1>;
+    } else if (isError) {
+      content = <h1>{error.data.message}</h1>;
+    } else if (isSuccess) {
+      content = <Outlet />;
+    }
+  } else {
     content = <Outlet />;
   }
-
   return content;
 };
+
 export default PersistLogin;

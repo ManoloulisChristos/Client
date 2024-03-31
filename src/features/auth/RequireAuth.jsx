@@ -1,16 +1,38 @@
-import { useLocation, Navigate, Outlet } from 'react-router-dom';
-import useAuth from '../../hooks/useAuth';
+import { useSelector } from 'react-redux';
+import { Outlet } from 'react-router-dom';
+import { selectAccessToken, selectTokenError } from './authSlice';
+import Icons from '../../components/Icons';
+import '../../styles/RequireAuth.scss';
 
 const RequireAuth = () => {
-  const location = useLocation();
-  const { id, name } = useAuth();
-  const content =
-    id !== null && name.length ? (
-      <Outlet />
-    ) : (
-      <Navigate to='/auth/login' state={{ from: location }} replace />
+  const token = useSelector(selectAccessToken);
+  const error = useSelector(selectTokenError);
+  let content;
+  if (token && !error) {
+    content = <Outlet />;
+  } else if (error) {
+    content = (
+      <>
+        <div className='require-auth'>
+          <Icons name='lock' width='150' height='150' />
+          <h1 className='require-auth__heading'>Error</h1>
+          <p className='require-auth__paragraph'>{error}</p>
+        </div>
+      </>
     );
-
+  } else if (!token && !error) {
+    content = (
+      <>
+        <div className='require-auth'>
+          <Icons name='lock' width='150' height='150' />
+          <h1 className='require-auth__heading'>Unauthorized</h1>
+          <p className='require-auth__paragraph'>
+            You do not have access to the specific location. Please sign in!
+          </p>
+        </div>
+      </>
+    );
+  }
   return content;
 };
 

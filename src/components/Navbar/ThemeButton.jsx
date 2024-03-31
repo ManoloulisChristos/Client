@@ -64,17 +64,18 @@ const ThemeButton = ({ widthBellow550 }) => {
       text={`Changes theme to ${theme === 'light' ? 'dark' : 'light'}`}
       tip={widthBellow550 ? 'left' : 'bottom'}
       id={'theme-tooltip'}
-      hasWrapper={true}>
+      hasWrapper={true}
+      wrapperClassName='theme__tooltip'>
       <button
         type='button'
-        className='theme-button has-tooltip-with-wrapper'
+        className='theme__button has-tooltip-with-wrapper'
         id='theme-toggle'
         aria-pressed={`${theme === 'light' ? 'false' : 'true'}`}
         aria-describedby='theme-tooltip'
         onClick={onThemeChange}>
         <span className='visually-hidden'>dark theme</span>
         <svg
-          className='theme'
+          className='theme__svg'
           aria-hidden='true'
           width='24'
           height='24'

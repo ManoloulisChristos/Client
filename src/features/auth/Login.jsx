@@ -1,63 +1,192 @@
 import { useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useLoginMutation } from './authApiSlice';
+import { setCredentials } from './authSlice';
 import '../../styles/Login.scss';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Icons from '../../components/Icons';
+import Tooltip from '../../components/Tooltip';
+import usePersist from '../../hooks/usePersist';
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [emailValue, setEmailValue] = useState('');
   const [passwordValue, setPasswordValue] = useState('');
-  const [answer, setAnswer] = useState('notho');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [genericError, setGenericError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [persist, setPersist] = usePersist();
+
+  const passwordRef = useRef(null);
+  const submitButtonRef = useRef(null);
+
   const [login] = useLoginMutation();
 
-  const formRef = useRef(null);
-  const emailRef = useRef(null);
-  const passwordRef = useRef(null);
   const handleEmailChange = (e) => setEmailValue(e.target.value);
   const handlePasswordChange = (e) => setPasswordValue(e.target.value);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const resp = await login({
-        email: emailValue,
-        password: passwordValue,
-      }).unwrap();
-      console.log(resp);
-    } catch (error) {
-      setAnswer(error.data.message);
+
+  const handleCheckboxChange = () => setPersist((s) => !s);
+
+  const handleEmailValidation = (e) => {
+    const email = e.target;
+    if (email.validity.valueMissing) {
+      setEmailError('Email is required.');
+    } else if (email.validity.typeMismatch) {
+      setEmailError('Provide correct email syntax.');
     }
   };
+
+  const handlePassowordValidation = (e) => {
+    const password = e.target;
+    if (password.validity.valueMissing) {
+      setPasswordError('Password is required.');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setGenericError('');
+    setEmailError('');
+    setPasswordError('');
+    if (!e.target.checkValidity()) {
+      return;
+    } else {
+      if (passwordRef.current.getAttribute('type') === 'text') {
+        setShowPassword(false);
+        setTimeout(() => {
+          e.target.requestSubmit(submitButtonRef.current);
+        }, 0);
+      } else {
+        try {
+          const { accessToken, userIdToken } = await login({
+            email: emailValue,
+            password: passwordValue,
+            persist,
+          }).unwrap();
+          dispatch(setCredentials({ accessToken, userIdToken }));
+          const toLocation = location?.state?.from ?? '..';
+          // Toast
+          navigate(toLocation);
+        } catch (error) {
+          setGenericError(error.data.message);
+        }
+      }
+    }
+  };
+
   return (
     <div className='login'>
-      <h1 className='login__heading'>Sign in to MyWebsite!!</h1>
-      <form ref={formRef} className='login__form' onSubmit={handleSubmit}>
-        <label className='login__label'>
-          Email
+      <h1 className='login__heading'>Sign in</h1>
+      <p
+        className='login__generic-error'
+        id='login-generic-error'
+        aria-live='assertive'
+        data-error={genericError ? 'true' : 'false'}>
+        {genericError}
+      </p>
+
+      <form className='login__form' noValidate onSubmit={handleSubmit}>
+        <div className='login__input-container'>
+          <label htmlFor='login-email-input' className='login__label'>
+            Email
+          </label>
           <input
-            ref={emailRef}
+            id='login-email-input'
             className='login__input'
             type='email'
-            value={emailValue}
+            required
+            aria-describedby='login-email-error login-generic-error'
+            aria-invalid={emailError || genericError ? 'true' : 'false'}
             onChange={handleEmailChange}
-            required
+            value={emailValue}
+            onInvalid={handleEmailValidation}
           />
-        </label>
-        <label>
-          Password
+          <p
+            id='login-email-error'
+            className='login__input-error'
+            aria-live='assertive'>
+            {emailError}
+          </p>
+        </div>
+        <div className='login__input-container'>
+          <label htmlFor='login-password-input' className='login__label'>
+            Password
+          </label>
+          <div className='login__input-wrapper'>
+            <input
+              ref={passwordRef}
+              id='login-password-input'
+              className='login__input'
+              type={showPassword ? 'text' : 'password'}
+              required
+              aria-describedby='login-password-error login-generic-error'
+              aria-invalid={passwordError || genericError ? 'true' : 'false'}
+              onChange={handlePasswordChange}
+              value={passwordValue}
+              onInvalid={handlePassowordValidation}
+            />
+            <button
+              className='login__show-password has-tooltip'
+              type='button'
+              aria-pressed={showPassword ? 'true' : 'false'}
+              onClick={() => setShowPassword((s) => !s)}>
+              <span className='visually-hidden'>Password visibility</span>
+              <Icons
+                name={showPassword ? 'eyeOff' : 'eye'}
+                width='20'
+                height='20'
+              />
+              <span aria-hidden='true'>
+                <Tooltip
+                  text={showPassword ? 'Hide' : 'Show'}
+                  tip='bottom'
+                  hasWrapper={false}
+                />
+              </span>
+            </button>
+          </div>
+          <p
+            id='login-password-error'
+            className='login__input-error'
+            aria-live='assertive'>
+            {passwordError}
+          </p>
+        </div>
+        <div className='login__checkbox-container'>
           <input
-            ref={passwordRef}
-            className='login__input'
-            type='password'
-            minLength={8}
-            maxLength={30}
-            required
-            value={passwordValue}
-            onChange={handlePasswordChange}
+            id='login-persist-checkbox'
+            className='login__checkbox'
+            type='checkbox'
+            onChange={handleCheckboxChange}
+            checked={persist}
           />
-        </label>
-        <button className='login__button' type='submit'>
+          <label htmlFor='login-persist-checkbox' className='login__label'>
+            Stay signed in
+          </label>
+        </div>
+        <button ref={submitButtonRef} className='login__submit' type='submit'>
           Sign in
         </button>
       </form>
-      <p>{answer}</p>
+      <div className='login__links'>
+        <p>
+          <strong>Can&apos;t sign in? </strong> -{' '}
+          <Link className='login__link' to='/auth/password-reset'>
+            Reset your password
+          </Link>
+        </p>
+        <p>
+          New to /////////? -{' '}
+          <Link className='login__link' to='/auth/register'>
+            Create an account
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

@@ -79,12 +79,32 @@ const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
                     {movie.imdb?.rating ?? noInfoSpan}
                   </span>
                 </div>
+                <Tooltip
+                  tip='bottom'
+                  text='Rate'
+                  hasWrapper={true}
+                  id='card-user-rating-tooltip'>
+                  <button
+                    className='card__button-rating has-tooltip-with-wrapper'
+                    aria-labelledby='card-user-rating-tooltip card-user-rating-number'>
+                    <Icons
+                      name={'star'}
+                      svgClassName={'card__star card__star--blue'}
+                    />
+                    <span id='card-user-rating-number' className='card__number'>
+                      {null}
+                    </span>
+                  </button>
+                </Tooltip>
                 <div className='card__duration'>
-                  <Icons width='18' height='18' name='clock' />
                   <span className='card__time'>
                     <span className='visually-hidden'>duration, </span>
-                    {movie?.runtime ?? noInfoSpan}m
-                    <span className='visually-hidden'>inutes</span>
+                    {movie?.runtime ?? noInfoSpan}
+                    {movie?.runtime ? (
+                      <>
+                        m<span className='visually-hidden'>inutes</span>
+                      </>
+                    ) : null}
                   </span>
                 </div>
                 <Tooltip

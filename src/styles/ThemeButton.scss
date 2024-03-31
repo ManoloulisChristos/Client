@@ -1,22 +1,29 @@
-.theme-button {
-  background: none;
-  inline-size: 1.6rem;
-  block-size: 1.6rem;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  -webkit-tap-highlight-color: transparent;
-
-  outline-offset: 6px;
-
-  &:focus-visible {
-    outline: 2px solid hsl(var(--primary));
-  }
-}
-
 .theme {
-  inline-size: 100%;
-  block-size: 100%;
-  stroke-linecap: round;
+  &__button {
+    background: none;
+    inline-size: 1.6rem;
+    block-size: 1.6rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    -webkit-tap-highlight-color: transparent;
+
+    outline-offset: 6px;
+
+    &:focus-visible {
+      outline: 2px solid hsl(var(--primary));
+    }
+  }
+
+  &__tooltip {
+    display: flex;
+    align-items: center;
+  }
+
+  &__svg {
+    inline-size: 100%;
+    block-size: 100%;
+    stroke-linecap: round;
+  }
 
   // Moon
   &__mask {

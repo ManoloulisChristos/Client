@@ -59,8 +59,8 @@ function MovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
   const menuItemsRef = useRef(null);
   const initialRenderRef = useRef(true);
 
-  // total results value is updated when all images are fetched and are ready until then it contains the old value
-  // this is done to be in sync with the UI
+  // total results value is updated when all images are fetched and are ready until then, it contains the old value.
+  // This is done to be in sync with the UI
   let pageCount = null;
   if (totalResults) {
     pageCount = Math.ceil(totalResults / 20);
@@ -85,7 +85,7 @@ function MovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
     };
     if (key === 'sortBy' || key === 'sort' || key === 'page') {
       obj[key] = val.toString();
-      // force page request to be the first when the sort By option changes
+      // force page request to be the first results page when the sort option changes
       if (key === 'sortBy') {
         obj.page = '1';
         setSpinButtonValue(1);
@@ -137,11 +137,11 @@ function MovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
     }
   };
 
-  const manageRovingTabIndex = (ascending, map, index) => {
+  const manageRovingTabIndex = (ascending, map, setIndex) => {
     if (ascending) {
-      index((n) => (n = (n + 1) % map.size));
+      setIndex((n) => (n = (n + 1) % map.size));
     } else {
-      index((n) => (n = (n - 1 + map.size) % map.size));
+      setIndex((n) => (n = (n - 1 + map.size) % map.size));
     }
   };
 
@@ -276,7 +276,9 @@ function MovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
           e.preventDefault();
           setMenuOptionChecked(menuIndex);
           setMenuOpen(false);
-          setMenuButtonValue(menuMap.get(menuIndex).textContent);
+          const textString = menuMap.get(menuIndex).textContent;
+          setMenuButtonValue(textString);
+          changeQueryString('sortBy', textString);
           barMap.get(0).focus(); //Manually add focus to the menu-button when the user picks an option from the menu
         } else if (!menuOpen && toolbarIndex === 0) {
           e.preventDefault();

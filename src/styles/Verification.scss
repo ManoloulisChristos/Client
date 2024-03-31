@@ -1,0 +1,33 @@
+.verification {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-inline-size: 60ch;
+  margin-inline: auto;
+  margin-block-start: 8rem;
+  padding: 1rem 0.5rem;
+  background-color: hsl(var(--surface2));
+  border: 1px solid hsl(var(--outline-variant));
+  border-radius: 6px;
+  &__heading {
+  }
+  &__paragraph {
+  }
+  &__button {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--on-primary));
+    border-radius: 6px;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
+  }
+}

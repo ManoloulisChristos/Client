@@ -1,67 +1,96 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './app/store';
 import './main.scss';
 import App from './App';
 import ErrorPage from './error-page';
-import MoviesList from './features/Movies/MoviesList';
-import SingleMovie from './features/Movies/SingleMovie';
+import MoviesList from './features/movies/MoviesList';
+import SingleMovie from './features/movies/SingleMovie';
 import Login from './features/auth/Login';
 import Register from './features/auth/Register';
-import PersistLogin from './features/auth/PersistLogin';
 import RequireAuth from './features/auth/RequireAuth';
 import EditUser from './features/user/EditUser';
 import GlobalTest from './components/GlobalTest';
+import PersistLogin from './features/auth/PersistLogin';
+import Verification from './features/auth/Verification';
+import RequireVerification from './features/auth/RequireVerification';
+import Welcome from './features/auth/Welcome';
+import RequestPasswordReset from './features/auth/RequestPasswordReset';
 
 if (import.meta.env.DEV) {
   import('@axe-core/react').then((axe) => axe.default(React, ReactDOM, 1000));
 }
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <App />,
-    errorElement: <ErrorPage />,
-    children: [
-      {
-        path: '/test',
-        element: <GlobalTest />,
-      },
-      {
-        path: '/search/title/:title',
-        element: <MoviesList />,
-      },
-      {
-        path: '/search/id/:id',
-        element: <SingleMovie />,
-      },
-      {
-        path: '/auth/login',
-        element: <Login />,
-      },
-      {
-        path: '/auth/register',
-        element: <Register />,
-      },
-      {
-        element: <PersistLogin />,
-        children: [
-          {
-            element: <RequireAuth />,
-            children: [
-              {
-                path: '/user/:id/edit',
-                element: <EditUser />,
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-]);
+// const router = createBrowserRouter([
+//   {
+//     path: '/',
+//     element: <App />,
+//     errorElement: <ErrorPage />,
+//     children: [
+//       {
+//         path: '/test',
+//         element: <GlobalTest />,
+//       },
+//       {
+//         path: '/search/title/:title',
+//         element: <MoviesList />,
+//       },
+//       {
+//         path: '/search/id/:id',
+//         element: <SingleMovie />,
+//       },
+//       {
+//         path: '/auth/login',
+//         element: <Login />,
+//       },
+//       {
+//         path: '/auth/register',
+//         element: <Register />,
+//       },
+//       {
+//         element: <RequireAuth />,
+//         children: [
+//           {
+//             path: '/user/:id/edit',
+//             element: <EditUser />,
+//           },
+//         ],
+//       },
+//     ],
+//   },
+// ]);
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path='/' element={<App />} errorElement={<ErrorPage />}>
+      <Route path='/test' element={<GlobalTest />} />
+
+      <Route path='/search/title/:title' element={<MoviesList />} />
+      <Route path='/search/id/:id' element={<SingleMovie />} />
+
+      <Route path='/auth/login' element={<Login />} />
+      <Route path='/auth/register' element={<Register />} />
+      <Route path='/auth/verification' element={<Verification />} />
+      <Route path='/auth/welcome' element={<Welcome />} />
+      <Route path='/auth/password-reset' element={<RequestPasswordReset />} />
+
+      <Route element={<PersistLogin />}>
+        <Route element={<RequireAuth />}>
+          <Route element={<RequireVerification />}>
+            <Route path='/user/:id/edit' element={<EditUser />} />
+          </Route>
+        </Route>
+      </Route>
+    </Route>
+  )
+);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

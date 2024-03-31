@@ -60,12 +60,11 @@
   }
 }
 
-.has-tooltip,
 .has-tooltip-with-wrapper {
   // Changing the var values inside the 2nd nest is ok because it is the tooltip that gets selected and it is its own
   // variables and scope
   // Initial position
-  &:not(:hover) {
+  &:not(:focus-visible, :hover) {
     & ~ .tooltip:is([tip-position='top'], :not([tip-position])) {
       --_y: 3px;
     }
@@ -76,6 +75,23 @@
       --_y: -3px;
     }
     & ~ .tooltip:is([tip-position='left'], :not([tip-position])) {
+      --_x: 3px;
+    }
+  }
+}
+
+.has-tooltip {
+  &:not(:focus-visible, :hover) {
+    & .tooltip:is([tip-position='top'], :not([tip-position])) {
+      --_y: 3px;
+    }
+    & .tooltip:is([tip-position='right'], :not([tip-position])) {
+      --_x: -3px;
+    }
+    & .tooltip:is([tip-position='bottom'], :not([tip-position])) {
+      --_y: -3px;
+    }
+    & .tooltip:is([tip-position='left'], :not([tip-position])) {
       --_x: 3px;
     }
   }
@@ -166,7 +182,7 @@
 
   &::after {
     content: '';
-    background: hsl(var(--surface4));
+    background-color: hsl(var(--surface4));
     position: absolute;
     z-index: -1;
     inset: 0;
