@@ -29,8 +29,12 @@
   }
 }
 
+.App {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+}
 .main {
-  min-block-size: calc(98vh - 70px);
   margin-block-start: 70px;
 }
 

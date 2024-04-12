@@ -3,6 +3,10 @@
   margin-inline: auto;
   inline-size: min(40ch, 90vw);
 
+  @media only screen and (max-width: 50em) {
+    margin-block-start: 4rem;
+  }
+
   &__heading {
     --_size-min: 1.6;
     --_size-max: 1.9;

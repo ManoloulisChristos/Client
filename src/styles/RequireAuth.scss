@@ -7,4 +7,28 @@
   margin-inline: auto;
   margin-block-start: 8rem;
   padding: 2rem 1rem;
+
+  @media only screen and (max-width: 50em) {
+    margin-block-start: 4rem;
+  }
+
+  &__heading {
+    --_size-min: 1.6;
+    --_size-max: 1.9;
+    text-align: center;
+    font-size: var(--size-clamp);
+  }
+
+  &__link {
+    color: hsl(var(--primary));
+    font-weight: 500;
+    border-radius: 6px;
+    &:hover {
+      text-decoration: underline;
+    }
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
+  }
 }

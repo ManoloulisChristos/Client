@@ -12,6 +12,7 @@ const authSlice = createSlice({
     },
     clearCredentials: (state, action) => {
       state.token = null;
+      state.userId = null;
     },
     setCredentialsError: (state, action) => {
       const err = action.payload;

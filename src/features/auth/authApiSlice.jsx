@@ -30,9 +30,10 @@ export const authApiSlice = apiSlice.injectEndpoints({
       },
     }),
     logout: builder.mutation({
-      query: () => ({
+      query: ({ id }) => ({
         url: '/auth/logout',
         method: 'POST',
+        body: { id },
       }),
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
@@ -44,34 +45,46 @@ export const authApiSlice = apiSlice.injectEndpoints({
         }
       },
     }),
-    // ({ user, token }) =>
-    //     `/auth/verification?user=${user}&token=${token}`,
+
     getVerification: builder.query({
-      query: ({ user, token }) =>
-        `/auth/verification?user=${user}&token=${token}`,
-      async onQueryStarted(args, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          if (data?.accessToken && data?.userIdToken) {
-            const { accessToken, userIdToken } = data;
-            dispatch(
-              setCredentials({
-                accessToken,
-                userIdToken,
-              })
-            );
-          }
-        } catch (error) {
-          return error;
+      queryFn: async ({ user, token }, api, extraOptions, baseQuery) => {
+        const result = await baseQuery(
+          `/auth/verification?user=${user}&token=${token}`
+        );
+        if (result.error) return { error: result.error };
+        // Refresh the users tokens in order the isVerified property to be true
+        const refresh = await baseQuery('/auth/refresh');
+        if (refresh.data) {
+          api.dispatch(setCredentials(refresh.data));
         }
+
+        return { data: result.data };
       },
-      keepUnusedDataFor: 0,
     }),
     sendVerificationEmail: builder.mutation({
       query: ({ id }) => ({
         url: '/auth/verification/resend',
         method: 'POST',
         body: { id },
+      }),
+    }),
+    sendPasswordResetEmail: builder.mutation({
+      query: ({ email }) => ({
+        url: '/auth/password/resend',
+        method: 'POST',
+        body: { email },
+      }),
+    }),
+    getPasswordValidation: builder.query({
+      query: ({ user, token }) =>
+        `auth/password/validation?user=${user}&token=${token}`,
+      keepUnusedDataFor: 0,
+    }),
+    sendNewPassword: builder.mutation({
+      query: ({ password, user, token }) => ({
+        url: `auth/password/validation?user=${user}&token=${token}`,
+        method: 'POST',
+        body: { password },
       }),
     }),
   }),
@@ -84,4 +97,7 @@ export const {
   useLogoutMutation,
   useGetVerificationQuery,
   useSendVerificationEmailMutation,
+  useSendPasswordResetEmailMutation,
+  useGetPasswordValidationQuery,
+  useSendNewPasswordMutation,
 } = authApiSlice;

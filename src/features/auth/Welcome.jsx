@@ -5,7 +5,7 @@ import VerificationBoilerplate from './VerificationBoilerplate';
 
 const Welcome = () => {
   const { id, isVerified } = useAuth() ?? { id: null, isVerified: null };
-  const [sendEmail] = useSendVerificationEmailMutation();
+  const [sendEmail, { error }] = useSendVerificationEmailMutation();
 
   const handleResendEmail = async () => {
     await sendEmail({ id });
@@ -17,9 +17,10 @@ const Welcome = () => {
         <VerificationBoilerplate
           title={'Welcome'}
           onClick={handleResendEmail}
+          error={error}
         />
       ) : (
-        <Navigate to='/nothing-to-see-here' replace={true} />
+        <Navigate to='/' replace={true} />
       )}
     </>
   );

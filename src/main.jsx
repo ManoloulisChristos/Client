@@ -23,6 +23,8 @@ import Verification from './features/auth/Verification';
 import RequireVerification from './features/auth/RequireVerification';
 import Welcome from './features/auth/Welcome';
 import RequestPasswordReset from './features/auth/RequestPasswordReset';
+import PasswordResetValidation from './features/auth/PasswordResetValidation';
+import UserAccount from './features/user/UserAccount';
 
 if (import.meta.env.DEV) {
   import('@axe-core/react').then((axe) => axe.default(React, ReactDOM, 1000));
@@ -79,12 +81,16 @@ const router = createBrowserRouter(
       <Route path='/auth/register' element={<Register />} />
       <Route path='/auth/verification' element={<Verification />} />
       <Route path='/auth/welcome' element={<Welcome />} />
-      <Route path='/auth/password-reset' element={<RequestPasswordReset />} />
+      <Route path='/auth/password' element={<RequestPasswordReset />} />
+      <Route
+        path='/auth/password/validation'
+        element={<PasswordResetValidation />}
+      />
 
       <Route element={<PersistLogin />}>
         <Route element={<RequireAuth />}>
           <Route element={<RequireVerification />}>
-            <Route path='/user/:id/edit' element={<EditUser />} />
+            <Route path='/user/:id/settings' element={<UserAccount />} />
           </Route>
         </Route>
       </Route>

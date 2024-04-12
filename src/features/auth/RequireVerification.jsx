@@ -6,7 +6,7 @@ import VerificationBoilerplate from './VerificationBoilerplate';
 const RequireVerification = () => {
   const { id, isVerified } = useAuth();
 
-  const [sendEmail] = useSendVerificationEmailMutation();
+  const [sendEmail, { error }] = useSendVerificationEmailMutation();
 
   const handleResendEmail = async () => {
     await sendEmail({ id });
@@ -18,6 +18,7 @@ const RequireVerification = () => {
         <VerificationBoilerplate
           title={'Verification Required'}
           onClick={handleResendEmail}
+          error={error}
         />
       ) : (
         <Outlet />

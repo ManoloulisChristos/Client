@@ -7,6 +7,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icons from '../../components/Icons';
 import Tooltip from '../../components/Tooltip';
 import usePersist from '../../hooks/usePersist';
+import useSession from '../../hooks/useSession';
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -68,12 +69,15 @@ const Login = () => {
             password: passwordValue,
             persist,
           }).unwrap();
+          //works only this way (i cannot use the hook and i dont know why)
+          sessionStorage.setItem('session', 'true');
           dispatch(setCredentials({ accessToken, userIdToken }));
           const toLocation = location?.state?.from ?? '..';
           // Toast
           navigate(toLocation);
         } catch (error) {
-          setGenericError(error.data.message);
+          console.log(error);
+          setGenericError(error?.data?.message);
         }
       }
     }
@@ -137,7 +141,7 @@ const Login = () => {
               onClick={() => setShowPassword((s) => !s)}>
               <span className='visually-hidden'>Password visibility</span>
               <Icons
-                name={showPassword ? 'eyeOff' : 'eye'}
+                name={showPassword ? 'eye' : 'eyeOff'}
                 width='20'
                 height='20'
               />
@@ -176,7 +180,7 @@ const Login = () => {
       <div className='login__links'>
         <p>
           <strong>Can&apos;t sign in? </strong> -{' '}
-          <Link className='login__link' to='/auth/password-reset'>
+          <Link className='login__link' to='/auth/password'>
             Reset your password
           </Link>
         </p>

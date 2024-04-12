@@ -21,6 +21,7 @@ import MoviesListToolbar from './MoviesListToolbar';
 import MovieDetailsModal from './MovieDetailsModal';
 import '../../styles/MoviesList.scss';
 import { useSelector } from 'react-redux';
+import RatingModal from './RatingModal';
 
 // The data are coming as an array with 2 objects
 // 1. The movies that are nested inside as an Array of Objects
@@ -64,9 +65,11 @@ const MoviesList = () => {
     previousTitle: '',
     currentTitle: '',
   });
-  const [dialogMovie, setDialogMovie] = useState();
+  const [modalData, setModalData] = useState();
+
+  const movieModalRef = useRef(null);
+  const ratingModalRef = useRef(null);
   const counterRef = useRef(new Set());
-  const dialogRef = useRef(null);
 
   const [trackPage, setTrackPage] = useState({
     previous: parseInt(pageQuery),
@@ -231,7 +234,7 @@ const MoviesList = () => {
     ));
   };
 
-  // Used only in Images Component to decide when all the images have been loaded
+  // Used only in Images Component(end of file) to decide when all the images have been loaded
   const imagesReady = useCallback(() => {
     const currMovies = currentData[0].movies;
     if (counterRef.current.size === currMovies.length) {
@@ -269,7 +272,8 @@ const MoviesList = () => {
       {/* Only one dialog element is rendered here for all Card components, because rendering one for each Card slows down the whole app,
        eg: I get more than 130ms recalculation of styles when a user presses the theme toggle button which is obvious and annoying.
        So one global id is used for all the buttons that control the opening of the dialog in all Card components  */}
-      <MovieDetailsModal movie={dialogMovie} ref={dialogRef} />
+      <MovieDetailsModal movie={modalData} ref={movieModalRef} />
+      <RatingModal movie={modalData} ref={ratingModalRef} />
       {initial ? (
         <Spinner />
       ) : (
@@ -313,8 +317,9 @@ const MoviesList = () => {
                     <Card
                       movie={movie}
                       key={`${movie?._id}`}
-                      dialogRef={dialogRef}
-                      setDialogMovie={setDialogMovie}
+                      movieModalRef={movieModalRef}
+                      setModalData={setModalData}
+                      ratingModalRef={ratingModalRef}
                     />
                   ))}
                 </ul>

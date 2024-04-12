@@ -5,7 +5,12 @@ import Icons from '../../components/Icons';
 import Tooltip from '../../components/Tooltip';
 import '../../styles/Card.scss';
 
-const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
+const Card = memo(function Card({
+  movie,
+  movieModalRef,
+  setModalData,
+  ratingModalRef,
+}) {
   const view = useSelector((state) => state.moviesToolbar.view);
 
   let gridView = true;
@@ -13,10 +18,12 @@ const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
     gridView = false;
   }
 
+  // Placeholder when there is no image
   const handleError = (e) => {
     e.target.src = '/no_image.png';
   };
 
+  // Default when there is no data
   const noInfoSpan = (
     <span>
       <span aria-hidden='true'>--</span>
@@ -24,6 +31,7 @@ const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
     </span>
   );
 
+  // Normalize time
   const calcDuration = (time) => {
     if (time) {
       const hours = Math.floor(time / 60);
@@ -86,7 +94,15 @@ const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
                   id='card-user-rating-tooltip'>
                   <button
                     className='card__button-rating has-tooltip-with-wrapper'
-                    aria-labelledby='card-user-rating-tooltip card-user-rating-number'>
+                    aria-labelledby='card-user-rating-tooltip card-user-rating-number'
+                    aria-haspopup='dialog'
+                    aria-controls='rating-modal'
+                    aria-expanded='false'
+                    onClick={() => {
+                      setModalData(movie);
+                      ratingModalRef.current.showModal();
+                      ratingModalRef.current.removeAttribute('inert');
+                    }}>
                     <Icons
                       name={'star'}
                       svgClassName={'card__star card__star--blue'}
@@ -120,9 +136,9 @@ const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
                     aria-controls='movie-details-modal'
                     aria-expanded='false'
                     onClick={() => {
-                      setDialogMovie(movie);
-                      dialogRef.current.showModal();
-                      dialogRef.current.removeAttribute('inert');
+                      setModalData(movie);
+                      movieModalRef.current.showModal();
+                      movieModalRef.current.removeAttribute('inert');
                     }}>
                     <Icons name={'info'} svgClassName='card__i' />
                   </button>
@@ -198,9 +214,9 @@ const Card = memo(function Card({ movie, dialogRef, setDialogMovie }) {
                     aria-controls='movie-details-modal'
                     aria-expanded='false'
                     onClick={() => {
-                      setDialogMovie(movie);
-                      dialogRef.current.showModal();
-                      dialogRef.current.removeAttribute('inert');
+                      setModalData(movie);
+                      movieModalRef.current.showModal();
+                      movieModalRef.current.removeAttribute('inert');
                     }}>
                     <Icons name={'info'} svgClassName='card-list__i' />
                   </button>

@@ -3,14 +3,23 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  max-inline-size: 60ch;
+  max-inline-size: min(55ch, 90vw);
   margin-inline: auto;
   margin-block-start: 8rem;
   padding: 1rem 0.5rem;
   background-color: hsl(var(--surface2));
   border: 1px solid hsl(var(--outline-variant));
   border-radius: 6px;
+
+  @media only screen and (max-width: 50em) {
+    margin-block-start: 4rem;
+  }
+
   &__heading {
+    --_size-min: 1.6;
+    --_size-max: 1.9;
+    text-align: center;
+    font-size: var(--size-clamp);
   }
   &__paragraph {
   }
@@ -29,5 +38,8 @@
       outline: var(--focus);
       outline-offset: 2px;
     }
+  }
+  &__error {
+    color: hsl(var(--error));
   }
 }

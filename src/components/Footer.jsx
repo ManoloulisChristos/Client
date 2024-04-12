@@ -2,7 +2,8 @@ import ToastsPortal from '../features/toast/ToastsPortal';
 
 const Footer = () => {
   return (
-    <footer>
+    <footer style={{ marginBlockStart: 'auto' }}>
+      {/* <footer> */}
       footer goes here........
       <ToastsPortal />
     </footer>

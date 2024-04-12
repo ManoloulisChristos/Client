@@ -2,12 +2,17 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import usePersist from '../../hooks/usePersist';
 import useAuth from '../../hooks/useAuth';
-import { useRefreshMutation } from '../../features/auth/authApiSlice';
+import {
+  useLogoutMutation,
+  useRefreshMutation,
+} from '../../features/auth/authApiSlice';
 import Icons from '../Icons';
 import Tooltip from '../Tooltip';
+import useSession from '../../hooks/useSession';
 
 const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
   const [persist] = usePersist();
+  const [session] = useSession();
   const token = useAuth();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,6 +24,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
   const [refresh, { isLoading }] = useRefreshMutation({
     fixedCacheKey: 'RefreshOnAppStart',
   });
+  const [logout] = useLogoutMutation();
 
   const getMenuItemsMap = () => {
     if (!menuItemsRef.current) {
@@ -106,14 +112,22 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
     }
   };
 
+  const handleLogoutClick = async () => {
+    await logout({ id: token?.id });
+  };
+
+  const handleLinkClick = () => {
+    setMenuOpen(false);
+  };
+
   useLayoutEffect(() => {
     const verifyRefreshToken = async () => {
-      if (!token && persist) {
+      if ((persist || session) && !token) {
         await refresh();
       }
     };
     verifyRefreshToken();
-  }, [persist, token, refresh]);
+  }, [persist, session, token, refresh]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -121,6 +135,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
     }
   }, [menuOpen, menuIndex]);
 
+  // Close menu when clicking outside
   useEffect(() => {
     const click = (e) => {
       const isMenuButton = e.target.closest('#navigation-menu-button');
@@ -188,7 +203,8 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
                 ref={(node) => insertNodesToMapRef(node, 0)}
                 role='menuitem'
                 className='header__menu-link'
-                tabIndex={menuIndex === 0 && menuOpen ? 0 : -1}>
+                tabIndex={menuIndex === 0 && menuOpen ? 0 : -1}
+                onClick={handleLinkClick}>
                 Watchlist
               </Link>
             </li>
@@ -197,16 +213,19 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
                 ref={(node) => insertNodesToMapRef(node, 1)}
                 role='menuitem'
                 className='header__menu-link'
-                tabIndex={menuIndex === 1 && menuOpen ? 0 : -1}>
+                tabIndex={menuIndex === 1 && menuOpen ? 0 : -1}
+                onClick={handleLinkClick}>
                 Ratings
               </Link>
             </li>
             <li role='none' className='header__menu-item'>
               <Link
                 ref={(node) => insertNodesToMapRef(node, 2)}
+                to={`/user/${token?.id}/settings`}
                 role='menuitem'
                 className='header__menu-link'
-                tabIndex={menuIndex === 2 && menuOpen ? 0 : -1}>
+                tabIndex={menuIndex === 2 && menuOpen ? 0 : -1}
+                onClick={handleLinkClick}>
                 Settings
               </Link>
             </li>
@@ -215,6 +234,10 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
                 ref={(node) => insertNodesToMapRef(node, 3)}
                 role='menuitem'
                 className='header__menu-link'
+                onClick={() => {
+                  handleLogoutClick();
+                  handleLinkClick();
+                }}
                 tabIndex={menuIndex === 3 && menuOpen ? 0 : -1}>
                 Sign out
               </Link>

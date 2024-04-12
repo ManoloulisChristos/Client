@@ -259,7 +259,7 @@ const Register = () => {
               onClick={() => setShowPassword((s) => !s)}>
               <span className='visually-hidden'>Password Visibility</span>
               <Icons
-                name={showPassword ? 'eyeOff' : 'eye'}
+                name={showPassword ? 'eye' : 'eyeOff'}
                 width='20'
                 height='20'
               />
@@ -312,7 +312,7 @@ const Register = () => {
                 Confirm password visibility
               </span>
               <Icons
-                name={showConfirmPassword ? 'eyeOff' : 'eye'}
+                name={showConfirmPassword ? 'eye' : 'eyeOff'}
                 width='20'
                 height='20'
               />

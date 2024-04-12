@@ -53,8 +53,6 @@ function App() {
       <div className='top-level-sentinel' ref={topLevelSentinelRef}></div>
       <Navbar topLevelSentinelRef={topLevelSentinelRef} />
       <main id='main-content' className='main'>
-        <Link to='/user/65d7050f1d520cbb6a0376c2/edit'>USER</Link>
-
         <Outlet />
       </main>
       <Footer />
