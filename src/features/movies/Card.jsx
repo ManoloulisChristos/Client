@@ -1,17 +1,57 @@
 import { Link } from 'react-router-dom';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Icons from '../../components/Icons';
 import Tooltip from '../../components/Tooltip';
 import '../../styles/Card.scss';
+import { useGetRatingsQuery } from '../ratings/ratingsApiSlice';
+import useAuth from '../../hooks/useAuth';
+import {
+  useAddToWatchlistMutation,
+  useDeleteFromWatchlistMutation,
+  useGetWatchlistQuery,
+} from '../watchlist/watchlistApiSlice';
 
 const Card = memo(function Card({
   movie,
-  movieModalRef,
   setModalData,
+  setRatedMovieData,
+  movieModalRef,
   ratingModalRef,
 }) {
   const view = useSelector((state) => state.moviesToolbar.view);
+
+  const auth = useAuth();
+
+  // Fetch ratings/watchlist only when i have the userId
+  let skipRatingsRequest = true;
+
+  if (auth?.id) {
+    skipRatingsRequest = false;
+  }
+
+  const { rating } = useGetRatingsQuery(
+    { userId: auth?.id },
+    {
+      skip: skipRatingsRequest,
+      selectFromResult: ({ data }) => ({
+        rating: data?.find(({ movieId }) => movieId === movie._id) ?? null,
+      }),
+    }
+  );
+
+  const { watchlist } = useGetWatchlistQuery(
+    { userId: auth?.id },
+    {
+      skip: skipRatingsRequest,
+      selectFromResult: ({ data }) => ({
+        watchlist: data?.find(({ movieId }) => movieId === movie._id ?? null),
+      }),
+    }
+  );
+
+  const [addToWatchlist] = useAddToWatchlistMutation();
+  const [deleteFromWatchlist] = useDeleteFromWatchlistMutation();
 
   let gridView = true;
   if (view && view === 'list') {
@@ -30,6 +70,14 @@ const Card = memo(function Card({
       <span className='visually-hidden'>uknown</span>
     </span>
   );
+
+  const handleWatchlistClick = async () => {
+    if (watchlist) {
+      await deleteFromWatchlist({ userId: auth.id, movieId: movie._id });
+    } else {
+      await addToWatchlist({ userId: auth.id, movieId: movie._id });
+    }
+  };
 
   // Normalize time
   const calcDuration = (time) => {
@@ -53,6 +101,7 @@ const Card = memo(function Card({
     }
     return noInfoSpan;
   };
+
   return (
     <>
       {movie ? (
@@ -100,15 +149,18 @@ const Card = memo(function Card({
                     aria-expanded='false'
                     onClick={() => {
                       setModalData(movie);
+                      setRatedMovieData(rating);
                       ratingModalRef.current.showModal();
                       ratingModalRef.current.removeAttribute('inert');
                     }}>
                     <Icons
                       name={'star'}
-                      svgClassName={'card__star card__star--blue'}
+                      svgClassName={`card__star card__star--blue ${
+                        rating?.rating ? 'card__star--blue-filled' : ''
+                      }`}
                     />
                     <span id='card-user-rating-number' className='card__number'>
-                      {null}
+                      {rating?.rating}
                     </span>
                   </button>
                 </Tooltip>
@@ -146,8 +198,12 @@ const Card = memo(function Card({
               </div>
               <button
                 type='button'
-                className='card__button card__button--watchlist'>
-                <Icons name={'plus'} svgClassName={'card__plus'} />
+                className='card__button card__button--watchlist'
+                onClick={handleWatchlistClick}>
+                <Icons
+                  name={watchlist ? 'check' : 'plus'}
+                  svgClassName={'card__plus'}
+                />
                 Watchlist
               </button>
             </li>
@@ -184,6 +240,38 @@ const Card = memo(function Card({
                       {movie.imdb?.rating ?? noInfoSpan}
                     </span>
                   </div>
+                  <div>
+                    <Tooltip
+                      tip='bottom'
+                      text='Rate'
+                      hasWrapper={true}
+                      id='card-user-rating-tooltip'>
+                      <button
+                        className='card-list__button-rating has-tooltip-with-wrapper'
+                        aria-labelledby='card-user-rating-tooltip card-user-rating-number'
+                        aria-haspopup='dialog'
+                        aria-controls='rating-modal'
+                        aria-expanded='false'
+                        onClick={() => {
+                          setModalData(movie);
+                          setRatedMovieData(rating);
+                          ratingModalRef.current.showModal();
+                          ratingModalRef.current.removeAttribute('inert');
+                        }}>
+                        <Icons
+                          name={'star'}
+                          svgClassName={`card-list__star card-list__star--blue ${
+                            rating?.rating ? 'card-list__star--blue-filled' : ''
+                          }`}
+                        />
+                        <span
+                          id='card-user-rating-number'
+                          className='card-list__number'>
+                          {rating?.rating}
+                        </span>
+                      </button>
+                    </Tooltip>
+                  </div>
                   <div className='card-list__duration'>
                     <span className='visually-hidden'>duration, </span>
                     {calcDuration(movie?.runtime)}
@@ -195,8 +283,12 @@ const Card = memo(function Card({
                 </div>
                 <button
                   type='button'
-                  className='card-list__button card-list__button--watchlist'>
-                  <Icons name={'plus'} svgClassName={'card-list__plus'} />
+                  className='card-list__button card-list__button--watchlist'
+                  onClick={handleWatchlistClick}>
+                  <Icons
+                    name={watchlist ? 'check' : 'plus'}
+                    svgClassName={'card-list__plus'}
+                  />
                   Watchlist
                 </button>
               </div>

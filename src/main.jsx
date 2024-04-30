@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import {
   createBrowserRouter,
   createRoutesFromElements,
+  Navigate,
   Route,
   RouterProvider,
 } from 'react-router-dom';
@@ -87,9 +88,14 @@ const router = createBrowserRouter(
         element={<PasswordResetValidation />}
       />
 
+      {/* Protected Routes */}
       <Route element={<PersistLogin />}>
         <Route element={<RequireAuth />}>
           <Route element={<RequireVerification />}>
+            <Route
+              path='/verification'
+              element={<Navigate to='/' replace={true} />}
+            />
             <Route path='/user/:id/settings' element={<UserAccount />} />
           </Route>
         </Route>

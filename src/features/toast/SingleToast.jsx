@@ -6,7 +6,7 @@ const Toast = ({ toast }) => {
   const dispatch = useDispatch();
 
   const handleAnimationEnd = (e) => {
-    if (e.animationName === 'fade-out') {
+    if (e.animationName === 'toast-fade-out') {
       dispatch(deleteToast(toast.id));
     }
   };

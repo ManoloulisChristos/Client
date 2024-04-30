@@ -1,55 +1,57 @@
-// .toast {
-//   &__container {
-//     position: fixed;
-//     inset-block-end: 0;
-//     inset-inline: 0;
-//     z-index: 2;
-//     padding-block-end: 5vh;
+.toast {
+  &__container {
+    position: fixed;
+    inset-block-end: 0;
+    inset-inline: 0;
+    z-index: 2;
+    padding-block-end: 5vh;
 
-//     display: grid;
-//     justify-content: center;
-//     justify-items: center;
-//     gap: 1vh;
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+    gap: 1vh;
 
-//     // pointer-events: none;
-//   }
+    // pointer-events: none;
+  }
 
-//   &__item {
-//     --_duration: 3s;
-//     --_travel-distance: 0;
+  &__item {
+    --_duration: 3s;
+    --_travel-distance: 0;
 
-//     max-inline-size: min(25ch, 90vw);
-//     padding-block: 0.5ch;
-//     padding-inline: 1ch;
-//     font-size: 1.2rem;
-//     color: $text-color-white;
-//     background-color: $bg-color-box;
-//     border: 1px solid $border-color;
-//     border-radius: 12px;
+    max-inline-size: min(25ch, 90vw);
+    padding-block: 0.5ch;
+    padding-inline: 1ch;
+    font-size: 1rem;
+    color: hsl(var(--on-success));
+    background-color: hsl(var(--success));
+    border: 1px solid hsl(var(--success-outline));
+    border-radius: 8px;
+    word-wrap: break-word;
 
-//     will-change: transform;
-//     animation: fade-in 0.3s ease, slide-in 0.3s ease, fade-out 0.3s ease 3s;
+    will-change: transform;
+    animation: toast-fade-in 0.3s ease, toast-slide-in 0.3s ease,
+      toast-fade-out 0.3s ease 3s;
 
-//     @media (prefers-reduced-motion: no-preference) {
-//       --_travel-distance: 5vh;
-//     }
-//   }
-// }
+    @media (prefers-reduced-motion: no-preference) {
+      --_travel-distance: 5vh;
+    }
+  }
+}
 
-// @keyframes fade-in {
-//   from {
-//     opacity: 0;
-//   }
-// }
+@keyframes toast-fade-in {
+  from {
+    opacity: 0;
+  }
+}
 
-// @keyframes fade-out {
-//   to {
-//     opacity: 0;
-//   }
-// }
+@keyframes toast-fade-out {
+  to {
+    opacity: 0;
+  }
+}
 
-// @keyframes slide-in {
-//   from {
-//     transform: translateY(var(--_travel-distance, 10px));
-//   }
-// }
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(var(--_travel-distance, 10px));
+  }
+}

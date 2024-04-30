@@ -195,6 +195,12 @@ const UserIcon = ({ width, height, svgClassName }) => (
   </IconWrapper>
 );
 
+const CheckIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <polyline points='20 6 9 17 4 12'></polyline>
+  </IconWrapper>
+);
+
 const iconsMap = {
   clock: ClockIcon,
   calendar: CalendarIcon,
@@ -218,6 +224,7 @@ const iconsMap = {
   eyeOff: EyeOffIcon,
   lock: LockIcon,
   user: UserIcon,
+  check: CheckIcon,
 };
 
 // All the icons are wrapped with an svg element which has a standard viewbox since all icons come from feathericons.com

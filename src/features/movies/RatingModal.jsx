@@ -1,17 +1,40 @@
 import { forwardRef, useState, useRef, useEffect } from 'react';
 import '../../styles/RatingModal.scss';
 import Icons from '../../components/Icons';
+import {
+  useAddRatingMutation,
+  useUpdateRatingMutation,
+} from '../ratings/ratingsApiSlice';
+import useAuth from '../../hooks/useAuth';
 
-const RatingModal = forwardRef(function RatingModal({ movie }, ref) {
+const RatingModal = forwardRef(function RatingModal(
+  { movie, ratedMovieData },
+  ref
+) {
   const [rangeValue, setRangeValue] = useState('1');
+  const [trackRatedMovieId, setTrackRatedMovieId] = useState(''); // Track previous movie.
+  const [rotateStar, setRotateStar] = useState(false); // Polygon transition property.
+  const auth = useAuth();
+  const [addRating] = useAddRatingMutation();
+  const [updateRating] = useUpdateRatingMutation();
 
   const svgRef = useRef(null);
   const radialRef = useRef(null);
   const textRef = useRef({ node: null, animationIn: null, animationOut: null });
-  const openingAnimationRef = useRef(null);
-  const closingAnimationRef = useRef(null);
+  const radialOpenAnimRef = useRef(null);
+  const radialCloseAnimRef = useRef(null);
   const timeoutIdRef = useRef(null);
   const canPlayRef = useRef(true);
+
+  // If the movie is different from previous check if it is rated
+  if (movie?._id !== trackRatedMovieId) {
+    if (ratedMovieData) {
+      setRangeValue(String(ratedMovieData.rating));
+    } else {
+      setRangeValue('1');
+    }
+    setTrackRatedMovieId(movie?._id);
+  }
 
   const handleRangeInputChange = (e) => {
     if (timeoutIdRef.current) {
@@ -19,27 +42,59 @@ const RatingModal = forwardRef(function RatingModal({ movie }, ref) {
     }
 
     setRangeValue(e.target.value);
+    setRotateStar(true);
+
+    // Do not animate based on users preference
+    // beginElement() will not be called so the events in the useEffect won't trigger.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
 
     if (canPlayRef.current) {
-      openingAnimationRef.current.beginElement();
-      if (textRef.current.animationIn) textRef.current.animationIn.cancel();
+      // Play animation only when the radialClosing animation has started or nothing else is playing!
+      // This ensures that when the user makes multiple interactions the animation does not
+      // restart if it has finished playing and stays in the frozen state.
+      // Combination of fill = freeze + restart = whenNotActive + beginElement();
+      radialOpenAnimRef.current.beginElement();
+      // Cancel text shrinking if it has started (text-shrink is connected with the radialCloseAnim)
       if (textRef.current.animationOut) textRef.current.animationOut.cancel();
       canPlayRef.current = false;
     }
 
+    // Wait and see if the user makes another interaction, then start the radialCloseAnim and permit
+    // the radialOpenAnim to play again if the user makes another interaction.
+    // Timer must always be greater than the radialOpenAnim duration plus some ms
     timeoutIdRef.current = setTimeout(() => {
-      closingAnimationRef.current.beginElement();
+      radialCloseAnimRef.current.beginElement();
       canPlayRef.current = true;
-      console.log('TIMEOUT');
     }, 410);
   };
 
-  // Write comments, remember the freeze and the beginElement(), maybe move the animationOut in the timeout with delay
+  const handleSubmitClick = async () => {
+    if (!ratedMovieData) {
+      await addRating({
+        userId: auth.id,
+        movieId: movie._id,
+        rating: rangeValue,
+      });
+    } else {
+      await updateRating({
+        userId: auth.id,
+        movieId: movie._id,
+        rating: rangeValue,
+      });
+    }
+    ref.current.close();
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+  };
 
   useEffect(() => {
     const closingAnimationStart = async () => {
       radialRef.current.setAttribute('spreadMethod', 'repeat');
-      textRef.current.animationIn = textRef.current.node.animate(
+      textRef.current.animationOut = textRef.current.node.animate(
         [
           {
             transform: 'scale(1)',
@@ -55,18 +110,24 @@ const RatingModal = forwardRef(function RatingModal({ movie }, ref) {
         ],
         {
           duration: 950,
-          fill: 'forwards',
+          fill: 'forwards', //get's removed automatically because the other animation is filling after it
         }
       );
-
-      // await textRef.current.animationIn.finished;
-      // textRef.current.animationIn.commitStyles();
-      // textRef.current.animationIn.cancel();
     };
 
+    // This event triggers even if the radialCloseAnim restarts or gets canceled by calling
+    // the radialOpenAnim begin method. If it starts the end event always fires.
+    // In the spec it states that there is a timeline array where begin and end events are pushed into.
+    // Maybe if it gets pushed in the array it does not pop out when the animation is cancelled.
     const closingAnimationEnd = async () => {
       radialRef.current.setAttribute('spreadMethod', 'pad');
-      textRef.current.animationOut = textRef.current.node.animate(
+
+      // Wait for the text shrink animation to finish before calling the animate method.
+      // Caviat: the cancel() method does not work for the animationIn anywhere that i tried using it
+      // this was the only work around and using pause() with play() or manipulating the currentTime
+      // will add a lot more complexity.
+      await textRef.current.animationOut.finished;
+      textRef.current.animationIn = textRef.current.node.animate(
         [
           {
             transform: 'scale(0)',
@@ -92,21 +153,23 @@ const RatingModal = forwardRef(function RatingModal({ movie }, ref) {
         }
       );
 
-      // await textRef.current.animationOut.finished;
-      // textRef.current.animationOut.commitStyles();
-      // textRef.current.animationOut.cancel();
+      // Commit styles when the animation is finished so the browser clears the animation
+      // instead of keeping it because of the fill: forwards property.
+      await textRef.current.animationOut.finished;
+      textRef.current.animationOut.commitStyles();
+      textRef.current.animationOut.cancel();
     };
 
-    closingAnimationRef.current.addEventListener(
+    radialCloseAnimRef.current.addEventListener(
       'beginEvent',
       closingAnimationStart
     );
-    closingAnimationRef.current.addEventListener(
+    radialCloseAnimRef.current.addEventListener(
       'endEvent',
       closingAnimationEnd
     );
 
-    let cleanup = closingAnimationRef.current;
+    let cleanup = radialCloseAnimRef.current;
     return () => {
       cleanup.removeEventListener('beginEvent', closingAnimationStart);
       cleanup.removeEventListener('endEvent', closingAnimationEnd);
@@ -119,8 +182,8 @@ const RatingModal = forwardRef(function RatingModal({ movie }, ref) {
       id='rating-modal'
       className='rating-modal'
       inert=''
-      onClose={(e) => console.log(e)}>
-      <form className='rating-modal__form'>
+      onClose={(e) => setRotateStar(false)}>
+      <form className='rating-modal__form' onSubmit={handleSubmit}>
         <section
           className='rating-modal__section'
           aria-labelledby='rating-modal-title'>
@@ -146,15 +209,15 @@ const RatingModal = forwardRef(function RatingModal({ movie }, ref) {
             <svg
               ref={(node) => {
                 if (node) {
-                  node.style.setProperty('--range', rangeValue);
+                  node.style.setProperty('--_range', rangeValue);
                   svgRef.current = node;
                 } else {
                   svgRef.current = null;
                 }
               }}
               xmlns='http://www.w3.org/2000/svg'
-              width='80'
-              height='80'
+              width='100'
+              height='100'
               viewBox='0 0 24 24'
               strokeWidth='1.5'
               strokeLinecap='round'
@@ -171,7 +234,7 @@ const RatingModal = forwardRef(function RatingModal({ movie }, ref) {
                 id='rating-modal-gradient'>
                 <animate
                   id='animate-radial'
-                  ref={openingAnimationRef}
+                  ref={radialOpenAnimRef}
                   attributeName='r'
                   values='0%;50%'
                   begin='indefinite'
@@ -181,7 +244,7 @@ const RatingModal = forwardRef(function RatingModal({ movie }, ref) {
                 />
 
                 <animate
-                  ref={closingAnimationRef}
+                  ref={radialCloseAnimRef}
                   attributeName='r'
                   values='50%;0%'
                   begin='indefinite'
@@ -189,17 +252,16 @@ const RatingModal = forwardRef(function RatingModal({ movie }, ref) {
                   fill='freeze'
                 />
 
-                <stop offset='0%' stopColor='#654ea3' />
-                <stop offset='50%' stopColor='#fdeff9' />
-                <stop offset='100%' stopColor='#eaafc8' />
+                <stop offset='40%' stopColor='#000000' />
+                <stop offset='41%' stopColor='#fcb045' />
+                <stop offset='100%' stopColor='#fcb045' />
               </radialGradient>
               <polygon
-                ref={(node) => {
-                  if (node) node.style.setProperty('--range', rangeValue);
-                }}
                 fill='url(#rating-modal-gradient)'
                 stroke='url(#rating-modal-gradient)'
-                className='rating-modal__svg-polygon'
+                className={`rating-modal__svg-polygon ${
+                  rotateStar ? 'rating-modal__svg-polygon--transition' : ''
+                }`}
                 points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon>
               <text
                 ref={(node) => {
@@ -245,12 +307,16 @@ const RatingModal = forwardRef(function RatingModal({ movie }, ref) {
             </datalist>
           </div>
           <footer className='rating-modal__footer'>
-            <button className='rating-modal__button rating-modal__button--cancel'>
+            <button
+              type='button'
+              className='rating-modal__button rating-modal__button--cancel'
+              onClick={() => ref.current.close()}>
               Cancel
             </button>
             <button
+              type='submit'
               className='rating-modal__button rating-modal__button--submit'
-              type='submit'>
+              onClick={handleSubmitClick}>
               Rate
             </button>
           </footer>

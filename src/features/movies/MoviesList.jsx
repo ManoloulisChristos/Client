@@ -7,21 +7,24 @@ import {
   useMemo,
   useEffect,
 } from 'react';
-import { useGetMoviesWithTitleQuery } from './moviesApiSlice';
 import {
   Link,
   useLocation,
   useParams,
   useSearchParams,
 } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import Card from './Card';
 import ProgressBar from './ProgressBar';
 import Spinner from '../../components/Spinner';
 import MoviesListToolbar from './MoviesListToolbar';
 import MovieDetailsModal from './MovieDetailsModal';
-import '../../styles/MoviesList.scss';
-import { useSelector } from 'react-redux';
 import RatingModal from './RatingModal';
+import { useGetMoviesWithTitleQuery } from './moviesApiSlice';
+import { useGetRatingsQuery } from '../ratings/ratingsApiSlice';
+import { useGetWatchlistQuery } from '../watchlist/watchlistApiSlice';
+import useAuth from '../../hooks/useAuth';
+import '../../styles/MoviesList.scss';
 
 // The data are coming as an array with 2 objects
 // 1. The movies that are nested inside as an Array of Objects
@@ -32,6 +35,7 @@ const MoviesList = () => {
   const { title } = params;
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const auth = useAuth();
 
   // Checks the URLSearchParams and asign defaults
   let sortByQuery = 'Default';
@@ -65,7 +69,9 @@ const MoviesList = () => {
     previousTitle: '',
     currentTitle: '',
   });
-  const [modalData, setModalData] = useState();
+
+  const [modalData, setModalData] = useState(); // Sets the movie information for the modals based on the card that was clicked
+  const [ratedMovieData, setRatedMovieData] = useState(null);
 
   const movieModalRef = useRef(null);
   const ratingModalRef = useRef(null);
@@ -90,6 +96,24 @@ const MoviesList = () => {
     [title, sortByQuery, sortQuery, pageQuery]
   );
   const { currentData } = useGetMoviesWithTitleQuery(endpointObject);
+
+  // Fetch the ratings/watchlist only when i have the userId(signed-in).
+  // Fetch in this component so i avoid fetching for every individual card and having multiple requests.
+  let skipRequest = true;
+
+  if (auth?.id) {
+    skipRequest = false;
+  }
+
+  const { data: ratings } = useGetRatingsQuery(
+    { userId: auth?.id },
+    { skip: skipRequest }
+  );
+
+  const { data: watchlist } = useGetWatchlistQuery(
+    { userId: auth?.id },
+    { skip: skipRequest }
+  );
 
   // Display option
   const view = useSelector((state) => state.moviesToolbar.view);
@@ -273,7 +297,11 @@ const MoviesList = () => {
        eg: I get more than 130ms recalculation of styles when a user presses the theme toggle button which is obvious and annoying.
        So one global id is used for all the buttons that control the opening of the dialog in all Card components  */}
       <MovieDetailsModal movie={modalData} ref={movieModalRef} />
-      <RatingModal movie={modalData} ref={ratingModalRef} />
+      <RatingModal
+        movie={modalData}
+        ratedMovieData={ratedMovieData}
+        ref={ratingModalRef}
+      />
       {initial ? (
         <Spinner />
       ) : (
@@ -317,8 +345,9 @@ const MoviesList = () => {
                     <Card
                       movie={movie}
                       key={`${movie?._id}`}
-                      movieModalRef={movieModalRef}
                       setModalData={setModalData}
+                      setRatedMovieData={setRatedMovieData}
+                      movieModalRef={movieModalRef}
                       ratingModalRef={ratingModalRef}
                     />
                   ))}

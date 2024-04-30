@@ -9,10 +9,8 @@
   position: fixed;
   inset: 0;
   margin: auto;
-  max-inline-size: min(95vw, 60ch);
+  max-inline-size: min(95vw, 40ch);
   max-block-size: min(80%, 100vw);
-  min-inline-size: 30ch;
-  min-block-size: 30ch;
   z-index: 9999999999;
   border: none;
   border-radius: 1rem;
@@ -52,14 +50,20 @@
   &__header {
     display: flex;
     align-items: center;
+
     padding-block: 1rem;
-    padding-inline: 1.5rem;
+    padding-inline: 1rem;
     background-color: hsl(var(--surface2));
   }
 
   &__title {
     font-size: 1.3rem;
     font-weight: 500;
+    max-inline-size: min(24ch, 80vw);
+    margin-inline-end: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__close {
@@ -68,9 +72,14 @@
     margin-inline-start: auto;
     background-color: transparent;
     border-radius: 50%;
+    padding: 0.2rem;
 
     &:hover {
       background-color: hsl(var(--background-outline));
+    }
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
     }
   }
 
@@ -79,35 +88,45 @@
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+    min-inline-size: min(40ch, 95vw);
     padding-block: 1rem;
   }
 
   &__svg {
-    --range: 1;
-    --scale: calc(1 + (var(--range) * 0.03));
-    transform: scale(var(--scale));
+    --_range: 1;
+    --_scale: calc(1 + (var(--_range) * 0.03));
+    transform: scale(var(--_scale));
     @media (prefers-reduced-motion: no-preference) {
       transition: transform 0.2s ease;
     }
   }
 
   &__svg-polygon {
-    transform: rotate(calc(360 * var(--range) * 1deg));
-    transform-origin: center;
-    transition: transform 0.5s ease-out;
+    @media (prefers-reduced-motion: no-preference) {
+      transform: rotate(calc(360 * var(--_range) * 1deg));
+      transform-origin: center;
+    }
+    &--transition {
+      transition: transform 0.5s ease-out;
+    }
   }
 
   &__svg-text {
     stroke-width: 0.2;
-    fill: hsl((var(--on-primary)));
-    stroke: hsl((var(--on-primary)));
+    fill: #fff;
+    stroke: #fff;
     font-weight: 400;
     letter-spacing: -1px;
     font-size: 0.45rem;
   }
 
   &__input {
-    inline-size: min(20ch, 80vw);
+    inline-size: min(25ch, 80vw);
+    border-radius: 6px;
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
   }
 
   &__footer {
@@ -118,18 +137,33 @@
   }
 
   &__button {
-    padding-block: 0.4rem;
+    padding-block: 0.3rem;
     padding-inline: 1rem;
     background-color: transparent;
+    font-size: 1rem;
+    border-radius: 8px;
+
+    &:focus-visible {
+      outline: var(--focus);
+    }
+
     &--cancel {
       font-weight: 500;
       color: hsl(var(--primary));
+      &:hover {
+        background-color: hsl(var(--background-outline));
+      }
     }
 
     &--submit {
       background-color: hsl(var(--primary));
       color: hsl(var(--on-primary));
-      border-radius: 12px;
+      &:hover {
+        opacity: 0.9;
+      }
+      &:focus-visible {
+        outline-offset: 2px;
+      }
     }
   }
 }

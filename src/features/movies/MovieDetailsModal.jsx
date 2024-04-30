@@ -60,9 +60,7 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
       <article className='movie-modal__article'>
         <header className='movie-modal__header'>
           <h3 className='movie-modal__title'>
-            <Link className='movie-modal__link'>
-              {movie?.title ?? 'Uknown Title'}
-            </Link>
+            {movie?.title ?? 'Uknown Title'}
           </h3>
           <button
             type='button'
@@ -138,12 +136,9 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
         <footer className='movie-modal__footer'>
           <button
             type='button'
-            className='movie-modal__button movie-modal__button--watchlist'>
-            <Icons
-              name='plus'
-              svgClassName='movie-modal__icon movie-modal__icon--plus'
-            />{' '}
-            <span className='visually-hidden'>Add to </span>Watchlist
+            className='movie-modal__button movie-modal__button--watchlist'
+            onClick={() => ref.current.close()}>
+            Close
           </button>
           <button
             type='button'

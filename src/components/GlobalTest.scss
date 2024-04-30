@@ -3,28 +3,4 @@
   place-content: center;
   min-height: 100vh;
   min-width: 100%;
-
-  &__container {
-    max-width: 80vw;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(10ch, 100%), 35ch));
-    align-items: flex-start;
-  }
-
-  &__wrapper {
-  }
-
-  &__list {
-    display: grid;
-    gap: 1px;
-    border: 1px solid red;
-    background-color: hsl(var(--surface2));
-  }
-
-  &__item {
-    display: block;
-    padding-inline: 2rem;
-    width: 200px;
-    background-color: hsl(var(--surface3));
-  }
 }

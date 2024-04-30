@@ -1,11 +1,11 @@
-import ToastsPortal from '../features/toast/ToastsPortal';
+import Toasts from '../features/toast/Toasts';
 
 const Footer = () => {
   return (
     <footer style={{ marginBlockStart: 'auto' }}>
       {/* <footer> */}
       footer goes here........
-      <ToastsPortal />
+      <Toasts />
     </footer>
   );
 };

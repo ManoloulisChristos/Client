@@ -69,11 +69,12 @@
     width: 16px;
     height: 16px;
     &--blue {
-      width: 16px;
-      height: 16px;
       fill: none;
       stroke: hsl(var(--primary));
       stroke-width: 2px;
+      &-filled {
+        fill: hsl(var(--primary));
+      }
     }
   }
 
@@ -81,8 +82,10 @@
     background-color: transparent;
     display: flex;
     align-items: center;
-    gap: 0.3ch;
-    padding: 0.2rem 0.5rem;
+    justify-content: center;
+    // gap: 0.3ch;
+    padding: 0.2rem 0.2rem;
+
     border-radius: 6px;
 
     &:is(:hover, :focus-visible) {
@@ -216,6 +219,7 @@
 
   &__inner-container {
     display: flex;
+    align-items: center;
     gap: 1ch;
     color: hsl(var(--on-surface-variant));
     @media only screen and (max-width: 37.5em) {
@@ -233,9 +237,45 @@
     stroke: #f5c518;
     width: 16px;
     height: 16px;
+    &--blue {
+      fill: none;
+      stroke: hsl(var(--primary));
+      stroke-width: 2px;
+      &-filled {
+        fill: hsl(var(--primary));
+      }
+    }
+  }
+
+  &__button-rating {
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1ch;
+    padding: 0.2rem 0.2rem;
+
+    border-radius: 6px;
+
+    &:is(:hover, :focus-visible) {
+      background-color: hsl(var(--background-outline));
+    }
+
+    &:focus-visible {
+      outline: var(--focus);
+    }
+  }
+
+  &__number {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: hsl(var(--on-surface-variant));
   }
 
   &__duration {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: hsl(var(--on-surface-variant));
     display: flex;
     gap: 0.2ch;
   }
@@ -258,7 +298,7 @@
       max-inline-size: max-content;
       gap: 0.3ch;
       padding: 0.2rem 1rem;
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 500;
       color: hsl(var(--primary));
       background-color: hsl(var(--surface3));
