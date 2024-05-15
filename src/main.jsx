@@ -17,7 +17,6 @@ import SingleMovie from './features/movies/SingleMovie';
 import Login from './features/auth/Login';
 import Register from './features/auth/Register';
 import RequireAuth from './features/auth/RequireAuth';
-import EditUser from './features/user/EditUser';
 import GlobalTest from './components/GlobalTest';
 import PersistLogin from './features/auth/PersistLogin';
 import Verification from './features/auth/Verification';
@@ -25,7 +24,8 @@ import RequireVerification from './features/auth/RequireVerification';
 import Welcome from './features/auth/Welcome';
 import RequestPasswordReset from './features/auth/RequestPasswordReset';
 import PasswordResetValidation from './features/auth/PasswordResetValidation';
-import UserAccount from './features/user/UserAccount';
+import UserSettings from './features/user/UserSettings';
+import UserRatings from './features/ratings/UserRatings';
 
 if (import.meta.env.DEV) {
   import('@axe-core/react').then((axe) => axe.default(React, ReactDOM, 1000));
@@ -96,7 +96,8 @@ const router = createBrowserRouter(
               path='/verification'
               element={<Navigate to='/' replace={true} />}
             />
-            <Route path='/user/:id/settings' element={<UserAccount />} />
+            <Route path='/user/:id/settings' element={<UserSettings />} />
+            <Route path='user/:id/ratings' element={<UserRatings />} />
           </Route>
         </Route>
       </Route>

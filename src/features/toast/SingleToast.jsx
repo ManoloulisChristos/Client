@@ -13,12 +13,12 @@ const Toast = ({ toast }) => {
 
   return (
     <>
-      <output
-        onAnimationEnd={handleAnimationEnd}
+      <p
         className='toast__item'
-        aria-live='polite'>
+        data-mode={toast.mode}
+        onAnimationEnd={handleAnimationEnd}>
         {toast.text}
-      </output>
+      </p>
     </>
   );
 };

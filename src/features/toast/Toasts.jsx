@@ -56,7 +56,11 @@ const Toasts = () => {
 
   return createPortal(
     <>
-      <section ref={containerRef} className='toast__container'>
+      <section
+        ref={containerRef}
+        className='toast__container'
+        role='status'
+        aria-atomic='false'>
         {content}
       </section>
     </>,

@@ -1,5 +1,7 @@
 import { apiSlice } from '../api/apiSlice';
+import { createToast } from '../toast/toastsSlice';
 import { setCredentials, clearCredentials } from './authSlice';
+import { redirect } from 'react-router-dom';
 
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -40,8 +42,10 @@ export const authApiSlice = apiSlice.injectEndpoints({
           await queryFulfilled;
           dispatch(clearCredentials());
           dispatch(apiSlice.util.resetApiState());
+          dispatch(createToast('success', 'Logged out successfully'));
+          redirect('/');
         } catch (err) {
-          console.log(err);
+          dispatch(createToast('error', `${err.data.message}`));
         }
       },
     }),

@@ -13,7 +13,7 @@ import useSession from '../../hooks/useSession';
 const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
   const [persist] = usePersist();
   const [session] = useSession();
-  const token = useAuth();
+  const auth = useAuth();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuIndex, setMenuIndex] = useState(0);
@@ -113,7 +113,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
   };
 
   const handleLogoutClick = async () => {
-    await logout({ id: token?.id });
+    await logout({ id: auth?.id });
   };
 
   const handleLinkClick = () => {
@@ -122,12 +122,12 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
 
   useLayoutEffect(() => {
     const verifyRefreshToken = async () => {
-      if ((persist || session) && !token) {
+      if ((persist || session) && !auth) {
         await refresh();
       }
     };
     verifyRefreshToken();
-  }, [persist, session, token, refresh]);
+  }, [persist, session, auth, refresh]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -154,8 +154,8 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
   }, [menuOpen]);
 
   return (
-    <div>
-      {!token && !isLoading ? (
+    <>
+      {!auth?.id && !isLoading ? (
         <NavLink
           ref={(node) => navBarInsertNodesToMapRef(node, 5)}
           to={'/auth/login'}
@@ -221,7 +221,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
             <li role='none' className='header__menu-item'>
               <Link
                 ref={(node) => insertNodesToMapRef(node, 2)}
-                to={`/user/${token?.id}/settings`}
+                to={`/user/${auth?.id}/settings`}
                 role='menuitem'
                 className='header__menu-link'
                 tabIndex={menuIndex === 2 && menuOpen ? 0 : -1}
@@ -245,7 +245,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
           </ul>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

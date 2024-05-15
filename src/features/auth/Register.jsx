@@ -96,6 +96,7 @@ const Register = () => {
     setUsernameError('');
     setPasswordError('');
     setConfirmPasswordError('');
+    setShowGenericError(false);
     // Check validity and also trigger onInvalid events (form has noValidate attribute)
     if (!e.target.checkValidity()) {
       return;
@@ -103,9 +104,10 @@ const Register = () => {
       setConfirmPasswordError('Passwords do not match.');
     } else {
       // All inputs are valid > check the type for the password input before making the request
-      const password = passwordRef.current.getAttribute('type');
-      const confirmPassword = confirmPasswordRef.current.getAttribute('type');
-      if (password === 'text' || confirmPassword === 'text') {
+      const passwordType = passwordRef.current.getAttribute('type');
+      const confirmPasswordType =
+        confirmPasswordRef.current.getAttribute('type');
+      if (passwordType === 'text' || confirmPasswordType === 'text') {
         setShowPassword(false);
         setShowConfirmPassword(false);
         //After changing the type re-submit the form (cannot trigger it otherwise)

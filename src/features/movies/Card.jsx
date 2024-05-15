@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { memo, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Icons from '../../components/Icons';
 import Tooltip from '../../components/Tooltip';
 import '../../styles/Card.scss';
@@ -11,6 +11,7 @@ import {
   useDeleteFromWatchlistMutation,
   useGetWatchlistQuery,
 } from '../watchlist/watchlistApiSlice';
+import { createToast } from '../toast/toastsSlice';
 
 const Card = memo(function Card({
   movie,
@@ -22,6 +23,7 @@ const Card = memo(function Card({
   const view = useSelector((state) => state.moviesToolbar.view);
 
   const auth = useAuth();
+  const dispatch = useDispatch();
 
   // Fetch ratings/watchlist only when i have the userId
   let skipRatingsRequest = true;
@@ -71,11 +73,48 @@ const Card = memo(function Card({
     </span>
   );
 
-  const handleWatchlistClick = async () => {
-    if (watchlist) {
-      await deleteFromWatchlist({ userId: auth.id, movieId: movie._id });
+  const handleRatingClick = () => {
+    if (auth?.id) {
+      if (auth?.isVerified) {
+        setModalData(movie);
+        setRatedMovieData(rating);
+        ratingModalRef.current.showModal();
+        ratingModalRef.current.removeAttribute('inert');
+      } else {
+        dispatch(
+          createToast(
+            'error',
+            'You must verify your account to perform this action'
+          )
+        );
+      }
     } else {
-      await addToWatchlist({ userId: auth.id, movieId: movie._id });
+      dispatch(
+        createToast('error', 'You must have an account to perform this action')
+      );
+    }
+  };
+
+  const handleWatchlistClick = async () => {
+    if (auth?.id) {
+      if (auth?.isVerified) {
+        if (watchlist) {
+          await deleteFromWatchlist({ userId: auth.id, movieId: movie._id });
+        } else {
+          await addToWatchlist({ userId: auth.id, movieId: movie._id });
+        }
+      } else {
+        dispatch(
+          createToast(
+            'error',
+            'You must verify your account to perform this action'
+          )
+        );
+      }
+    } else {
+      dispatch(
+        createToast('error', 'You must have an account to perform this action')
+      );
     }
   };
 
@@ -147,12 +186,7 @@ const Card = memo(function Card({
                     aria-haspopup='dialog'
                     aria-controls='rating-modal'
                     aria-expanded='false'
-                    onClick={() => {
-                      setModalData(movie);
-                      setRatedMovieData(rating);
-                      ratingModalRef.current.showModal();
-                      ratingModalRef.current.removeAttribute('inert');
-                    }}>
+                    onClick={handleRatingClick}>
                     <Icons
                       name={'star'}
                       svgClassName={`card__star card__star--blue ${

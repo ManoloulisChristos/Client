@@ -3,15 +3,17 @@ import './GlobalTest.scss';
 import useSession from '../hooks/useSession';
 import { useDispatch } from 'react-redux';
 import { createToast } from '../features/toast/toastsSlice';
+import usePersist from '../hooks/usePersist';
 
 const GlobalTest = () => {
-  const dispatch = useDispatch();
-  const text = 'Logged in successfully';
+  const [persist, setPersist] = usePersist();
+  const [session, setSession] = useSession();
+  console.log(persist, 'persits');
+  console.log(session, 'session');
   return (
     <div>
-      <button onClick={() => dispatch(createToast(text))}>
-        CLICK ME BITCH
-      </button>
+      <button onClick={() => setSession((n) => !n)}>CLICK ME BITCH</button>
+      <button onClick={() => setPersist((n) => !n)}> LLLL</button>
     </div>
   );
 };

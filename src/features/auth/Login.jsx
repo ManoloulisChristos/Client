@@ -1,13 +1,14 @@
 import { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLoginMutation } from './authApiSlice';
 import { setCredentials } from './authSlice';
-import '../../styles/Login.scss';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+
 import Icons from '../../components/Icons';
 import Tooltip from '../../components/Tooltip';
 import usePersist from '../../hooks/usePersist';
-import useSession from '../../hooks/useSession';
+import '../../styles/Login.scss';
+import { createToast } from '../toast/toastsSlice';
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -18,7 +19,7 @@ const Login = () => {
   const [passwordValue, setPasswordValue] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [genericError, setGenericError] = useState('');
+  const [showGenericError, setShowGenericError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const [persist, setPersist] = usePersist();
@@ -26,7 +27,7 @@ const Login = () => {
   const passwordRef = useRef(null);
   const submitButtonRef = useRef(null);
 
-  const [login] = useLoginMutation();
+  const [login, { error }] = useLoginMutation();
 
   const handleEmailChange = (e) => setEmailValue(e.target.value);
   const handlePasswordChange = (e) => setPasswordValue(e.target.value);
@@ -51,7 +52,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setGenericError('');
+    setShowGenericError(false);
     setEmailError('');
     setPasswordError('');
     if (!e.target.checkValidity()) {
@@ -73,11 +74,10 @@ const Login = () => {
           sessionStorage.setItem('session', 'true');
           dispatch(setCredentials({ accessToken, userIdToken }));
           const toLocation = location?.state?.from ?? '..';
-          // Toast
+          dispatch(createToast('success', 'Signed in successfully'));
           navigate(toLocation);
         } catch (error) {
-          console.log(error);
-          setGenericError(error?.data?.message);
+          setShowGenericError(true);
         }
       }
     }
@@ -86,13 +86,15 @@ const Login = () => {
   return (
     <div className='login'>
       <h1 className='login__heading'>Sign in</h1>
-      <p
-        className='login__generic-error'
-        id='login-generic-error'
-        aria-live='assertive'
-        data-error={genericError ? 'true' : 'false'}>
-        {genericError}
-      </p>
+
+      {showGenericError && (
+        <p
+          className='login__generic-error'
+          id='login-generic-error'
+          aria-live='assertive'>
+          Error: {error?.data?.message}
+        </p>
+      )}
 
       <form className='login__form' noValidate onSubmit={handleSubmit}>
         <div className='login__input-container'>
@@ -105,7 +107,7 @@ const Login = () => {
             type='email'
             required
             aria-describedby='login-email-error login-generic-error'
-            aria-invalid={emailError || genericError ? 'true' : 'false'}
+            aria-invalid={emailError || showGenericError}
             onChange={handleEmailChange}
             value={emailValue}
             onInvalid={handleEmailValidation}
@@ -129,7 +131,7 @@ const Login = () => {
               type={showPassword ? 'text' : 'password'}
               required
               aria-describedby='login-password-error login-generic-error'
-              aria-invalid={passwordError || genericError ? 'true' : 'false'}
+              aria-invalid={passwordError || showGenericError}
               onChange={handlePasswordChange}
               value={passwordValue}
               onInvalid={handlePassowordValidation}
@@ -137,7 +139,7 @@ const Login = () => {
             <button
               className='login__show-password has-tooltip'
               type='button'
-              aria-pressed={showPassword ? 'true' : 'false'}
+              aria-pressed={showPassword}
               onClick={() => setShowPassword((s) => !s)}>
               <span className='visually-hidden'>Password visibility</span>
               <Icons

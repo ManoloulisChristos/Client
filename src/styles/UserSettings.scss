@@ -1,10 +1,10 @@
-.register {
-  margin-block-start: 8rem;
-  margin-inline: auto;
-  inline-size: min(40ch, 90vw);
-
+.user-settings {
+  display: grid;
+  place-content: center;
+  gap: 2vh;
+  margin-block-start: 4rem;
   @media only screen and (max-width: 50em) {
-    margin-block-start: 4rem;
+    margin-block-start: 2rem;
   }
 
   &__heading {
@@ -13,32 +13,41 @@
     text-align: center;
     font-size: var(--size-clamp);
     font-weight: 400;
-    margin-block-end: 2rem;
   }
 
-  &__generic-error {
-    margin-block-end: 1rem;
-    padding: 0.5rem 1rem;
-    text-align: center;
-    background-color: hsl(var(--error));
-    color: hsl(var(--on-error));
-    border: 1px solid hsl(var(--error-outline));
+  &__paragraph-wrapper {
+    background-color: hsl(var(--surface2));
+    padding: 1rem;
     border-radius: 6px;
+    box-shadow: var(--shadow-small);
+  }
+
+  &__test {
+    color: hsl(var(--on-surface-variant));
   }
 
   &__form {
+  }
+
+  &__fieldset {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 0.5rem;
+    margin-inline: auto;
+    padding: 1ch 2ch;
+    max-inline-size: min(40ch, 90vw);
     background-color: hsl(var(--surface2));
-    padding: 1rem 1.5rem;
-    border: 1px solid hsl(var(--outline-variant));
-    border-radius: 8px;
+    border: 1px solid hsl(var(--outline));
+    border-radius: 6px;
   }
-
+  &__legend {
+    text-align: center;
+    padding-inline: 0.2rem;
+  }
   &__input-container {
+    inline-size: 100%;
   }
-
   &__label-wrapper {
     display: flex;
     gap: 0.5rem;
@@ -46,6 +55,7 @@
   }
 
   &__label {
+    color: hsl(var(--on-surface));
   }
   &__input-wrapper {
     position: relative;
@@ -53,7 +63,6 @@
     flex-direction: column;
     gap: 0.2rem;
   }
-
   &__input {
     inline-size: 100%;
     padding: calc(0.2rem + 1px) calc(0.4rem + 1px);
@@ -99,27 +108,18 @@
     }
   }
 
-  &__checkbox-container {
-    display: flex;
-    gap: 0.8ch;
-    align-items: center;
-    margin-block-end: 0.5rem;
-  }
-
-  &__checkbox {
-    accent-color: hsl(var(--primary));
-    &:focus-visible {
-      outline: var(--focus);
-    }
-  }
-
-  &__submit {
-    inline-size: 100%;
-    padding: 0.4rem;
-    font-size: 1rem;
+  &__button {
+    align-self: flex-end;
     background-color: hsl(var(--primary));
+    font-size: 1rem;
+    inline-size: max-content;
+    padding: 0.3rem 0.6rem;
     color: hsl(var(--on-primary));
-    border-radius: 6px;
+    border-radius: 8px;
+
+    &--delete-account {
+      background-color: hsl(var(--on-surface-error));
+    }
 
     &:hover {
       opacity: 0.9;

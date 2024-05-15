@@ -66,8 +66,9 @@
   --inverse-surface-light: 225 4% 19%;
   --inverse-surface-max-light: 0 0% 0%;
   --inverse-on-surface-light: 255 15% 95%;
-  --error-light: 355 70% 72%;
+  --error-light: 355 70% 91%;
   --on-error-light: 354 61% 21%;
+  --on-surface-error-light: 354 80% 45%;
   --error-outline-light: 354 71% 81%;
   --success-light: 153 31% 86%;
   --on-success-light: 153 69% 13%;
@@ -93,7 +94,8 @@
   --inverse-surface-max-dark: 0 0% 100%;
   --error-dark: 355 60% 11%;
   --on-error-dark: 355 70% 72%;
-  --error-outline: 355 61% 32%;
+  --on-surface-error-dark: 355 70% 72%;
+  --error-outline-dark: 355 61% 32%;
   --success-dark: 153 69% 6%;
   --on-success-dark: 152 31% 59%;
   --success-outline-dark: 152 69% 25%;
@@ -170,7 +172,8 @@
   --inverse-surface-max: var(--inverse-surface-max-light);
   --error: var(--error-light);
   --on-error: var(--on-error-light);
-
+  --on-surface-error: var(--on-surface-error-light);
+  --error-outline: var(--error-outline-light);
   --success: var(--success-light);
   --on-success: var(--on-success-light);
   --success-outline: var(--success-outline-light);
@@ -202,7 +205,8 @@
     --inverse-surface-max: var(--inverse-surface-max-dark);
     --error: var(--error-dark);
     --on-error: var(--on-error-dark);
-
+    --on-surface-error: var(--on-surface-error-dark);
+    --error-outline: var(--error-outline-dark);
     --success: var(--success-dark);
     --on-success: var(--on-success-dark);
     --success-outline: var(--success-outline-dark);
@@ -234,7 +238,8 @@
   --inverse-surface-max: var(--inverse-surface-max-light);
   --error: var(--error-light);
   --on-error: var(--on-error-light);
-
+  --on-surface-error: var(--on-surface-error-light);
+  --error-outline: var(--error-outline-light);
   --success: var(--success-light);
   --on-success: var(--on-success-light);
   --success-outline: var(--success-outline-light);
@@ -265,7 +270,8 @@
   --inverse-surface-max: var(--inverse-surface-max-dark);
   --error: var(--error-dark);
   --on-error: var(--on-error-dark);
-
+  --on-surface-error: var(--on-surface-error-dark);
+  --error-outline: var(--error-outline-dark);
   --success: var(--success-dark);
   --on-success: var(--on-success-dark);
   --success-outline: var(--success-outline-dark);

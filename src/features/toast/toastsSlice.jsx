@@ -10,10 +10,11 @@ const toastsSlice = createSlice({
   reducers: {
     createToast: {
       reducer: toastsAdapter.addOne,
-      prepare(text) {
+      prepare(mode, text) {
         return {
           payload: {
             id: nanoid(),
+            mode,
             text,
           },
         };
