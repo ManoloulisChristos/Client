@@ -201,8 +201,8 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
             <li role='none' className='header__menu-item'>
               <Link
                 ref={(node) => insertNodesToMapRef(node, 0)}
-                role='menuitem'
                 className='header__menu-link'
+                role='menuitem'
                 tabIndex={menuIndex === 0 && menuOpen ? 0 : -1}
                 onClick={handleLinkClick}>
                 Watchlist
@@ -211,8 +211,9 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
             <li role='none' className='header__menu-item'>
               <Link
                 ref={(node) => insertNodesToMapRef(node, 1)}
-                role='menuitem'
                 className='header__menu-link'
+                to={`/user/${auth?.id}/rating/populated`}
+                role='menuitem'
                 tabIndex={menuIndex === 1 && menuOpen ? 0 : -1}
                 onClick={handleLinkClick}>
                 Ratings
@@ -221,9 +222,9 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
             <li role='none' className='header__menu-item'>
               <Link
                 ref={(node) => insertNodesToMapRef(node, 2)}
+                className='header__menu-link'
                 to={`/user/${auth?.id}/settings`}
                 role='menuitem'
-                className='header__menu-link'
                 tabIndex={menuIndex === 2 && menuOpen ? 0 : -1}
                 onClick={handleLinkClick}>
                 Settings

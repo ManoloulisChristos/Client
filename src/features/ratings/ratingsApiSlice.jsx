@@ -7,6 +7,10 @@ export const ratingsApiSlice = apiSlice.injectEndpoints({
       query: ({ userId }) => `user/${userId}/rating`,
       providesTags: [{ type: 'Ratings', id: 'LIST' }],
     }),
+    getPopulatedRatings: build.query({
+      query: ({ userId }) => `/user/${userId}/rating/populated`,
+      providesTags: [{ type: 'Ratings', id: 'LIST' }],
+    }),
     addRating: build.mutation({
       query: ({ userId, movieId, rating }) => ({
         url: `user/${userId}/rating`,
@@ -24,10 +28,10 @@ export const ratingsApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: [{ type: 'Ratings', id: 'LIST' }],
     }),
     deleteRating: build.mutation({
-      query: ({ userId, movieId, rating }) => ({
+      query: ({ userId, movieId }) => ({
         url: `user/${userId}/rating`,
         method: 'DELETE',
-        body: { movieId, rating },
+        body: { movieId },
       }),
       invalidatesTags: [{ type: 'Ratings', id: 'LIST' }],
     }),
@@ -36,6 +40,7 @@ export const ratingsApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetRatingsQuery,
+  useGetPopulatedRatingsQuery,
   useAddRatingMutation,
   useUpdateRatingMutation,
   useDeleteRatingMutation,

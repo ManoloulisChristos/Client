@@ -15,15 +15,12 @@ import {
 } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Card from './Card';
-import ProgressBar from './ProgressBar';
+import ProgressBar from '../../components/ProgressBar';
 import Spinner from '../../components/Spinner';
 import MoviesListToolbar from './MoviesListToolbar';
 import MovieDetailsModal from './MovieDetailsModal';
 import RatingModal from './RatingModal';
 import { useGetMoviesWithTitleQuery } from './moviesApiSlice';
-import { useGetRatingsQuery } from '../ratings/ratingsApiSlice';
-import { useGetWatchlistQuery } from '../watchlist/watchlistApiSlice';
-import useAuth from '../../hooks/useAuth';
 import '../../styles/MoviesList.scss';
 
 // The data are coming as an array with 2 objects
@@ -35,7 +32,6 @@ const MoviesList = () => {
   const { title } = params;
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const auth = useAuth();
 
   // Checks the URLSearchParams and asign defaults
   let sortByQuery = 'Default';
@@ -96,24 +92,6 @@ const MoviesList = () => {
     [title, sortByQuery, sortQuery, pageQuery]
   );
   const { currentData } = useGetMoviesWithTitleQuery(endpointObject);
-
-  // Fetch the ratings/watchlist only when i have the userId(signed-in).
-  // Fetch in this component so i avoid fetching for every individual card and having multiple requests.
-  let skipRequest = true;
-
-  if (auth?.id) {
-    skipRequest = false;
-  }
-
-  const { data: ratings } = useGetRatingsQuery(
-    { userId: auth?.id },
-    { skip: skipRequest }
-  );
-
-  const { data: watchlist } = useGetWatchlistQuery(
-    { userId: auth?.id },
-    { skip: skipRequest }
-  );
 
   // Display option
   const view = useSelector((state) => state.moviesToolbar.view);
@@ -298,8 +276,9 @@ const MoviesList = () => {
        So one global id is used for all the buttons that control the opening of the dialog in all Card components  */}
       <MovieDetailsModal movie={modalData} ref={movieModalRef} />
       <RatingModal
-        movie={modalData}
-        ratedMovieData={ratedMovieData}
+        movieId={modalData?._id}
+        movieRating={ratedMovieData?.rating}
+        movieTitle={modalData?.title}
         ref={ratingModalRef}
       />
       {initial ? (
@@ -405,7 +384,7 @@ const MoviesList = () => {
       )}
       {/* the key is important because in the case when only the sort order changes for example, the same images appear so
       the imagesReady function does not run and everything breaks. Workaround: in every new location based on the URL the images re-render
-      and they get pulled from the cache so the function runs and i everything that depends on it(everything...) get's updated. */}
+      and they get pulled from the cache so the function runs and everything that depends on it(everything...) get's updated. */}
       <div key={location.key}>
         {currentData?.[0].movies?.map((movie) => (
           <RenderImages

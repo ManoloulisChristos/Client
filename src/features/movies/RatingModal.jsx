@@ -8,7 +8,7 @@ import {
 import useAuth from '../../hooks/useAuth';
 
 const RatingModal = forwardRef(function RatingModal(
-  { movie, ratedMovieData },
+  { movieId, movieTitle, movieRating },
   ref
 ) {
   const [rangeValue, setRangeValue] = useState('1');
@@ -27,13 +27,13 @@ const RatingModal = forwardRef(function RatingModal(
   const canPlayRef = useRef(true);
 
   // If the movie is different from previous check if it is rated
-  if (movie?._id !== trackRatedMovieId) {
-    if (ratedMovieData) {
-      setRangeValue(String(ratedMovieData.rating));
+  if (movieId !== trackRatedMovieId) {
+    if (movieRating) {
+      setRangeValue(String(movieRating));
     } else {
       setRangeValue('1');
     }
-    setTrackRatedMovieId(movie?._id);
+    setTrackRatedMovieId(movieId);
   }
 
   const handleRangeInputChange = (e) => {
@@ -71,16 +71,16 @@ const RatingModal = forwardRef(function RatingModal(
   };
 
   const handleSubmitClick = async () => {
-    if (!ratedMovieData) {
+    if (!movieRating) {
       await addRating({
         userId: auth.id,
-        movieId: movie._id,
+        movieId,
         rating: rangeValue,
       });
     } else {
       await updateRating({
         userId: auth.id,
-        movieId: movie._id,
+        movieId,
         rating: rangeValue,
       });
     }
@@ -189,7 +189,7 @@ const RatingModal = forwardRef(function RatingModal(
           aria-labelledby='rating-modal-title'>
           <header className='rating-modal__header'>
             <h3 id='rating-modal-title' className='rating-modal__title'>
-              Rate: {movie?.title ?? 'No title info'}
+              Rate: {movieTitle ?? 'No title info'}
             </h3>
             <button
               className='rating-modal__close'

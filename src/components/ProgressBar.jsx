@@ -1,9 +1,10 @@
-import '../../styles/ProgressBar.scss';
+import '../styles/ProgressBar.scss';
 
 const ProgressBar = ({ size, loaded, isLoading }) => {
   const normalized = loaded / size;
 
-  // When testing with NVDA SR the progress if the min-max values are set between 0-1 are not announced correctly so 0-100 is a must
+  // When testing with NVDA SR the progress bar, if the min-max values are set between 0-1
+  // they are not announced correctly so 0-100 is a must
   return (
     <>
       <div className='progress-bar'>

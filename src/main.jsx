@@ -97,7 +97,10 @@ const router = createBrowserRouter(
               element={<Navigate to='/' replace={true} />}
             />
             <Route path='/user/:id/settings' element={<UserSettings />} />
-            <Route path='user/:id/ratings' element={<UserRatings />} />
+            <Route
+              path='/user/:id/rating/populated'
+              element={<UserRatings />}
+            />
           </Route>
         </Route>
       </Route>

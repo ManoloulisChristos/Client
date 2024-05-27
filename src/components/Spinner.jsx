@@ -1,9 +1,9 @@
 import '../styles/Spinner.scss';
 
-const Spinner = () => {
+const Spinner = ({ busy = false }) => {
   return (
     <div className='spinner-wrapper'>
-      <div className='spinner'></div>
+      <div className='spinner' aria-busy={busy}></div>
     </div>
   );
 };

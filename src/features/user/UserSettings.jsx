@@ -483,7 +483,7 @@ const UserSettings = () => {
             <div className='user-settings__input-wrapper'>
               <input
                 ref={deleteAccountPasswordRef}
-                id='user-settings-password-input'
+                id='user-settings-delete-password-input'
                 className='user-settings__input'
                 type={showDeleteAccountPassword ? 'text' : 'password'}
                 required
