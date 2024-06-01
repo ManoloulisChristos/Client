@@ -13,14 +13,22 @@
     font-weight: 500;
   }
 
+  &__controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
   &__sort-section {
     display: flex;
     align-items: center;
     gap: 1.5ch;
     max-inline-size: max-content;
     border-radius: 6px;
-    padding-block: 0.3rem;
-    padding-inline: 0.6rem;
+    padding-block: 0.4rem;
+    padding-inline: 0.8rem;
     background-color: hsl(var(--surface2));
   }
   &__sort-by-wrapper {
@@ -147,10 +155,6 @@
     }
   }
 
-  &__count {
-    // color: red;
-  }
-
   &__icon {
     fill: hsl(var(--on-surface-variant));
     stroke: hsl(var(--on-surface-variant));
@@ -159,6 +163,20 @@
       fill: hsl(var(--primary));
       stroke: hsl(var(--primary));
       margin-inline-start: auto;
+    }
+    &--edit {
+      fill: none;
+      stroke: currentColor;
+    }
+
+    &--trash {
+      fill: none;
+      stroke: currentColor;
+    }
+
+    &--star {
+      fill: hsl(var(--primary));
+      stroke: hsl(var(--primary));
     }
   }
   &__sort-icon {
@@ -182,15 +200,18 @@
   }
 
   &__results-list {
+    inline-size: min(60ch, 90vw);
     display: flex;
     flex-direction: column;
     gap: 1px;
     background-color: hsl(var(--outline-variant));
+    border: 1px solid hsl(var(--outline-variant));
     border-radius: 6px;
   }
   &__results-item {
     display: flex;
     gap: 1ch;
+    padding: 0.3rem 0.6rem;
 
     background-color: hsl(var(--surface2));
     &:first-child {
@@ -211,23 +232,64 @@
   }
   &__info-container {
     display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
   }
-  &__info-wrapper {
-  }
+
   &__info-heading-link {
+    border-radius: 6px;
     &:hover {
       text-decoration: underline;
     }
+
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
   }
   &__info-heading {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 500;
+
+    @media only screen and (max-width: 50em) {
+      font-size: 1rem;
+    }
   }
 
-  &__button-rating {
-    background-color: transparent;
+  &__rating {
     display: flex;
     align-items: center;
+    gap: 0.2rem;
+  }
+  &__button-wrapper {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__button {
+    display: flex;
+    align-items: center;
+    gap: 0.1ch;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    background-color: transparent;
+    font-size: 1rem;
+
+    &--edit {
+      color: hsl(var(--primary));
+    }
+
+    &--delete {
+      color: hsl(var(--on-surface-error));
+    }
+
+    &:is(:hover, :focus-visible) {
+      background-color: hsl(var(--background-outline));
+    }
+
+    &:focus-visible {
+      outline: var(--focus);
+    }
   }
 
   &__rating-number {

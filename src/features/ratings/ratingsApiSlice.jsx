@@ -8,7 +8,8 @@ export const ratingsApiSlice = apiSlice.injectEndpoints({
       providesTags: [{ type: 'Ratings', id: 'LIST' }],
     }),
     getPopulatedRatings: build.query({
-      query: ({ userId }) => `/user/${userId}/rating/populated`,
+      query: ({ userId, sortBy, sort }) =>
+        `/user/${userId}/rating/populated?sortBy=${sortBy}&sort=${sort}`,
       providesTags: [{ type: 'Ratings', id: 'LIST' }],
     }),
     addRating: build.mutation({
