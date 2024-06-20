@@ -202,6 +202,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
               <Link
                 ref={(node) => insertNodesToMapRef(node, 0)}
                 className='header__menu-link'
+                to={`/user/${auth?.id}/watchlist/populated`}
                 role='menuitem'
                 tabIndex={menuIndex === 0 && menuOpen ? 0 : -1}
                 onClick={handleLinkClick}>

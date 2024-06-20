@@ -6,11 +6,15 @@ import {
   useUpdateRatingMutation,
 } from '../ratings/ratingsApiSlice';
 import useAuth from '../../hooks/useAuth';
+import { useDispatch } from 'react-redux';
+import { createToast } from '../toast/toastsSlice';
 
 const RatingModal = forwardRef(function RatingModal(
   { movieId, movieTitle, movieRating },
   ref
 ) {
+  const dispatch = useDispatch();
+
   const [rangeValue, setRangeValue] = useState('1');
   const [trackRatedMovieId, setTrackRatedMovieId] = useState(''); // Track previous movie.
   const [rotateStar, setRotateStar] = useState(false); // Polygon transition property.
@@ -77,14 +81,27 @@ const RatingModal = forwardRef(function RatingModal(
         movieId,
         rating: rangeValue,
       });
+      dispatch(createToast('success', 'Rating added'));
     } else {
       await updateRating({
         userId: auth.id,
         movieId,
         rating: rangeValue,
       });
+      dispatch(createToast('success', 'Rating updated'));
     }
     ref.current.close();
+  };
+
+  const lightDismiss = (e) => {
+    if (e.target.nodeName === 'DIALOG') {
+      ref.current.close();
+    }
+  };
+
+  const handleDialogClose = (e) => {
+    e.currentTarget.setAttribute('inert', '');
+    setRotateStar(false);
   };
 
   const handleSubmit = (e) => {
@@ -182,7 +199,8 @@ const RatingModal = forwardRef(function RatingModal(
       id='rating-modal'
       className='rating-modal'
       inert=''
-      onClose={(e) => setRotateStar(false)}>
+      onClick={lightDismiss}
+      onClose={handleDialogClose}>
       <form className='rating-modal__form' onSubmit={handleSubmit}>
         <section
           className='rating-modal__section'

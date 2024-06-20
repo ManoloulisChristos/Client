@@ -13,7 +13,6 @@ import './main.scss';
 import App from './App';
 import ErrorPage from './error-page';
 import MoviesList from './features/movies/MoviesList';
-import SingleMovie from './features/movies/SingleMovie';
 import Login from './features/auth/Login';
 import Register from './features/auth/Register';
 import RequireAuth from './features/auth/RequireAuth';
@@ -26,6 +25,8 @@ import RequestPasswordReset from './features/auth/RequestPasswordReset';
 import PasswordResetValidation from './features/auth/PasswordResetValidation';
 import UserSettings from './features/user/UserSettings';
 import UserRatings from './features/ratings/UserRatings';
+import Watchlist from './features/watchlist/Watchlist';
+import Movie from './features/singleMovie/Movie';
 
 if (import.meta.env.DEV) {
   import('@axe-core/react').then((axe) => axe.default(React, ReactDOM, 1000));
@@ -76,7 +77,7 @@ const router = createBrowserRouter(
       <Route path='/test' element={<GlobalTest />} />
 
       <Route path='/search/title/:title' element={<MoviesList />} />
-      <Route path='/search/id/:id' element={<SingleMovie />} />
+      <Route path='/search/id/:id' element={<Movie />} />
 
       <Route path='/auth/login' element={<Login />} />
       <Route path='/auth/register' element={<Register />} />
@@ -100,6 +101,10 @@ const router = createBrowserRouter(
             <Route
               path='/user/:id/rating/populated'
               element={<UserRatings />}
+            />
+            <Route
+              path='/user/:id/watchlist/populated'
+              element={<Watchlist />}
             />
           </Route>
         </Route>

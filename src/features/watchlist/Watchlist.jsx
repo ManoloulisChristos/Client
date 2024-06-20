@@ -1,19 +1,18 @@
-import { Link, useParams, useSearchParams } from 'react-router-dom';
-import {
-  useDeleteRatingMutation,
-  useGetPopulatedRatingsQuery,
-} from './ratingsApiSlice';
-import Tooltip from '../../components/Tooltip';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import ProgressBar from '../../components/ProgressBar';
 import Spinner from '../../components/Spinner';
+import Tooltip from '../../components/Tooltip';
 import Icons from '../../components/Icons';
-import RatingModal from '../movies/RatingModal';
-import { useDispatch } from 'react-redux';
-import '../../styles/UserRatings.scss';
+import {
+  useDeleteFromWatchlistMutation,
+  useGetPopulatedWatchlistQuery,
+} from './watchlistApiSlice';
 import { createToast } from '../toast/toastsSlice';
+import '../../styles/Watchlist.scss';
 
-const UserRatings = () => {
+const Watchlist = () => {
   const { id: userId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch();
@@ -35,12 +34,12 @@ const UserRatings = () => {
     }
   }
 
-  const { data, isLoading } = useGetPopulatedRatingsQuery({
+  const { data, isLoading } = useGetPopulatedWatchlistQuery({
     userId,
     sortBy: sortByQuery,
     sort: sortQuery,
   });
-  const [deleteRating] = useDeleteRatingMutation();
+  const [deleteRating] = useDeleteFromWatchlistMutation();
   const docsCount = data?.[0]?.count;
   const docs = data?.[0]?.documents;
 
@@ -53,13 +52,11 @@ const UserRatings = () => {
     sortByAcceptedValues.indexOf(sortByQuery)
   );
   const [menuButtonValue, setMenuButtonValue] = useState(sortByQuery);
-  const [modalData, setModalData] = useState();
 
   const [progressBarLoaded, setProgressBarLoaded] = useState(0);
   const [isProgressBarLoading, setIsProgressBarLoading] = useState(false);
 
   const menuButtonRef = useRef(null);
-  const ratingModalRef = useRef(null);
   const countImagesRef = useRef(new Set());
   const menuItemsRef = useRef(null);
   const initialRenderRef = useRef(true);
@@ -83,7 +80,7 @@ const UserRatings = () => {
   const handleMenuKeydown = (e) => {
     const map = getMenuMap();
     let isTargetMenuBtn = false;
-    if (e.currentTarget.id === 'user-ratings-menu-button') {
+    if (e.currentTarget.id === 'watchlist-menu-button') {
       isTargetMenuBtn = true;
     }
     switch (e.key) {
@@ -178,14 +175,14 @@ const UserRatings = () => {
 
   const handleDeleteClick = async (movieId) => {
     await deleteRating({ userId, movieId });
-    dispatch(createToast('success', 'Rating deleted'));
+    dispatch(createToast('success', 'Removed from Watchlist'));
   };
 
   useEffect(() => {
     const map = getMenuMap();
     const handleClickOutsideMenu = (e) => {
-      const isMenuButton = e.target.closest('#user-ratings-menu-button');
-      const isMenu = e.target.closest('#user-ratings-menu');
+      const isMenuButton = e.target.closest('#watchlist-menu-button');
+      const isMenu = e.target.closest('#watchlist-menu');
       if (isMenu || isMenuButton) {
         return; // handled in the elements onClick handler
       } else {
@@ -234,8 +231,8 @@ const UserRatings = () => {
     year: 'numeric',
   };
 
-  const normDate = new Intl.DateTimeFormat('en-GB', dateOptions);
-
+  const intConst = new Intl.DateTimeFormat('en-GB', dateOptions);
+  console.log(docsCount);
   return (
     <>
       <ProgressBar
@@ -243,69 +240,61 @@ const UserRatings = () => {
         loaded={progressBarLoaded}
         isLoading={isProgressBarLoading}
       />
-      <RatingModal
-        ref={ratingModalRef}
-        movieId={modalData?.movieId}
-        movieRating={modalData?.rating}
-        movieTitle={modalData?.title}
-      />
 
       {isLoading && !show ? (
         <Spinner busy={!show} />
       ) : (
-        <div className='user-ratings'>
-          <h1 className='user-ratings__heading'>Your ratings</h1>
+        <div className='watchlist'>
+          <h1 className='watchlist__heading'>Watchlist</h1>
 
-          <div className='user-ratings__controls'>
-            <p className='user-ratings__count' aria-live='polite'>
-              Total ratings: <span>{docsCount ?? 0}</span>
+          <div className='watchlist__controls'>
+            <p className='watchlist__count' aria-live='polite'>
+              Total titles: <span>{docsCount ?? '0'}</span>
             </p>
             <section
-              className='user-ratings__sort-section'
+              className='watchlist__sort-section'
               aria-label='Results sorting options'
-              aria-controls='user-ratings-results-list'>
-              <div className='user-ratings__sort-by-wrapper'>
+              aria-controls='watchlist-results-list'>
+              <div className='watchlist__sort-by-wrapper'>
                 <span
-                  id='user-ratings-sort-by-outer-span'
-                  className='user-ratings__sort-by-outer-span'>
+                  id='watchlist-sort-by-outer-span'
+                  className='watchlist__sort-by-outer-span'>
                   Sort by:
                 </span>
-                <div className='user-ratings__menu-wrapper'>
+                <div className='watchlist__menu-wrapper'>
                   <button
                     ref={menuButtonRef}
                     type='button'
-                    id='user-ratings-menu-button'
-                    className='user-ratings__sort-by-button'
-                    aria-labelledby='user-ratings-sort-by-outer-span user-ratings-sort-by-inner-span'
+                    id='watchlist-menu-button'
+                    className='watchlist__sort-by-button'
+                    aria-labelledby='watchlist-sort-by-outer-span watchlist-sort-by-inner-span'
                     aria-haspopup='menu'
-                    aria-controls='user-ratings-menu'
+                    aria-controls='watchlist-menu'
                     aria-expanded={menuOpen}
                     onKeyDown={handleMenuKeydown}
                     onClick={() => setMenuOpen((s) => !s)}>
                     <span
-                      id='user-ratings-sort-by-inner-span'
-                      className='user-ratings__sort-by-inner-span'>
+                      id='watchlist-sort-by-inner-span'
+                      className='watchlist__sort-by-inner-span'>
                       {menuButtonValue}
                     </span>
                     <Icons
                       name={'triangle'}
                       width={'12'}
                       height={'12'}
-                      svgClassName={
-                        'user-ratings__icon user-ratings__icon--triangle'
-                      }
+                      svgClassName={'watchlist__icon watchlist__icon--triangle'}
                     />
                   </button>
                   <ul
-                    id='user-ratings-menu'
-                    className='user-ratings__sort-menu'
+                    id='watchlist-menu'
+                    className='watchlist__sort-menu'
                     role='menu'
                     data-open={menuOpen}
                     onKeyDown={handleMenuKeydown}>
-                    <li className='user-ratings__sort-menu-item' role='none'>
+                    <li className='watchlist__sort-menu-item' role='none'>
                       <button
                         ref={(node) => insertNodesToMapRef(node, 0)}
-                        className='user-ratings__sort-menu-item-button'
+                        className='watchlist__sort-menu-item-button'
                         type='button'
                         role='menuitemradio'
                         aria-checked={menuIndex === 0}
@@ -314,10 +303,10 @@ const UserRatings = () => {
                         A-Z
                       </button>
                     </li>
-                    <li className='user-ratings__sort-menu-item' role='none'>
+                    <li className='watchlist__sort-menu-item' role='none'>
                       <button
                         ref={(node) => insertNodesToMapRef(node, 1)}
-                        className='user-ratings__sort-menu-item-button'
+                        className='watchlist__sort-menu-item-button'
                         type='button'
                         role='menuitemradio'
                         aria-checked={menuIndex === 1}
@@ -326,10 +315,10 @@ const UserRatings = () => {
                         Rating
                       </button>
                     </li>
-                    <li className='user-ratings__sort-menu-item' role='none'>
+                    <li className='watchlist__sort-menu-item' role='none'>
                       <button
                         ref={(node) => insertNodesToMapRef(node, 2)}
-                        className='user-ratings__sort-menu-item-button'
+                        className='watchlist__sort-menu-item-button'
                         type='button'
                         role='menuitemradio'
                         aria-checked={menuIndex === 2}
@@ -344,13 +333,13 @@ const UserRatings = () => {
               <Tooltip
                 tip='bottom'
                 text='Results order'
-                id='user-ratings-sort-button'
+                id='watchlist-sort-button'
                 hasWrapper={true}>
                 <button
-                  className='user-ratings__sort-button'
+                  className='watchlist__sort-button'
                   type='button'
                   aria-label='Descending'
-                  aria-describedby='user-ratings-sort-button'
+                  aria-describedby='watchlist-sort-button'
                   aria-pressed={sortButtonPressed}
                   onClick={handleSortButtonClick}>
                   <svg
@@ -362,14 +351,14 @@ const UserRatings = () => {
                     strokeWidth='1.5'
                     strokeLinecap='round'
                     strokeLinejoin='round'
-                    className='user-ratings__sort-icon'
+                    className='watchlist__sort-icon'
                     aria-hidden='true'
                     focusable='false'>
-                    <g className='user-ratings__sort-icon-arrow-up'>
+                    <g className='watchlist__sort-icon-arrow-up'>
                       <polygon points='5 6 8 2 11 6'></polygon>
                       <line x1='8' y1='6' x2='8' y2='16' strokeWidth='2'></line>
                     </g>
-                    <g className='user-ratings__sort-icon-arrow-down'>
+                    <g className='watchlist__sort-icon-arrow-down'>
                       <polygon points='19 19 16 23 13 19'></polygon>
                       <line
                         x1='16'
@@ -383,17 +372,16 @@ const UserRatings = () => {
               </Tooltip>
             </section>
           </div>
-          <ul
-            id='user-ratings-results-list'
-            className='user-ratings__results-list'>
+
+          <ul id='watchlist-results-list' className='watchlist__results-list'>
             {docs?.map((doc) => (
-              <li key={doc?._id} className='user-ratings__results-item'>
+              <li key={doc?._id} className='watchlist__results-item'>
                 <Link
                   aria-hidden='true'
                   tabIndex='-1'
                   to={`/search/id/${doc?.movieId}`}>
                   <img
-                    className='user-ratings__poster'
+                    className='watchlist__poster'
                     src={doc?.poster ?? '/no_image.png'}
                     onError={(e) => (e.target.src = '/no_image.png')}
                     alt=''
@@ -401,60 +389,40 @@ const UserRatings = () => {
                     height={104}
                   />
                 </Link>
-                <div className='user-ratings__info-container'>
+                <div className='watchlist__info-container'>
                   <Link
-                    className='user-ratings__info-heading-link'
+                    className='watchlist__info-heading-link'
                     title={doc?.title}
                     to={`/search/id/${doc?.movieId}`}>
-                    <h2 className='user-ratings__info-heading'>{doc?.title}</h2>
+                    <h2 className='watchlist__info-heading'>{doc?.title}</h2>
                   </Link>
 
-                  <p className='user-ratings__rated'>
-                    Rated on: {normDate.format(new Date(doc?.createdAt))}
+                  <p className='watchlist__rated'>
+                    Added on: {intConst.format(new Date(doc?.createdAt))}
                   </p>
-                  <p className='user-ratings__rating'>
-                    <span className='visually-hidden'>Current rating:</span>{' '}
+                  <p className='watchlist__rating'>
+                    <span className='visually-hidden'>Imdb Rating:</span>{' '}
                     <Icons
                       name='star'
                       width='20'
                       height='20'
-                      svgClassName='user-ratings__icon user-ratings__icon--star'
+                      svgClassName='watchlist__icon watchlist__icon--star'
                     />
-                    {doc?.rating}
+                    {doc?.imdb}
                   </p>
-                  <div className='user-ratings__button-wrapper'>
-                    <button
-                      className='user-ratings__button user-ratings__button--edit'
-                      aria-labelledby='user-ratings-rate-button user-ratings-rating-number'
-                      aria-haspopup='dialog'
-                      aria-controls='rating-modal'
-                      aria-expanded='false'
-                      onClick={() => {
-                        setModalData(doc);
-                        ratingModalRef.current.showModal();
-                        ratingModalRef.current.removeAttribute('inert');
-                      }}>
-                      <Icons
-                        name={'edit'}
-                        width='16'
-                        height='16'
-                        svgClassName='user-ratings__icon user-ratings__icon--edit'
-                      />
-                      <span className='user-ratings__button-text'>Edit</span>
-                    </button>
-
+                  <div className='watchlist__button-wrapper'>
                     <button
                       type='button'
-                      className='user-ratings__button user-ratings__button--delete'
-                      aria-labelledby='user-ratings-delete-button'
+                      className='watchlist__button watchlist__button--delete'
+                      aria-labelledby='watchlist-delete-button'
                       onClick={() => handleDeleteClick(doc?.movieId)}>
                       <Icons
                         name='trash'
                         width='16'
                         height='16'
-                        svgClassName='user-ratings__icon user-ratings__icon--trash'
+                        svgClassName='watchlist__icon watchlist__icon--trash'
                       />
-                      <span className='user-ratings__button-text'>Delete</span>
+                      <span className='watchlist__button-text'>Delete</span>
                     </button>
                   </div>
                 </div>
@@ -463,6 +431,7 @@ const UserRatings = () => {
           </ul>
         </div>
       )}
+
       <div>
         {docs?.map((movie) => (
           <div key={movie?._id}>
@@ -500,4 +469,4 @@ const RenderImage = memo(function RenderImage({
   );
 });
 
-export default UserRatings;
+export default Watchlist;

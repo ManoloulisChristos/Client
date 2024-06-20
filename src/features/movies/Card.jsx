@@ -37,7 +37,7 @@ const Card = memo(function Card({
     {
       skip: skipRatingsRequest,
       selectFromResult: ({ data }) => ({
-        rating: data?.find(({ movieId }) => movieId === movie._id) ?? null,
+        rating: data?.find(({ movieId }) => movieId === movie?._id) ?? null,
       }),
     }
   );
@@ -47,7 +47,7 @@ const Card = memo(function Card({
     {
       skip: skipRatingsRequest,
       selectFromResult: ({ data }) => ({
-        watchlist: data?.find(({ movieId }) => movieId === movie._id ?? null),
+        watchlist: data?.find(({ movieId }) => movieId === movie?._id) ?? null,
       }),
     }
   );
@@ -100,8 +100,10 @@ const Card = memo(function Card({
       if (auth?.isVerified) {
         if (watchlist) {
           await deleteFromWatchlist({ userId: auth.id, movieId: movie._id });
+          dispatch(createToast('success', 'Removed from Watchlist'));
         } else {
           await addToWatchlist({ userId: auth.id, movieId: movie._id });
+          dispatch(createToast('success', 'Added to Watchlist'));
         }
       } else {
         dispatch(

@@ -7,6 +7,11 @@ export const watchlistApiSlice = apiSlice.injectEndpoints({
       query: ({ userId }) => `user/${userId}/watchlist`,
       providesTags: ['watchlist'],
     }),
+    getPopulatedWatchlist: build.query({
+      query: ({ userId, sortBy, sort }) =>
+        `user/${userId}/watchlist/populated?sortBy=${sortBy}&sort=${sort}`,
+      providesTags: ['watchlist'],
+    }),
 
     addToWatchlist: build.mutation({
       query: ({ userId, movieId }) => ({
@@ -29,6 +34,7 @@ export const watchlistApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetWatchlistQuery,
+  useGetPopulatedWatchlistQuery,
   useAddToWatchlistMutation,
   useDeleteFromWatchlistMutation,
 } = watchlistApiSlice;

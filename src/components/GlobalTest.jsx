@@ -12,8 +12,13 @@ const GlobalTest = () => {
   console.log(session, 'session');
   return (
     <div>
-      <button onClick={() => setSession((n) => !n)}>CLICK ME BITCH</button>
-      <button onClick={() => setPersist((n) => !n)}> LLLL</button>
+      <dl>
+        <dt>Genres</dt>
+        <dd>
+          A free, open source, cross-platform, graphical web browser developed
+          by the Mozilla Corporation and hundreds of volunteers.
+        </dd>
+      </dl>
     </div>
   );
 };
