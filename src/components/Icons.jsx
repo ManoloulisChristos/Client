@@ -85,6 +85,14 @@ const HelpIcon = ({ width, height, svgClassName }) => (
   </IconWrapper>
 );
 
+<polyline points='15 18 9 12 15 6'></polyline>;
+
+const ChevronLefttIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <polyline points='15 18 9 12 15 6'></polyline>;
+  </IconWrapper>
+);
+
 const ChevronRightIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
     <polyline points='9 18 15 12 9 6'></polyline>
@@ -226,6 +234,7 @@ const iconsMap = {
   plus: PlusIcon,
   close: CloseIcon,
   help: HelpIcon,
+  chevronLeft: ChevronLefttIcon,
   chevronRight: ChevronRightIcon,
   arrowRight: ArrowRightIcon,
   arrowRightCircle: ArrowRightCircleIcon,

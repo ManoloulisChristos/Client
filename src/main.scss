@@ -319,7 +319,7 @@ button {
   font-family: inherit;
   touch-action: manipulation;
   user-select: none;
-  // -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent;
   &:hover {
     cursor: pointer;
   }

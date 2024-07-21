@@ -1,0 +1,36 @@
+.feed {
+  display: grid;
+  gap: 1rem;
+  margin-block-start: 2rem;
+
+  &__article {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.5rem;
+    background-color: hsl(var(--surface2));
+    border-radius: 6px;
+    border: 1px solid hsl(var(--outline-variant));
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
+  }
+
+  &__header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  &__heading {
+    font-weight: 400;
+  }
+
+  &__date {
+    color: hsl(var(--on-surface-variant));
+    font-size: 0.9rem;
+  }
+
+  &__text {
+  }
+}

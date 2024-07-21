@@ -248,7 +248,8 @@ const AutocompleteForm = ({ searchModalRef }) => {
                       setInputValue('');
                       closeSearchModal();
                     }}
-                    to={`/search/id/${item?._id}`}>
+                    to={`/search/id/${item?._id}`}
+                    preventScrollReset={false}>
                     <div className='autocomplete__title'>
                       <span className='visually-hidden'>title: </span>
                       {item?.title ?? 'Missing title'}

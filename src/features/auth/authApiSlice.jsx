@@ -42,7 +42,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
           await queryFulfilled;
           dispatch(clearCredentials());
           dispatch(apiSlice.util.resetApiState());
-          dispatch(createToast('success', 'Logged out successfully'));
+          dispatch(createToast('success', 'Signed out successfully'));
           redirect('/');
         } catch (err) {
           dispatch(createToast('error', `${err.data.message}`));

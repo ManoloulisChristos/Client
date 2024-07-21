@@ -40,8 +40,8 @@ const Watchlist = () => {
     sort: sortQuery,
   });
   const [deleteRating] = useDeleteFromWatchlistMutation();
-  const docsCount = data?.[0]?.count;
-  const docs = data?.[0]?.documents;
+  const docsCount = data?.count;
+  const docs = data?.docs;
 
   const [show, setShow] = useState(false);
   const [sortButtonPressed, setSortButtonPressed] = useState(
@@ -232,7 +232,7 @@ const Watchlist = () => {
   };
 
   const intConst = new Intl.DateTimeFormat('en-GB', dateOptions);
-  console.log(docsCount);
+
   return (
     <>
       <ProgressBar

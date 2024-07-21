@@ -182,8 +182,8 @@
   }
 
   &__image {
-    width: auto;
-    max-height: 12ex;
+    max-inline-size: auto;
+    max-block-size: 12ex;
     object-fit: contain;
     aspect-ratio: 0.7;
     border-radius: 12px;

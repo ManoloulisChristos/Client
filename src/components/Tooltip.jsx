@@ -140,6 +140,7 @@ const Tooltip = ({
       }}
       className={`tooltip ${validTooltipClassName}`}
       role='tooltip'
+      aria-hidden='true'
       tip-position={validTip}
       id={validId}>
       {validText}
@@ -151,9 +152,9 @@ const Tooltip = ({
       {validWrapper ? (
         <div
           className={`tooltip-wrapper ${
-            validHiddenValues[0] ? 'hidden-tooltip-50em' : null
+            validHiddenValues[0] ? 'hidden-tooltip-50em' : ''
           } ${
-            validHiddenValues[1] ? 'hidden-tooltip-72em' : null
+            validHiddenValues[1] ? 'hidden-tooltip-72em' : ''
           } ${validWrapperClassName}`}>
           {children}
           {tooltip}

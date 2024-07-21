@@ -41,8 +41,8 @@ const UserRatings = () => {
     sort: sortQuery,
   });
   const [deleteRating] = useDeleteRatingMutation();
-  const docsCount = data?.[0]?.count;
-  const docs = data?.[0]?.documents;
+  const docsCount = data?.count;
+  const docs = data?.docs;
 
   const [show, setShow] = useState(false);
   const [sortButtonPressed, setSortButtonPressed] = useState(
