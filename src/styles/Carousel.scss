@@ -36,6 +36,8 @@
     background-color: transparent;
     border-radius: 1e5px;
     background-color: hsl(var(--surface1));
+    z-index: 10;
+
     @media (pointer: fine) {
       &:is(:hover, :focus-visible) {
         background-color: hsl(var(--background-outline));
@@ -73,7 +75,7 @@
 
     padding-block-end: 1rem;
     overflow-x: auto;
-    overscroll-behavior-x-x: contain;
+    overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     padding-inline: var(--_carousel-gutters);
     @media (prefers-reduced-motion: no-preference) {

@@ -224,23 +224,34 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
               <Link
                 ref={(node) => insertNodesToMapRef(node, 2)}
                 className='header__menu-link'
-                to={`/user/${auth?.id}/settings`}
+                to={`/comment/user/${auth?.id}`}
                 role='menuitem'
                 tabIndex={menuIndex === 2 && menuOpen ? 0 : -1}
+                onClick={handleLinkClick}>
+                Comments
+              </Link>
+            </li>
+            <li role='none' className='header__menu-item'>
+              <Link
+                ref={(node) => insertNodesToMapRef(node, 3)}
+                className='header__menu-link'
+                to={`/user/${auth?.id}/settings`}
+                role='menuitem'
+                tabIndex={menuIndex === 3 && menuOpen ? 0 : -1}
                 onClick={handleLinkClick}>
                 Settings
               </Link>
             </li>
             <li role='none' className='header__menu-item'>
               <Link
-                ref={(node) => insertNodesToMapRef(node, 3)}
+                ref={(node) => insertNodesToMapRef(node, 4)}
                 role='menuitem'
                 className='header__menu-link'
                 onClick={() => {
                   handleLogoutClick();
                   handleLinkClick();
                 }}
-                tabIndex={menuIndex === 3 && menuOpen ? 0 : -1}>
+                tabIndex={menuIndex === 4 && menuOpen ? 0 : -1}>
                 Sign out
               </Link>
             </li>

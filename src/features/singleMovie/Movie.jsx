@@ -17,7 +17,7 @@ import useAuth from '../../hooks/useAuth';
 import { useDispatch } from 'react-redux';
 import { createToast } from '../toast/toastsSlice';
 import Carousel from '../../components/Carousel';
-import Feed from '../comments/Feed';
+import Feed from './Feed';
 
 const Movie = () => {
   const { id } = useParams();
@@ -256,10 +256,11 @@ const Movie = () => {
             className='movie__suggested-heading'>
             More Like This
           </h2>
-
           <Carousel movieData={movie} />
         </section>
-        <section aria-labelledby='movie-movie-information-heading'>
+        <section
+          aria-labelledby='movie-movie-information-heading'
+          className='movie__info-section'>
           <h2
             id='movie-movie-information-heading'
             className='movie__info-heading'>
@@ -315,11 +316,12 @@ const Movie = () => {
             </div>
           </dl>
         </section>
-        <section className='movie__feed' aria-labelledby='movie-feed-heading'>
-          <h2 id='movie-feed-heading' className='movie__feed-heading'>
+        <section
+          className='movie__comments-section'
+          aria-labelledby='movie-comments-heading'>
+          <h2 id='movie-comments-heading' className='movie__comments-heading'>
             Comments
           </h2>
-          <textarea>HELLO</textarea>
           <Feed movieId={id} />
         </section>
       </article>

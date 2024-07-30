@@ -1,15 +1,15 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import '../../styles/Feed.scss';
-import { useGetCommentsQuery } from './commentsApiSlice';
-import { useNavigationType } from 'react-router-dom';
+import { useGetCommentsQuery } from '../comments/commentsApiSlice';
+import useAuth from '../../hooks/useAuth';
+import TextArea from './TextArea';
 
 const Feed = ({ movieId }) => {
-  const navivationType = useNavigationType();
-
+  const auth = useAuth();
   const [page, setPage] = useState(1);
   const [trackId, setTrackId] = useState({ current: movieId, previous: null });
   const [skip, setSkip] = useState(false);
-  const [index, setIndex] = useState(0);
+  const [resetCache, setResetCache] = useState(false);
 
   const articlesRef = useRef(null);
   const observeRef = useRef(null);
@@ -29,13 +29,14 @@ const Feed = ({ movieId }) => {
   }
 
   // Both the movieId and skip are comming though state to be in sync with each other,
-  // so i dont get any fetching if the movieId comes through props and skip lacks behind!
-  const { data, isFetching } = useGetCommentsQuery(
-    { movieId: trackId.current, page },
+  // so i avoid to get any fetching if the movieId comes through props and skip lacks behind!
+  const { data: comments, isFetching } = useGetCommentsQuery(
+    { movieId: trackId.current, page, userId: auth?.id },
     { skip }
   );
-  const docsCount = data?.count;
-  const docs = data?.docs;
+
+  const docsCount = comments?.count;
+  const docs = comments?.docs;
 
   const normalizeDate = (date) => {
     const options = {
@@ -59,25 +60,26 @@ const Feed = ({ movieId }) => {
     }
   };
 
-  const handleFeedKeydown = (e) => {
-    // Disabled because NVDA has its own keybindings for pageUp and pageDown
-    switch (e.key) {
-      // case 'PageDown':
-      //   e.preventDefault();
-      //   if (e.target.nextElementSibling) {
-      //     e.target.nextElementSibling.focus();
-      //   }
-      //   break;
-      // case 'PageUp':
-      //   e.preventDefault();
-      //   if (e.target.previousElementSibling) {
-      //     e.target.previousElementSibling.focus();
-      //   }
-      //   break;
-      default:
-        break;
-    }
-  };
+  ///// Disabled because NVDA has its own keybindings for pageUp and pageDown /////
+
+  // const handleFeedKeydown = (e) => {
+  //   switch (e.key) {
+  // case 'PageDown':
+  //   e.preventDefault();
+  //   if (e.target.nextElementSibling) {
+  //     e.target.nextElementSibling.focus();
+  //   }
+  //   break;
+  // case 'PageUp':
+  //   e.preventDefault();
+  //   if (e.target.previousElementSibling) {
+  //     e.target.previousElementSibling.focus();
+  //   }
+  //   break;
+  //     default:
+  //       break;
+  //   }
+  // };
 
   // Moves scroll to top instatly (important!!) when the user clicks the back/forward buttons
   // and prevents the browser from scroll restoration.
@@ -99,9 +101,12 @@ const Feed = ({ movieId }) => {
         history.scrollRestoration = 'auto';
       }
     };
-  }, [movieId, navivationType]);
+  }, [movieId]);
 
   useEffect(() => {
+    const docsCount = comments?.count;
+    const docs = comments?.docs;
+
     const options = {
       root: null,
       threshold: 0,
@@ -117,8 +122,15 @@ const Feed = ({ movieId }) => {
     if (docs?.length && docs?.length !== docsCount) {
       io.observe(observeRef.current);
     }
+
+    // When a mutation happens reset the cache data by setting the page = 1
+    // Combine with the observer so it disconnects when the cache resets
+    if (resetCache) {
+      setResetCache(false);
+      setPage(1);
+    }
     return () => io.disconnect();
-  }, [docs, docsCount]);
+  }, [comments, resetCache, setResetCache]);
 
   const content = docs?.map((doc, i) => (
     <article
@@ -136,8 +148,7 @@ const Feed = ({ movieId }) => {
       aria-posinset={i + 1}
       aria-setsize={docsCount}
       //eslint-disable-next-line
-      tabIndex='0'
-      onKeyDown={handleFeedKeydown}>
+      tabIndex='0'>
       <header className='feed__header'>
         <h3 id={`feed-article-heading-${i + 1}`} className='feed__heading'>
           {doc?.name}
@@ -151,9 +162,18 @@ const Feed = ({ movieId }) => {
   ));
 
   return (
-    <div role='feed' className='feed' aria-busy={isFetching}>
-      {content}
-    </div>
+    <>
+      <TextArea
+        key={movieId}
+        movieId={movieId}
+        userComment={comments?.userComment?.[0]}
+        setResetCache={setResetCache}
+        trackCurrentMovieId={trackId.current}
+      />
+      <div role='feed' className='feed' aria-busy={isFetching}>
+        {content}
+      </div>
+    </>
   );
 };
 

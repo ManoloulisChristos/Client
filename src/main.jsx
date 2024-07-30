@@ -27,6 +27,7 @@ import UserSettings from './features/user/UserSettings';
 import UserRatings from './features/ratings/UserRatings';
 import Watchlist from './features/watchlist/Watchlist';
 import Movie from './features/singleMovie/Movie';
+import UserComments from './features/comments/UserComments';
 
 if (import.meta.env.DEV) {
   import('@axe-core/react').then((axe) => axe.default(React, ReactDOM, 1000));
@@ -97,7 +98,7 @@ const router = createBrowserRouter(
               path='/verification'
               element={<Navigate to='/' replace={true} />}
             />
-            <Route path='/user/:id/settings' element={<UserSettings />} />
+
             <Route
               path='/user/:id/rating/populated'
               element={<UserRatings />}
@@ -106,6 +107,8 @@ const router = createBrowserRouter(
               path='/user/:id/watchlist/populated'
               element={<Watchlist />}
             />
+            <Route path='/comment/user/:id' element={<UserComments />} />
+            <Route path='/user/:id/settings' element={<UserSettings />} />
           </Route>
         </Route>
       </Route>
