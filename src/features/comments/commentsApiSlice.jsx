@@ -1,14 +1,16 @@
+import { current } from '@reduxjs/toolkit';
 import { apiSlice } from '../api/apiSlice';
 
 const commentsApiSlice = apiSlice.injectEndpoints({
   tagTypes: ['comment'],
   endpoints: (build) => ({
     getUserComments: build.query({
-      query: ({ userId }) => `/comment/user/${userId}`,
+      query: ({ userId, sortBy, sort }) =>
+        `/comment/user/${userId}?sortBy=${sortBy}&sort=${sort}`,
       providesTags: ['comment'],
     }),
     getComments: build.query({
-      query: ({ movieId, page, userId }) => {
+      query: ({ movieId, page, userId, resetCache }) => {
         // If no userId is provided just ommit it
         const request = userId
           ? `/comment/${movieId}?page=${page}&userId=${userId}`
@@ -21,15 +23,20 @@ const commentsApiSlice = apiSlice.injectEndpoints({
         return `${endpointName}(${movieId})`;
       },
       merge: (currentCache, newItems, { arg }) => {
-        // reset the state when the movie changes
-        if (arg.page === 1) {
+        // reset the state and always setPage to 1 when resetCache is true in the components
+        if (arg.page === 1 || arg.resetCache === true) {
           return newItems;
         } else {
           currentCache.docs.push(...newItems.docs);
         }
       },
       forceRefetch: ({ currentArg, previousArg }) => {
-        return currentArg !== previousArg;
+        // refetch when specific arguments change
+        return (
+          currentArg?.page !== previousArg?.page ||
+          currentArg?.movieId !== previousArg?.movieId ||
+          currentArg?.resetCache === true
+        );
       },
     }),
     addComment: build.mutation({

@@ -225,6 +225,12 @@ const EditIcon = ({ width, height, svgClassName }) => (
   </IconWrapper>
 );
 
+const FilterIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <polygon points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3'></polygon>
+  </IconWrapper>
+);
+
 const iconsMap = {
   clock: ClockIcon,
   calendar: CalendarIcon,
@@ -252,6 +258,7 @@ const iconsMap = {
   check: CheckIcon,
   trash: TrashIcon,
   edit: EditIcon,
+  filter: FilterIcon,
 };
 
 // All the icons are wrapped with an svg element which has a standard viewbox since all icons come from feathericons.com

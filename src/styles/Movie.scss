@@ -173,6 +173,7 @@
   &__fullplot {
     margin-block-start: 0.5rem;
     padding-inline-end: 1rem;
+    text-wrap: pretty;
     @media only screen and (max-width: 37.6em) {
       padding-inline-end: 0rem;
     }
@@ -255,96 +256,6 @@
     font-weight: var(--_heading-weight);
     @media only screen and (max-width: 37.6em) {
       text-align: center;
-    }
-  }
-
-  &__form {
-    display: grid;
-    gap: 0.5rem;
-  }
-  &__textarea-label {
-    margin-inline-start: 0.2rem;
-  }
-  &__textarea {
-    min-block-size: 6rem;
-    max-block-size: 20vh;
-    padding-block: 0.2rem;
-    padding-inline: 0.4rem;
-    font-family: 'Inter';
-    font-size: 1rem;
-    border-radius: 6px;
-    resize: vertical;
-    box-shadow: var(--shadow-small);
-
-    @media only screen and (max-width: 72em) {
-      max-block-size: 50vh;
-    }
-
-    @media only screen and (max-width: 37.6em) {
-      min-block-size: 8rem;
-    }
-
-    &:focus-visible {
-      outline: var(--focus);
-      outline-offset: 2px;
-    }
-
-    &[aria-invalid='true'] {
-      border-color: hsl(var(--error-outline));
-    }
-  }
-
-  &__error {
-    color: hsl(var(--on-surface-error));
-  }
-
-  &__textarea-button-group {
-    justify-self: end;
-    display: flex;
-    gap: 1rem;
-  }
-
-  &__textarea-button {
-    padding: 0.3rem 0.6rem;
-    font-size: 1rem;
-    border-radius: 6px;
-
-    &[aria-disabled='true'] {
-      cursor: not-allowed;
-      @media (pointer: none) {
-        text-decoration: line-through;
-      }
-    }
-
-    &:is(:hover, :focus-visible):not([aria-disabled='true']) {
-      opacity: 0.85;
-    }
-    &:focus-visible {
-      outline: var(--focus);
-      outline-offset: 2px;
-    }
-
-    &--cancel {
-      background-color: transparent;
-
-      color: hsl(var(--on-surface-error));
-    }
-
-    &--edit {
-      background-color: transparent;
-      color: hsl(var(--primary));
-    }
-
-    &--delete {
-      background-color: hsl(var(--on-surface-error));
-      color: #fff;
-      box-shadow: var(--shadow-small);
-    }
-
-    &--submit {
-      background-color: hsl(var(--primary));
-      color: hsl(var(--on-primary));
-      box-shadow: var(--shadow-small);
     }
   }
 }

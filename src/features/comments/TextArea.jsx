@@ -7,8 +7,9 @@ import {
 import { useDispatch } from 'react-redux';
 import { createToast } from '../toast/toastsSlice';
 import useAuth from '../../hooks/useAuth';
+import '../../styles/Textarea.scss';
 
-const TextArea = ({ movieId, userComment, setResetCache }) => {
+const TextArea = ({ movieId, userComment, setResetCache, setPage }) => {
   const dispatch = useDispatch();
 
   const auth = useAuth();
@@ -124,6 +125,7 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
       try {
         await deleteComment({ id: userComment._id }).unwrap();
         setResetCache(true);
+        setPage(1);
         setText('');
         setTextareaPlaceholder('Enter your comment...');
         setButtonDisabled((n) => ({
@@ -179,6 +181,7 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
           }
         }
         setResetCache(true);
+        setPage(1);
         setButtonDisabled((n) => ({
           ...n,
           cancel: true,
@@ -201,10 +204,9 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
 
   useEffect(() => {
     const textarea = textareaRef.current;
-
+    console.log(autoUpdateTextRef.current);
     // User not logged in.
     if (!auth?.id) {
-      console.log('no id');
       setTextareaPlaceholder('You must sign up, in order to leave a comment.');
       textarea.setAttribute('readOnly', '');
       setButtonDisabled((n) => ({
@@ -221,7 +223,6 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
       }));
       // User not verified.
     } else if (auth && !auth.isVerified) {
-      console.log('not verified');
       setTextareaPlaceholder(
         'You must verify your account, in order to leave a comment.'
       );
@@ -241,11 +242,9 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
       }));
 
       // User logged in and verified.
-    } else if (auth && auth.isVerified) {
+    } else if (auth && auth?.isVerified) {
       // If comment already exists set the textarea text to the comment text ONCE.
-      console.log(userComment);
       if (userComment && autoUpdateTextRef.current) {
-        console.log('set comment');
         textarea.setAttribute('readOnly', '');
         setText(userComment?.text);
         setButtonDisabled((n) => ({
@@ -276,7 +275,6 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
           edit: 'Submit a comment first',
           submit: '',
         }));
-        console.log('wake up');
         // Reset the readonly attribute that gets added from above because until the fetching completes
         // the above statements are true (user not logged in)
         textarea.removeAttribute('readOnly');
@@ -287,14 +285,14 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
   }, [auth, userComment]);
 
   return (
-    <form className='movie__form' onSubmit={handleSubmit} noValidate>
-      <label htmlFor='movie-textarea' className='movie__textarea-label'>
+    <form className='textarea__form' onSubmit={handleSubmit} noValidate>
+      <label htmlFor='movie-textarea' className='textarea__label'>
         {userComment ? 'Edit' : 'Add'} comment
       </label>
       <textarea
         ref={textareaRef}
         id='movie-textarea'
-        className='movie__textarea'
+        className='textarea__textarea'
         minLength='15'
         maxLength='700'
         placeholder={textareaPlaceholder}
@@ -307,13 +305,13 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
       <p
         aria-live='assertive'
         id='movie-textarea-error'
-        className='movie__error'>
+        className='textarea__error'>
         {textareaErrorMessage}
       </p>
-      <div className='movie__textarea-button-group'>
+      <div className='textarea__button-group'>
         <button
           type='button'
-          className='movie__textarea-button movie__textarea-button--cancel'
+          className='textarea__button textarea__button--cancel'
           aria-describedby='movie-cancel-button-desc'
           aria-disabled={buttonDisabled.cancel}
           onClick={handleCancelClick}>
@@ -324,7 +322,7 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
         </span>
         <button
           type='button'
-          className='movie__textarea-button movie__textarea-button--edit'
+          className='textarea__button textarea__button--edit'
           aria-describedby='movie-edit-button-desc'
           aria-disabled={buttonDisabled.edit}
           onClick={handleEditClick}>
@@ -337,7 +335,7 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
           type='button'
           aria-disabled={userComment ? false : true}
           aria-describedby='movie-delete-button-desc'
-          className='movie__textarea-button movie__textarea-button--delete'
+          className='textarea__button textarea__button--delete'
           onClick={handleDeleteClick}>
           Delete
         </button>
@@ -348,7 +346,7 @@ const TextArea = ({ movieId, userComment, setResetCache }) => {
           type='submit'
           aria-describedby='movie-submit-button-desc'
           aria-disabled={buttonDisabled.submit}
-          className='movie__textarea-button movie__textarea-button--submit'
+          className='textarea__button textarea__button--submit'
           onClick={handleSubmitClick}>
           Submit
         </button>

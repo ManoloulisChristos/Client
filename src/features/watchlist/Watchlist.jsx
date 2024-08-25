@@ -207,12 +207,17 @@ const Watchlist = () => {
   // (user hitting the enter key on the url)
   useEffect(() => {
     if (`sortBy=${sortByQuery}&sort=${sortQuery}` !== searchParams.toString()) {
-      setSearchParams({
-        sortBy: sortByQuery,
-        sort: sortQuery,
-      });
+      console.log('first');
+      setSearchParams(
+        {
+          sortBy: sortByQuery,
+          sort: sortQuery,
+        },
+        { replace: true }
+      );
     }
-  });
+    //eslint-disable-next-line
+  }, []);
 
   // Used to determine when all images have loaded from the RenderImages component
   const imagesReady = useCallback(() => {
@@ -336,10 +341,10 @@ const Watchlist = () => {
                 id='watchlist-sort-button'
                 hasWrapper={true}>
                 <button
-                  className='watchlist__sort-button'
+                  className='watchlist__sort-button has-tooltip-with-wrapper'
                   type='button'
                   aria-label='Descending'
-                  aria-describedby='watchlist-sort-button'
+                  aria-describedby='watchlist-sort-button '
                   aria-pressed={sortButtonPressed}
                   onClick={handleSortButtonClick}>
                   <svg

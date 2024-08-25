@@ -11,4 +11,9 @@ export default defineConfig({
       exclude: [],
     }),
   ],
+
+  // server: {
+  //   host: '0.0.0.0',
+  //   port: 3000, // or whichever port you prefer
+  // },
 });

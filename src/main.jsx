@@ -28,6 +28,7 @@ import UserRatings from './features/ratings/UserRatings';
 import Watchlist from './features/watchlist/Watchlist';
 import Movie from './features/singleMovie/Movie';
 import UserComments from './features/comments/UserComments';
+import AdvancedSearch from './features/advancedSearch/AdvancedSearch';
 
 if (import.meta.env.DEV) {
   import('@axe-core/react').then((axe) => axe.default(React, ReactDOM, 1000));
@@ -79,6 +80,7 @@ const router = createBrowserRouter(
 
       <Route path='/search/title/:title' element={<MoviesList />} />
       <Route path='/search/id/:id' element={<Movie />} />
+      <Route path='/search/advanced' element={<AdvancedSearch />} />
 
       <Route path='/auth/login' element={<Login />} />
       <Route path='/auth/register' element={<Register />} />

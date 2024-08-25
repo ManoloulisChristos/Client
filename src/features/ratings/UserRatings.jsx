@@ -210,12 +210,16 @@ const UserRatings = () => {
   // (user hitting the enter key on the url)
   useEffect(() => {
     if (`sortBy=${sortByQuery}&sort=${sortQuery}` !== searchParams.toString()) {
-      setSearchParams({
-        sortBy: sortByQuery,
-        sort: sortQuery,
-      });
+      setSearchParams(
+        {
+          sortBy: sortByQuery,
+          sort: sortQuery,
+        },
+        { replace: true }
+      );
     }
-  });
+    //eslint-disable-next-line
+  }, []);
 
   // Used to determine when all images have loaded from the RenderImages component
   const imagesReady = useCallback(() => {
@@ -347,7 +351,7 @@ const UserRatings = () => {
                 id='user-ratings-sort-button'
                 hasWrapper={true}>
                 <button
-                  className='user-ratings__sort-button'
+                  className='user-ratings__sort-button has-tooltip-with-wrapper'
                   type='button'
                   aria-label='Descending'
                   aria-describedby='user-ratings-sort-button'

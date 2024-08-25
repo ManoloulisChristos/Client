@@ -1,0 +1,207 @@
+.adv-filter {
+  position: sticky;
+  inset-block-start: 80px;
+  // will-change: transform;
+  max-inline-size: 30ch;
+  padding: 1rem;
+  background-color: hsl(var(--surface2));
+  border: 1px solid hsl(var(--outline-variant));
+  border-radius: 6px;
+  @media screen and (max-width: 72em) {
+    position: static;
+    max-inline-size: 95vw;
+    border: none;
+  }
+
+  @media screen and (max-width: 72em) {
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline-end: 0.5rem;
+  }
+
+  &__heading {
+    margin-block-end: 1ch;
+    --_size-min: 1.2;
+    --_size-max: 1.8;
+    font-size: var(--size-clamp);
+    font-weight: 500;
+  }
+
+  &__close-button {
+    background-color: transparent;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 2ch;
+  }
+
+  &__fieldset {
+    border: none;
+
+    &--genre {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1ch;
+    }
+    &--date {
+    }
+    &--rating {
+    }
+  }
+  &__legend {
+    margin-block-end: 1ch;
+    font-weight: 500;
+  }
+  &__input-wrapper {
+    &--text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5ch;
+    }
+
+    &--genre {
+      display: grid;
+    }
+
+    &--date,
+    &--rating {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5ch;
+      &:not(:last-of-type) {
+        margin-block-end: 1ch;
+      }
+    }
+  }
+  &__label {
+    &--text {
+      font-weight: 500;
+    }
+    &--genre {
+      grid-area: 1 / 1;
+      padding-block: 0.25rem;
+      padding-inline: 1rem;
+      background-color: hsl(var(--surface0));
+      border-radius: 5px;
+
+      // This is important because on touch devices when a click happens on a checkbox,
+      // a lightblue color appears as a background for a brief second.
+      @media (pointer: fine) {
+        cursor: pointer;
+      }
+      @media (pointer: coarse) {
+        user-select: none;
+      }
+    }
+    &--date {
+    }
+    &--rating {
+    }
+  }
+  &__input {
+    &--text,
+    &--rating {
+      inline-size: 100%;
+      padding: calc(0.2rem + 1px) calc(0.4rem + 1px);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 400;
+      border: 1px solid hsl(var(--outline) / 0.7);
+      border-radius: 6px;
+
+      &:hover {
+        border-color: hsl(var(--outline));
+      }
+      &:focus-visible {
+        outline: none;
+        padding: 0.2rem 0.4rem;
+        border: 2px solid hsl(var(--primary));
+      }
+    }
+    &--genre {
+      appearance: none;
+      border: none;
+      background: none;
+      grid-area: 1 / 1;
+      z-index: -1;
+      inline-size: 100%;
+      block-size: 100%;
+      outline: none;
+
+      &:checked ~ label {
+        background-color: hsl(var(--primary));
+        color: hsl(var(--on-primary));
+      }
+
+      &:focus-visible ~ label {
+        outline: var(--focus);
+        outline-offset: 2px;
+      }
+      @media (pointer: fine) {
+        &:not(:checked):is(:hover, :focus-visible) ~ label {
+          color: hsl(var(--primary));
+        }
+      }
+
+      @media (pointer: coarse) {
+        user-select: none;
+      }
+    }
+    &--date {
+      inline-size: 100%;
+      padding: calc(0.2rem + 1px) calc(0.4rem + 1px);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 400;
+      border: 1px solid hsl(var(--outline) / 0.7);
+      border-radius: 6px;
+      background-color: hsl(var(--surface0));
+
+      &:hover {
+        border-color: hsl(var(--outline));
+      }
+      &:focus-visible {
+        outline: none;
+        padding: 0.2rem 0.4rem;
+        border: 2px solid hsl(var(--primary));
+      }
+    }
+  }
+
+  &__button-wrapper {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__button {
+    padding-inline: 1rem;
+    padding-block: 0.25rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+
+    &:hover {
+      opacity: 0.9;
+    }
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
+
+    &--reset {
+      // border: 1px solid hsl(var(--error-outline));
+      background-color: hsl(var(--background-red));
+      color: #fff;
+    }
+    &--submit {
+      background-color: hsl(var(--primary));
+      color: hsl(var(--on-primary));
+    }
+  }
+}

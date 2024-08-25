@@ -118,7 +118,8 @@
     border-radius: 8px;
 
     &--delete-account {
-      background-color: hsl(var(--on-surface-error));
+      background-color: hsl(var(--background-red));
+      color: #fff;
     }
 
     &:hover {

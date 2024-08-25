@@ -1,10 +1,19 @@
 import { useRef, useState } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  useSearchParams,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import { useAutocompleteQuery } from '../../features/api/apiSlice';
 import Tooltip from '../Tooltip';
 import '../../styles/AutocompleteForm.scss';
 
 const AutocompleteForm = ({ searchModalRef }) => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+
   const [inputValue, setInputValue] = useState('');
   const [querySkip, setQuerySkip] = useState(true);
   const [isOpen, setIsOpen] = useState('false');
@@ -13,12 +22,15 @@ const AutocompleteForm = ({ searchModalRef }) => {
   const inputRef = useRef(null);
   const itemsRef = useRef(null);
 
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   let queryString = 'sortBy=Default&sort=-1&page=1'; //Default query
   // Check to see if there are any search params and if there are and all values are correct change the queryString variable and use it
   // when a request is done to the movies-list component otherwise use the default
-  if (searchParams.toString()) {
+  // If the request is comming from the moviesList (/search/title... url) then keep the query options that are selected otherwise
+  // use the default.
+  if (
+    searchParams.toString() &&
+    location.pathname.startsWith('/search/title')
+  ) {
     let sortByValue = 'Default';
     let sortValue = '-1'; //  -1 or 1 for descending ascending order
 
@@ -34,9 +46,10 @@ const AutocompleteForm = ({ searchModalRef }) => {
 
     if (sortByAcceptedValues.includes(sortBy)) {
       sortByValue = sortBy;
-      if (sort === 1 || sort === -1) {
-        sortValue = sort;
-      }
+    }
+
+    if (sort === '1' || sort === '-1') {
+      sortValue = sort;
     }
 
     queryString = `sortBy=${sortByValue}&sort=${sortValue}&page=1`;

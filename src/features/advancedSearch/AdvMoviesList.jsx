@@ -14,22 +14,22 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import Card from './Card';
+import Card from '../movies/Card';
 import ProgressBar from '../../components/ProgressBar';
-import Spinner from '../../components/Spinner';
-import MoviesListToolbar from './MoviesListToolbar';
-import MovieDetailsModal from './MovieDetailsModal';
-import RatingModal from './RatingModal';
-import { useGetMoviesWithTitleQuery } from './moviesApiSlice';
-import '../../styles/MoviesList.scss';
+import MoviesListToolbar from '../movies/MoviesListToolbar';
+import MovieDetailsModal from '../movies/MovieDetailsModal';
+import RatingModal from '../movies/RatingModal';
+import { useGetMoviesWithTitleQuery } from '../movies/moviesApiSlice';
+import '../../styles/AdvMoviesList.scss';
+import Icons from '../../components/Icons';
 
-// The data are coming as an array with 2 objects
-// 1. The movies that are nested inside as an Array of Objects
-// 2. The total count of the documents that is also nested inside an Object
+const AdvMoviesList = () => {
+  // The data are coming as an array with 2 objects
+  // 1. The movies that are nested inside as an Array of Objects
+  // 2. The total count of the documents that is also nested inside an Object
 
-const MoviesList = () => {
   const params = useParams();
-  const { title } = params;
+  // const { title } = params;
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   // Checks the URLSearchParams and asign defaults
@@ -81,6 +81,7 @@ const MoviesList = () => {
   const [progressBarLoaded, setProgressBarLoaded] = useState(0);
   const [isProgressBarLoading, setIsProgressBarLoading] = useState(false);
 
+  const title = 'the lord of the rings';
   const endpointObject = useMemo(
     () => ({
       title,
@@ -267,7 +268,12 @@ const MoviesList = () => {
     <>{calculateNavigationIndexes(pageCount, currentPage)}</>
   );
   return (
-    <>
+    <section
+      aria-labelledby='adv-movies-search-title'
+      aria-describedby='progress-bar'
+      aria-busy={!show}
+      id='adv-movies-list-section'
+      className={`adv-movies__section`}>
       <ProgressBar
         size={progressBarSize}
         loaded={progressBarLoaded}
@@ -283,107 +289,156 @@ const MoviesList = () => {
         movieTitle={modalData?.title}
         ref={ratingModalRef}
       />
-      {initial ? (
-        <Spinner />
-      ) : (
-        <section
-          aria-labelledby='movies-search-title'
-          aria-describedby='progress-bar'
-          aria-busy={!show}
-          id='movies-list-section'
-          className={`movies__wrapper`}>
-          <hgroup>
-            <h1 className='movies__header' id='movies-search-title'>
-              Search for:{' '}
-              <span className='movies__result'>{`"${searchTitle}"`}</span>
-            </h1>
-            <output
-              form='autocomplete-form'
-              htmlFor='autocomplete-input'
-              name='search-total-results'
-              className='movies__count'>
-              <span className='visually-hidden'>
-                {isProgressBarLoading ? (
-                  'Loading'
-                ) : (
-                  <>{totalResults} total results</>
-                )}
-              </span>
-              <span aria-hidden='true'>{totalResults} total results</span>
-            </output>
-          </hgroup>
-          {movies.length ? (
-            <>
-              <div className='movies__merger'>
-                <MoviesListToolbar
-                  totalResults={totalResults}
-                  newMoviesLoaded={show}
-                  currentPage={currentPage}
+
+      <hgroup>
+        <h2 className='adv-movies__heading' id='adv-movies-search-title'>
+          Titles found
+        </h2>
+        <output
+          form='adv-search-form'
+          htmlFor='autocomplete-input'
+          name='adv-movies-output'
+          className='adv-movies__count'>
+          <span className='visually-hidden'>
+            {/* Changing between loading and the results, in every user action is important! Because if just the sort order changes
+             the total number remains the same and if the contents are the same there is no announcing. */}
+            {isProgressBarLoading ? (
+              'Loading'
+            ) : (
+              <>{totalResults} total results</>
+            )}
+          </span>
+          <span aria-hidden='true'>{totalResults} total results</span>
+        </output>
+      </hgroup>
+
+      <p
+        id='adv-movies-filter-list-description'
+        className='visually-hidden'
+        aria-hidden='true'>
+        Click on any button in the list to remove the filter
+      </p>
+      <ul
+        className='adv-movies__filter-list'
+        aria-label='Applied filters'
+        aria-describedby='adv-movies-filter-list-description'>
+        <li className='adv-movies__filter-list-item'>
+          <button className='adv-movies__filter-list-button'>
+            <span>hello</span>
+            <Icons
+              name='close'
+              width='19'
+              height='19'
+              svgClassName='adv-movies__filter-list-icon'
+            />
+          </button>
+        </li>
+        <li className='adv-movies__filter-list-item'>
+          <button className='adv-movies__filter-list-button'>
+            <span>hello</span>
+            <Icons
+              name='close'
+              width='19'
+              height='19'
+              svgClassName='adv-movies__filter-list-icon'
+            />
+          </button>
+        </li>
+        <li className='adv-movies__filter-list-item'>
+          <button className='adv-movies__filter-list-button'>
+            <span>hello</span>
+            <Icons
+              name='close'
+              width='19'
+              height='19'
+              svgClassName='adv-movies__filter-list-icon'
+            />
+          </button>
+        </li>
+        <li className='adv-movies__filter-list-item'>
+          <button className='adv-movies__filter-list-button'>
+            <span>hello</span>
+            <Icons
+              name='close'
+              width='19'
+              height='19'
+              svgClassName='adv-movies__filter-list-icon'
+            />
+          </button>
+        </li>
+      </ul>
+
+      {movies?.length ? (
+        <>
+          <div className='adv-movies__merger'>
+            <MoviesListToolbar
+              totalResults={totalResults}
+              newMoviesLoaded={show}
+              currentPage={currentPage}
+            />
+            <ul
+              className={
+                view === 'list' ? 'adv-movies__list' : 'adv-movies__grid'
+              }>
+              {movies?.map((movie) => (
+                <Card
+                  movie={movie}
+                  key={`${movie?._id}`}
+                  setModalData={setModalData}
+                  setRatedMovieData={setRatedMovieData}
+                  movieModalRef={movieModalRef}
+                  ratingModalRef={ratingModalRef}
                 />
-                <ul
-                  className={view === 'list' ? 'movies__list' : 'movies__grid'}>
-                  {movies?.map((movie) => (
-                    <Card
-                      movie={movie}
-                      key={`${movie?._id}`}
-                      setModalData={setModalData}
-                      setRatedMovieData={setRatedMovieData}
-                      movieModalRef={movieModalRef}
-                      ratingModalRef={ratingModalRef}
-                    />
-                  ))}
-                </ul>
-              </div>
-              <nav className='movies__navigation' aria-label='pagination'>
-                <ul
-                  className='movies__navigation-list'
-                  data-display={view === 'grid' ? 'grid' : 'list'}>
-                  <li className='movies__navigation-item movies__navigation-item--prev'>
-                    <Link
-                      className='movies__navigation-link'
-                      to={`${
-                        location.pathname
-                      }?sortBy=${sortByQuery}&sort=${sortQuery}&page=${
-                        currentPage - 1
-                      }`}
-                      aria-disabled={currentPage === 1 ? 'true' : 'false'}
-                      onClick={(e) => {
-                        if (currentPage === 1) {
-                          e.preventDefault();
-                        }
-                      }}>
-                      Prev
-                    </Link>
-                  </li>
-                  {computedNavigationPages}
-                  <li className='movies__navigation-item movies__navigation-item--next'>
-                    <Link
-                      className='movies__navigation-link'
-                      to={`${
-                        location.pathname
-                      }?sortBy=${sortByQuery}&sort=${sortQuery}&page=${
-                        currentPage + 1
-                      }`}
-                      aria-disabled={
-                        currentPage === pageCount ? 'true' : 'false'
-                      }
-                      onClick={(e) => {
-                        if (currentPage === pageCount) e.preventDefault();
-                      }}>
-                      Next
-                    </Link>
-                  </li>
-                </ul>
-              </nav>
-            </>
-          ) : (
-            <p>
-              Sorry! No results were found for your specific search, try
-              something else.
-            </p>
-          )}
-        </section>
+              ))}
+            </ul>
+          </div>
+          <nav className='adv-movies__navigation' aria-label='pagination'>
+            <ul
+              className='adv-movies__navigation-list'
+              data-display={view === 'grid' ? 'grid' : 'list'}>
+              <li className='adv-movies__navigation-item adv-movies__navigation-item--prev'>
+                <Link
+                  className='adv-movies__navigation-link'
+                  to={`${
+                    location.pathname
+                  }?sortBy=${sortByQuery}&sort=${sortQuery}&page=${
+                    currentPage - 1
+                  }`}
+                  aria-disabled={currentPage === 1 ? 'true' : 'false'}
+                  onClick={(e) => {
+                    if (currentPage === 1) {
+                      e.preventDefault();
+                    }
+                  }}>
+                  Prev
+                </Link>
+              </li>
+              {computedNavigationPages}
+              <li className='adv-movies__navigation-item adv-movies__navigation-item--next'>
+                <Link
+                  className='adv-movies__navigation-link'
+                  to={`${
+                    location.pathname
+                  }?sortBy=${sortByQuery}&sort=${sortQuery}&page=${
+                    currentPage + 1
+                  }`}
+                  aria-disabled={currentPage === pageCount ? 'true' : 'false'}
+                  onClick={(e) => {
+                    if (currentPage === pageCount) e.preventDefault();
+                  }}>
+                  Next
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </>
+      ) : (
+        <p>
+          Sorry! No results were found for your specific search, try something
+          else.
+        </p>
       )}
+
       {/* the key is important because in the case when only the sort order changes for example, the same images appear so
       the imagesReady function does not run and everything breaks. Workaround: in every new location based on the URL the images re-render
       and they get pulled from the cache so the function runs and everything that depends on it(everything...) get's updated. */}
@@ -399,11 +454,11 @@ const MoviesList = () => {
           />
         ))}
       </div>
-    </>
+    </section>
   );
 };
 
-export default MoviesList;
+export default AdvMoviesList;
 
 const RenderImages = memo(function RenderImages({
   src,
@@ -426,7 +481,7 @@ const RenderImages = memo(function RenderImages({
 
   return (
     <img
-      className='movies--hide'
+      className='adv-movies--hide'
       alt=''
       src={src}
       onLoad={handleLoad}

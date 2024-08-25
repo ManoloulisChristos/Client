@@ -24,6 +24,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
   const [refresh, { isLoading }] = useRefreshMutation({
     fixedCacheKey: 'RefreshOnAppStart',
   });
+
   const [logout] = useLogoutMutation();
 
   const getMenuItemsMap = () => {
@@ -202,7 +203,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
               <Link
                 ref={(node) => insertNodesToMapRef(node, 0)}
                 className='header__menu-link'
-                to={`/user/${auth?.id}/watchlist/populated`}
+                to={`/user/${auth?.id}/watchlist/populated?sortBy=A-Z&sort=1`}
                 role='menuitem'
                 tabIndex={menuIndex === 0 && menuOpen ? 0 : -1}
                 onClick={handleLinkClick}>
@@ -213,7 +214,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
               <Link
                 ref={(node) => insertNodesToMapRef(node, 1)}
                 className='header__menu-link'
-                to={`/user/${auth?.id}/rating/populated`}
+                to={`/user/${auth?.id}/rating/populated?sortBy=A-Z&sort=1`}
                 role='menuitem'
                 tabIndex={menuIndex === 1 && menuOpen ? 0 : -1}
                 onClick={handleLinkClick}>
@@ -224,7 +225,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
               <Link
                 ref={(node) => insertNodesToMapRef(node, 2)}
                 className='header__menu-link'
-                to={`/comment/user/${auth?.id}`}
+                to={`/comment/user/${auth?.id}?sortBy=A-Z&sort=1`}
                 role='menuitem'
                 tabIndex={menuIndex === 2 && menuOpen ? 0 : -1}
                 onClick={handleLinkClick}>

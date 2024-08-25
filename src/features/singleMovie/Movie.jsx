@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { useGetMovieQuery } from './movieApiSlice';
 import metacritic from '../../assets/SVG/metacritic_logo.svg';
 import imdb from '../../assets/SVG/imdb_logo.svg';
@@ -17,11 +17,10 @@ import useAuth from '../../hooks/useAuth';
 import { useDispatch } from 'react-redux';
 import { createToast } from '../toast/toastsSlice';
 import Carousel from '../../components/Carousel';
-import Feed from './Feed';
+import Feed from '../comments/Feed';
 
 const Movie = () => {
   const { id } = useParams();
-
   const dispatch = useDispatch();
   const auth = useAuth();
 

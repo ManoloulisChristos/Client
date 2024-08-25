@@ -1,0 +1,75 @@
+html:has(.adv-search__dialog[open]) {
+  overflow: hidden;
+}
+
+.adv-search {
+  max-inline-size: min(160ch, 95vw);
+  display: grid;
+  margin-inline: auto;
+  margin-block-start: 2rem;
+  gap: 3rem;
+
+  &__heading-group {
+    justify-self: center;
+  }
+
+  &__heading {
+    --_size-min: 1.6;
+    --_size-max: 2.5;
+    font-size: var(--size-clamp);
+    font-weight: 600;
+    text-align: center;
+    margin-block-end: 1.5rem;
+  }
+
+  &__explainer {
+    max-inline-size: 80ch;
+    --_size-min: 1;
+    --_size-max: 1.1;
+    font-size: var(--size-clamp);
+    text-wrap: pretty;
+  }
+
+  &__code {
+    background-color: hsl(var(--surface3));
+    padding-inline: 0.25rem;
+    padding-block: 0.125rem;
+    border-radius: 4px;
+  }
+
+  &__section-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    @media screen and (max-width: 72em) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &__dialog {
+    display: grid;
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    background-color: transparent;
+    border: 1px solid hsl(var(--outline-variant));
+    border-radius: 6px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 999999;
+
+    &:not([open]) {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    &[open] {
+      opacity: 1;
+    }
+
+    &::backdrop {
+      backdrop-filter: blur(12px);
+    }
+  }
+}

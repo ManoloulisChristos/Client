@@ -1,0 +1,101 @@
+.textarea {
+  &__form {
+    display: grid;
+    gap: 0.5rem;
+  }
+  &__label {
+    margin-inline-start: 0.2rem;
+  }
+  &__textarea {
+    min-block-size: 6rem;
+    max-block-size: 20vh;
+    padding-block: 0.2rem;
+    padding-inline: 0.4rem;
+    font-family: 'Inter';
+    font-size: 1rem;
+    border-radius: 6px;
+    resize: vertical;
+    box-shadow: var(--shadow-small);
+
+    @media only screen and (max-width: 72em) {
+      max-block-size: 50vh;
+    }
+
+    @media only screen and (max-width: 37.6em) {
+      min-block-size: 8rem;
+    }
+
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
+
+    &[aria-invalid='true'] {
+      border-color: hsl(var(--error-outline));
+    }
+  }
+
+  &__error {
+    color: hsl(var(--on-surface-error));
+  }
+
+  &__button-group {
+    justify-self: end;
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__button {
+    padding: 0.3rem 0.6rem;
+    font-size: 1rem;
+    border-radius: 6px;
+
+    &[aria-disabled='true'] {
+      cursor: not-allowed;
+      @media (pointer: none) {
+        text-decoration: line-through;
+      }
+    }
+
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
+
+    &--cancel {
+      background-color: transparent;
+      color: hsl(var(--on-surface-error));
+
+      &:is(:hover, :focus-visible):not([aria-disabled='true']) {
+        background-color: hsl(var(--background-outline));
+      }
+    }
+
+    &--edit {
+      background-color: transparent;
+      color: hsl(var(--primary));
+      &:is(:hover, :focus-visible):not([aria-disabled='true']) {
+        background-color: hsl(var(--background-outline));
+      }
+    }
+
+    &--delete {
+      background-color: hsl(var(--background-red));
+
+      color: #fff;
+      box-shadow: var(--shadow-small);
+      &:is(:hover, :focus-visible):not([aria-disabled='true']) {
+        opacity: 0.85;
+      }
+    }
+
+    &--submit {
+      background-color: hsl(var(--primary));
+      color: hsl(var(--on-primary));
+      box-shadow: var(--shadow-small);
+      &:is(:hover, :focus-visible):not([aria-disabled='true']) {
+        opacity: 0.85;
+      }
+    }
+  }
+}

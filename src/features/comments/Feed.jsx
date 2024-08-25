@@ -1,18 +1,20 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import '../../styles/Feed.scss';
-import { useGetCommentsQuery } from '../comments/commentsApiSlice';
+import { useGetCommentsQuery } from './commentsApiSlice';
 import useAuth from '../../hooks/useAuth';
 import TextArea from './TextArea';
+import { useRefreshMutation } from '../auth/authApiSlice';
 
 const Feed = ({ movieId }) => {
   const auth = useAuth();
   const [page, setPage] = useState(1);
   const [trackId, setTrackId] = useState({ current: movieId, previous: null });
-  const [skip, setSkip] = useState(false);
+  const [skip, setSkip] = useState(true);
   const [resetCache, setResetCache] = useState(false);
 
   const articlesRef = useRef(null);
-  const observeRef = useRef(null);
+  const observedNodeRef = useRef(null);
+  const waitForAuthRef = useRef(false);
 
   const getMap = () => {
     if (!articlesRef.current) {
@@ -20,6 +22,12 @@ const Feed = ({ movieId }) => {
     }
     return articlesRef.current;
   };
+
+  const [refresh, { isUninitialized, isSuccess, isError }] = useRefreshMutation(
+    {
+      fixedCacheKey: 'RefreshOnAppStart',
+    }
+  );
 
   // Sync all setters together
   if (trackId.current !== movieId) {
@@ -30,11 +38,14 @@ const Feed = ({ movieId }) => {
 
   // Both the movieId and skip are comming though state to be in sync with each other,
   // so i avoid to get any fetching if the movieId comes through props and skip lacks behind!
-  const { data: comments, isFetching } = useGetCommentsQuery(
-    { movieId: trackId.current, page, userId: auth?.id },
+  const {
+    data: comments,
+    isFetching,
+    refetch,
+  } = useGetCommentsQuery(
+    { movieId: trackId.current, page, userId: auth?.id, resetCache },
     { skip }
   );
-
   const docsCount = comments?.count;
   const docs = comments?.docs;
 
@@ -45,9 +56,8 @@ const Feed = ({ movieId }) => {
       year: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
+      second: 'numeric',
       hour12: true,
-      timeZone: 'UTC',
-      timeZoneName: 'short',
     };
 
     const intl = new Intl.DateTimeFormat('en-GB', options);
@@ -103,6 +113,27 @@ const Feed = ({ movieId }) => {
     };
   }, [movieId]);
 
+  // If the whole app starts from this page then i have to wait and see if there is a user or not,
+  // so i can provide a userId and get the users comment in order to have the textarea populated with it!
+  useEffect(() => {
+    // True only in app init
+    if (isUninitialized) {
+      waitForAuthRef.current = true;
+    }
+
+    // refetch and reset the cache with the users comment if any
+    if (waitForAuthRef.current === true) {
+      if (isError || isSuccess) {
+        refetch();
+        setResetCache(true);
+        setPage(1);
+        waitForAuthRef.current = true;
+      }
+    }
+  }, [isUninitialized, isError, isSuccess, refetch]);
+
+  // Interesection observer
+  // and reset the resetCache state value if the comments or the resetCache state changes
   useEffect(() => {
     const docsCount = comments?.count;
     const docs = comments?.docs;
@@ -120,7 +151,7 @@ const Feed = ({ movieId }) => {
     };
     const io = new IntersectionObserver(ioCallback, options);
     if (docs?.length && docs?.length !== docsCount) {
-      io.observe(observeRef.current);
+      io.observe(observedNodeRef.current);
     }
 
     // When a mutation happens reset the cache data by setting the page = 1
@@ -136,7 +167,7 @@ const Feed = ({ movieId }) => {
     <article
       ref={(node) => {
         // Apply the ref only on 1 article at the bottom of the feed.
-        node && i === docs.length - 3 ? (observeRef.current = node) : null;
+        node && i === docs.length - 3 ? (observedNodeRef.current = node) : null;
         const map = getMap();
         node ? map.set(i, node) : map.delete(i);
       }}
@@ -168,6 +199,7 @@ const Feed = ({ movieId }) => {
         movieId={movieId}
         userComment={comments?.userComment?.[0]}
         setResetCache={setResetCache}
+        setPage={setPage}
         trackCurrentMovieId={trackId.current}
       />
       <div role='feed' className='feed' aria-busy={isFetching}>

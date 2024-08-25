@@ -12,6 +12,7 @@ import Icons from '../../components/Icons';
 import Tooltip from '../../components/Tooltip';
 import { useDispatch } from 'react-redux';
 import { createToast } from '../toast/toastsSlice';
+import Spinner from '../../components/Spinner';
 
 const UserSettings = () => {
   const { id } = useParams();
@@ -48,7 +49,7 @@ const UserSettings = () => {
   const submitDeleteAccountButtonRef = useRef(null);
 
   // Api Requests
-  const { data: user, error } = useGetUserQuery({ id });
+  const { data: user, isLoading } = useGetUserQuery({ id });
   const [updateUsername] = useUpdateUsernameMutation();
   const [updatePassword] = useUpdatePasswordMutation();
   const [deleteAccount] = useDeleteAccountMutation();
@@ -137,7 +138,6 @@ const UserSettings = () => {
     if (!e.target.checkValidity()) {
       return;
     } else if (newPasswordValue !== confirmNewPasswordValue) {
-      console.log('first');
       setConfirmNewPasswordError('Passwords do not match.');
     } else {
       // All inputs are valid > check the type for the password input before making the request
@@ -210,327 +210,352 @@ const UserSettings = () => {
     }
   };
 
-  const createdAt = new Date(user?.createdAt);
-  const updatedAt = new Date(user?.updatedAt);
+  const formatDate = (date) => {
+    const intl = new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+    });
+
+    const normDate = new Date(date);
+
+    if (isNaN(normDate.getTime())) {
+      return null;
+    } else {
+      return intl.format(normDate);
+    }
+  };
 
   return (
     <div className='user-settings'>
-      <h1 className='user-settings__heading'>Account Settings</h1>
-      <div className='user-settings__paragraph-wrapper'>
-        <p>
-          Email: <span className='user-settings__test'>{user?.email}</span>
-        </p>
-        <p>
-          Username:{' '}
-          <span className='user-settings__test'>{user?.username}</span>
-        </p>
-        <p>
-          Account created at:{' '}
-          <span className='user-settings__test'>
-            {createdAt?.toLocaleString('gre')}
-          </span>
-        </p>
-        <p>
-          Latest update:{' '}
-          <span className='user-settings__test'>
-            {updatedAt?.toLocaleString('gre')}
-          </span>
-        </p>
-      </div>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <>
+          <h1 className='user-settings__heading'>Account Settings</h1>
+          <div className='user-settings__paragraph-wrapper'>
+            <p>
+              Email: <span className='user-settings__test'>{user?.email}</span>
+            </p>
+            <p>
+              Username:{' '}
+              <span className='user-settings__test'>{user?.username}</span>
+            </p>
+            <p>
+              Account created at:{' '}
+              <span className='user-settings__test'>
+                {formatDate(user?.createdAt)}
+              </span>
+            </p>
+            <p>
+              Latest update:{' '}
+              <span className='user-settings__test'>
+                {formatDate(user?.updatedAt)}
+              </span>
+            </p>
+          </div>
 
-      <form
-        className='user-settings__form user-settings__form--username'
-        onSubmit={handleUsernameSubmit}
-        noValidate>
-        <fieldset className='user-settings__fieldset'>
-          <legend className='user-settings__legend'>Change Username</legend>
-          <div className='user-settings__input-container'>
-            <div className='user-settings__label-wrapper'>
-              <label
-                htmlFor='user-settings-username-input'
-                className='user-settings__label'>
-                New username
-              </label>
-              <Tooltip
-                text='4-15 characters long and it must start with a letter'
-                id='user-settings-username-info'
-                tip='top'
-                hasWrapper={true}>
-                <p className='user-settings__help-icon-wrapper has-tooltip-with-wrapper'>
-                  <Icons name='help' width='20' height='20' />
-                </p>
-              </Tooltip>
-            </div>
-            <div className='user-settings__input-wrapper'>
-              <input
-                id='user-settings-username-input'
-                className='user-settings__input'
-                type='text'
-                required
-                minLength={4}
-                maxLength={20}
-                autoComplete='off'
-                pattern='^[a-zA-Z]+[0-9]*$'
-                aria-describedby='user-settings-username-error'
-                aria-details='user-settings-username-info'
-                aria-invalid={usernameError}
-                value={usernameValue}
-                onChange={handleUsernameChange}
-                onInvalid={handleUsernameValidation}
-              />
-              <p
-                className='user-settings__error'
-                aria-live='assertive'
-                id='user-settings-username-error'>
-                {usernameError}
-              </p>
-            </div>
-          </div>
-          <button type='submit' className='user-settings__button'>
-            Save
-          </button>
-        </fieldset>
-      </form>
-      <form
-        className='user-settings__form user-settings__form--username'
-        onSubmit={handlePasswordSubmit}
-        noValidate>
-        <fieldset className='user-settings__fieldset'>
-          <legend className='user-settings__legend'>Change Password</legend>
-          <div className='user-settings__input-container'>
-            <div className='user-settings__label-wrapper'>
-              <label
-                htmlFor='user-settings-password-input'
-                className='user-settings__label'>
-                Password
-              </label>
-            </div>
-            <div className='user-settings__input-wrapper'>
-              <input
-                ref={passwordRef}
-                id='user-settings-password-input'
-                className='user-settings__input'
-                type={showPassword ? 'text' : 'password'}
-                required
-                maxLength='24'
-                autoComplete='off'
-                aria-describedby='user-settings-password-error'
-                aria-invalid={passwordError}
-                value={passwordValue}
-                onChange={handlePasswordChange}
-                onInvalid={handlePasswordValidation}
-              />
-              <button
-                className='user-settings__show-password has-tooltip'
-                type='button'
-                aria-pressed={showPassword}
-                aria-controls='user-settings-password-input'
-                onClick={() => setShowPassword((s) => !s)}>
-                <span className='visually-hidden'>Password Visibility</span>
-                <Icons
-                  name={showPassword ? 'eye' : 'eyeOff'}
-                  width='20'
-                  height='20'
-                />
-                <span aria-hidden='true'>
+          <form
+            className='user-settings__form user-settings__form--username'
+            onSubmit={handleUsernameSubmit}
+            noValidate>
+            <fieldset className='user-settings__fieldset'>
+              <legend className='user-settings__legend'>Change Username</legend>
+              <div className='user-settings__input-container'>
+                <div className='user-settings__label-wrapper'>
+                  <label
+                    htmlFor='user-settings-username-input'
+                    className='user-settings__label'>
+                    New username
+                  </label>
                   <Tooltip
-                    text={showPassword ? 'Hide' : 'Show'}
-                    tip='bottom'
-                    hasWrapper={false}
+                    text='4-15 characters long and it must start with a letter'
+                    id='user-settings-username-info'
+                    tip='top'
+                    hasWrapper={true}>
+                    <p className='user-settings__help-icon-wrapper has-tooltip-with-wrapper'>
+                      <Icons name='help' width='20' height='20' />
+                    </p>
+                  </Tooltip>
+                </div>
+                <div className='user-settings__input-wrapper'>
+                  <input
+                    id='user-settings-username-input'
+                    className='user-settings__input'
+                    type='text'
+                    required
+                    minLength={4}
+                    maxLength={20}
+                    autoComplete='off'
+                    pattern='^[a-zA-Z]+[0-9]*$'
+                    aria-describedby='user-settings-username-error'
+                    aria-details='user-settings-username-info'
+                    aria-invalid={usernameError}
+                    value={usernameValue}
+                    onChange={handleUsernameChange}
+                    onInvalid={handleUsernameValidation}
                   />
-                </span>
+                  <p
+                    className='user-settings__error'
+                    aria-live='assertive'
+                    id='user-settings-username-error'>
+                    {usernameError}
+                  </p>
+                </div>
+              </div>
+              <button type='submit' className='user-settings__button'>
+                Save
               </button>
-              <p
-                className='user-settings__error'
-                aria-live='assertive'
-                id='user-settings-password-error'>
-                {passwordError}
-              </p>
-            </div>
-          </div>
-          <div className='user-settings__input-container'>
-            <div className='user-settings__label-wrapper'>
-              <label
-                htmlFor='user-settings-new-password-input'
-                className='user-settings__label'>
-                New password
-              </label>
-              <Tooltip
-                text='8-24 characters long, number, special character (@!#%$), uppercase and lowercase letters are all required'
-                id='user-settings-new-password-info'
-                tip='top'
-                hasWrapper={true}>
-                <p className='has-tooltip-with-wrapper'>
-                  <Icons name='help' width='20' height='20' />
-                </p>
-              </Tooltip>
-            </div>
-            <div className='user-settings__input-wrapper'>
-              <input
-                ref={newPasswordRef}
-                id='user-settings-new-password-input'
-                className='user-settings__input'
-                type={showNewPassword ? 'text' : 'password'}
-                required
-                pattern='^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,24}$' //at least one uppercase, lowercase letter, special char, number
-                maxLength='24'
-                autoComplete='off'
-                aria-describedby='user-settings-new-password-error'
-                aria-details='user-settings-new-password-info'
-                aria-invalid={newPasswordError}
-                value={newPasswordValue}
-                onChange={handleNewPasswordChange}
-                onInvalid={handleNewPasswordValidation}
-              />
-              <button
-                className='user-settings__show-password has-tooltip'
-                type='button'
-                aria-pressed={showNewPassword}
-                aria-controls='user-settings-new-password-input'
-                onClick={() => setShowNewPassword((s) => !s)}>
-                <span className='visually-hidden'>Password Visibility</span>
-                <Icons
-                  name={showNewPassword ? 'eye' : 'eyeOff'}
-                  width='20'
-                  height='20'
-                />
-                <span aria-hidden='true'>
+            </fieldset>
+          </form>
+          <form
+            className='user-settings__form user-settings__form--username'
+            onSubmit={handlePasswordSubmit}
+            noValidate>
+            <fieldset className='user-settings__fieldset'>
+              <legend className='user-settings__legend'>Change Password</legend>
+              <div className='user-settings__input-container'>
+                <div className='user-settings__label-wrapper'>
+                  <label
+                    htmlFor='user-settings-password-input'
+                    className='user-settings__label'>
+                    Password
+                  </label>
+                </div>
+                <div className='user-settings__input-wrapper'>
+                  <input
+                    ref={passwordRef}
+                    id='user-settings-password-input'
+                    className='user-settings__input'
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    maxLength='24'
+                    autoComplete='off'
+                    aria-describedby='user-settings-password-error'
+                    aria-invalid={passwordError}
+                    value={passwordValue}
+                    onChange={handlePasswordChange}
+                    onInvalid={handlePasswordValidation}
+                  />
+                  <button
+                    className='user-settings__show-password has-tooltip'
+                    type='button'
+                    aria-pressed={showPassword}
+                    aria-controls='user-settings-password-input'
+                    onClick={() => setShowPassword((s) => !s)}>
+                    <span className='visually-hidden'>Password Visibility</span>
+                    <Icons
+                      name={showPassword ? 'eye' : 'eyeOff'}
+                      width='20'
+                      height='20'
+                    />
+                    <span aria-hidden='true'>
+                      <Tooltip
+                        text={showPassword ? 'Hide' : 'Show'}
+                        tip='bottom'
+                        hasWrapper={false}
+                      />
+                    </span>
+                  </button>
+                  <p
+                    className='user-settings__error'
+                    aria-live='assertive'
+                    id='user-settings-password-error'>
+                    {passwordError}
+                  </p>
+                </div>
+              </div>
+              <div className='user-settings__input-container'>
+                <div className='user-settings__label-wrapper'>
+                  <label
+                    htmlFor='user-settings-new-password-input'
+                    className='user-settings__label'>
+                    New password
+                  </label>
                   <Tooltip
-                    text={showNewPassword ? 'Hide' : 'Show'}
-                    tip='bottom'
-                    hasWrapper={false}
+                    text='8-24 characters long, number, special character (@!#%$), uppercase and lowercase letters are all required'
+                    id='user-settings-new-password-info'
+                    tip='top'
+                    hasWrapper={true}>
+                    <p className='has-tooltip-with-wrapper'>
+                      <Icons name='help' width='20' height='20' />
+                    </p>
+                  </Tooltip>
+                </div>
+                <div className='user-settings__input-wrapper'>
+                  <input
+                    ref={newPasswordRef}
+                    id='user-settings-new-password-input'
+                    className='user-settings__input'
+                    type={showNewPassword ? 'text' : 'password'}
+                    required
+                    pattern='^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,24}$' //at least one uppercase, lowercase letter, special char, number
+                    maxLength='24'
+                    autoComplete='off'
+                    aria-describedby='user-settings-new-password-error'
+                    aria-details='user-settings-new-password-info'
+                    aria-invalid={newPasswordError}
+                    value={newPasswordValue}
+                    onChange={handleNewPasswordChange}
+                    onInvalid={handleNewPasswordValidation}
                   />
-                </span>
+                  <button
+                    className='user-settings__show-password has-tooltip'
+                    type='button'
+                    aria-pressed={showNewPassword}
+                    aria-controls='user-settings-new-password-input'
+                    onClick={() => setShowNewPassword((s) => !s)}>
+                    <span className='visually-hidden'>Password Visibility</span>
+                    <Icons
+                      name={showNewPassword ? 'eye' : 'eyeOff'}
+                      width='20'
+                      height='20'
+                    />
+                    <span aria-hidden='true'>
+                      <Tooltip
+                        text={showNewPassword ? 'Hide' : 'Show'}
+                        tip='bottom'
+                        hasWrapper={false}
+                      />
+                    </span>
+                  </button>
+                  <p
+                    className='user-settings__error'
+                    aria-live='assertive'
+                    id='user-settings-new-password-error'>
+                    {newPasswordError}
+                  </p>
+                </div>
+              </div>
+              <div className='user-settings__input-container'>
+                <div className='user-settings__label-wrapper'>
+                  <label
+                    htmlFor='user-settings-confirm-new-password-input'
+                    className='user-settings__label'>
+                    Confirm new password
+                  </label>
+                </div>
+                <div className='user-settings__input-wrapper'>
+                  <input
+                    ref={confirmNewPasswordRef}
+                    id='user-settings-confirm-new-password-input'
+                    className='user-settings__input'
+                    type={showConfirmNewPassword ? 'text' : 'password'}
+                    required
+                    maxLength='24'
+                    autoComplete='off'
+                    aria-describedby='user-settings-confirm-new-password-error'
+                    aria-invalid={confirmNewPasswordError}
+                    value={confirmNewPasswordValue}
+                    onChange={handleConfirmNewPasswordChange}
+                    onInvalid={handleConfirmNewPasswordValidation}
+                  />
+                  <button
+                    className='user-settings__show-password has-tooltip'
+                    type='button'
+                    aria-pressed={showConfirmNewPassword}
+                    aria-controls='user-settings-confirm-new-password-input'
+                    onClick={() => setShowConfirmNewPassword((s) => !s)}>
+                    <span className='visually-hidden'>Password Visibility</span>
+                    <Icons
+                      name={showConfirmNewPassword ? 'eye' : 'eyeOff'}
+                      width='20'
+                      height='20'
+                    />
+                    <span aria-hidden='true'>
+                      <Tooltip
+                        text={showConfirmNewPassword ? 'Hide' : 'Show'}
+                        tip='bottom'
+                        hasWrapper={false}
+                      />
+                    </span>
+                  </button>
+                  <p
+                    className='user-settings__error'
+                    aria-live='assertive'
+                    id='user-settings-confirm-new-password-error'>
+                    {confirmNewPasswordError}
+                  </p>
+                </div>
+              </div>
+              <button type='submit' className='user-settings__button'>
+                Save
               </button>
-              <p
-                className='user-settings__error'
-                aria-live='assertive'
-                id='user-settings-new-password-error'>
-                {newPasswordError}
-              </p>
-            </div>
-          </div>
-          <div className='user-settings__input-container'>
-            <div className='user-settings__label-wrapper'>
-              <label
-                htmlFor='user-settings-confirm-new-password-input'
-                className='user-settings__label'>
-                Confirm new password
-              </label>
-            </div>
-            <div className='user-settings__input-wrapper'>
-              <input
-                ref={confirmNewPasswordRef}
-                id='user-settings-confirm-new-password-input'
-                className='user-settings__input'
-                type={showConfirmNewPassword ? 'text' : 'password'}
-                required
-                maxLength='24'
-                autoComplete='off'
-                aria-describedby='user-settings-confirm-new-password-error'
-                aria-invalid={confirmNewPasswordError}
-                value={confirmNewPasswordValue}
-                onChange={handleConfirmNewPasswordChange}
-                onInvalid={handleConfirmNewPasswordValidation}
-              />
+            </fieldset>
+          </form>
+          <form
+            className='user-settings__form user-settings__form--username'
+            onSubmit={handleDeleteAccountSubmit}
+            noValidate>
+            <fieldset className='user-settings__fieldset'>
+              <legend className='user-settings__legend'>
+                Account Deletion
+              </legend>
+              <div className='user-settings__input-container'>
+                <div className='user-settings__label-wrapper'>
+                  <label
+                    htmlFor='user-settings-delete-password-input'
+                    className='user-settings__label'>
+                    Password
+                  </label>
+                </div>
+                <div className='user-settings__input-wrapper'>
+                  <input
+                    ref={deleteAccountPasswordRef}
+                    id='user-settings-delete-password-input'
+                    className='user-settings__input'
+                    type={showDeleteAccountPassword ? 'text' : 'password'}
+                    required
+                    maxLength='24'
+                    autoComplete='off'
+                    aria-describedby='user-settings-delete-password-error'
+                    aria-invalid={deleteAccountPasswordError}
+                    value={deleteAccountPasswordValue}
+                    onChange={handleDeleteAccountPasswordChange}
+                    onInvalid={handleDeleteAccountPasswordValidation}
+                  />
+                  <button
+                    className='user-settings__show-password has-tooltip'
+                    type='button'
+                    aria-pressed={showDeleteAccountPassword}
+                    aria-controls='user-settings-delete-password-input'
+                    onClick={() => setShowDeleteAccountPassword((s) => !s)}>
+                    <span className='visually-hidden'>Password Visibility</span>
+                    <Icons
+                      name={showDeleteAccountPassword ? 'eye' : 'eyeOff'}
+                      width='20'
+                      height='20'
+                    />
+                    <span aria-hidden='true'>
+                      <Tooltip
+                        text={showPassword ? 'Hide' : 'Show'}
+                        tip='bottom'
+                        hasWrapper={false}
+                      />
+                    </span>
+                  </button>
+                  <p
+                    className='user-settings__error'
+                    aria-live='assertive'
+                    id='user-settings-delete-password-error'>
+                    {deleteAccountPasswordError}
+                  </p>
+                </div>
+              </div>
               <button
-                className='user-settings__show-password has-tooltip'
-                type='button'
-                aria-pressed={showConfirmNewPassword}
-                aria-controls='user-settings-confirm-new-password-input'
-                onClick={() => setShowConfirmNewPassword((s) => !s)}>
-                <span className='visually-hidden'>Password Visibility</span>
-                <Icons
-                  name={showConfirmNewPassword ? 'eye' : 'eyeOff'}
-                  width='20'
-                  height='20'
-                />
-                <span aria-hidden='true'>
-                  <Tooltip
-                    text={showConfirmNewPassword ? 'Hide' : 'Show'}
-                    tip='bottom'
-                    hasWrapper={false}
-                  />
-                </span>
+                ref={submitDeleteAccountButtonRef}
+                type='submit'
+                className='user-settings__button user-settings__button--delete-account'>
+                Delete Account
               </button>
-              <p
-                className='user-settings__error'
-                aria-live='assertive'
-                id='user-settings-confirm-new-password-error'>
-                {confirmNewPasswordError}
-              </p>
-            </div>
-          </div>
-          <button type='submit' className='user-settings__button'>
-            Save
-          </button>
-        </fieldset>
-      </form>
-      <form
-        className='user-settings__form user-settings__form--username'
-        onSubmit={handleDeleteAccountSubmit}
-        noValidate>
-        <fieldset className='user-settings__fieldset'>
-          <legend className='user-settings__legend'>Account Deletion</legend>
-          <div className='user-settings__input-container'>
-            <div className='user-settings__label-wrapper'>
-              <label
-                htmlFor='user-settings-delete-password-input'
-                className='user-settings__label'>
-                Password
-              </label>
-            </div>
-            <div className='user-settings__input-wrapper'>
-              <input
-                ref={deleteAccountPasswordRef}
-                id='user-settings-delete-password-input'
-                className='user-settings__input'
-                type={showDeleteAccountPassword ? 'text' : 'password'}
-                required
-                maxLength='24'
-                autoComplete='off'
-                aria-describedby='user-settings-delete-password-error'
-                aria-invalid={deleteAccountPasswordError}
-                value={deleteAccountPasswordValue}
-                onChange={handleDeleteAccountPasswordChange}
-                onInvalid={handleDeleteAccountPasswordValidation}
-              />
-              <button
-                className='user-settings__show-password has-tooltip'
-                type='button'
-                aria-pressed={showDeleteAccountPassword}
-                aria-controls='user-settings-delete-password-input'
-                onClick={() => setShowDeleteAccountPassword((s) => !s)}>
-                <span className='visually-hidden'>Password Visibility</span>
-                <Icons
-                  name={showDeleteAccountPassword ? 'eye' : 'eyeOff'}
-                  width='20'
-                  height='20'
-                />
-                <span aria-hidden='true'>
-                  <Tooltip
-                    text={showPassword ? 'Hide' : 'Show'}
-                    tip='bottom'
-                    hasWrapper={false}
-                  />
-                </span>
-              </button>
-              <p
-                className='user-settings__error'
-                aria-live='assertive'
-                id='user-settings-delete-password-error'>
-                {deleteAccountPasswordError}
-              </p>
-            </div>
-          </div>
-          <button
-            ref={submitDeleteAccountButtonRef}
-            type='submit'
-            className='user-settings__button user-settings__button--delete-account'>
-            Delete Account
-          </button>
-        </fieldset>
-      </form>
+            </fieldset>
+          </form>
+        </>
+      )}
     </div>
   );
 };
