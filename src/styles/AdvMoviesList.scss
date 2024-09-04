@@ -25,6 +25,7 @@
 
   &__filter-list {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
   &__filter-list-button {
@@ -35,7 +36,7 @@
     padding-block: 0.25rem;
     font-size: 1rem;
     background-color: transparent;
-    border: 1px solid hsl(var(--outline));
+    border: 1px solid hsl(var(--outline-variant));
     border-radius: 12px;
 
     &:hover {

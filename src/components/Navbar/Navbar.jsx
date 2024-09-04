@@ -277,7 +277,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
                     id='nav-link-3'
                     ref={(n) => insertNodesToMapRef(n, 4)}
                     className='header__link'
-                    to='/search/advanced'>
+                    to='/search/advanced?sortBy=Default&sort=-1&page=1'>
                     Search+
                   </NavLink>
                 </li>

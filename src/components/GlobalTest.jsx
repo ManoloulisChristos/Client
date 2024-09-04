@@ -24,10 +24,10 @@ const GlobalTest = () => {
   return (
     <div className='test'>
       <div className='test__div'>
-        <label htmlFor='test-checkbox' className='test__label'>
-          Documentary
-        </label>
-        <input className='test__input' type='checkbox' id='test-checkbox' />
+        <button
+          onClick={() => setSearchParams({ genre: 'Hello,There,Big,boy' })}>
+          CLIOCK
+        </button>
       </div>
     </div>
   );

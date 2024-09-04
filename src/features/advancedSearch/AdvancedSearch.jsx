@@ -5,6 +5,7 @@ import AdvMoviesList from './AdvMoviesList';
 
 const AdvancedSearch = () => {
   const [hideFilters, setHideFilters] = useState(false);
+  const [filterData, setFilterData] = useState(null);
 
   const dialogRef = useRef(null);
 
@@ -69,14 +70,22 @@ const AdvancedSearch = () => {
               className='adv-search__dialog'
               inert=''
               onClose={handleOnDialogClose}>
-              <FilterSection dialogRef={dialogRef} hideFilters={hideFilters} />
+              <FilterSection
+                dialogRef={dialogRef}
+                hideFilters={hideFilters}
+                setFilterData={setFilterData}
+              />
             </dialog>
           </>
         ) : (
-          <FilterSection dialogRef={dialogRef} hideFilters={hideFilters} />
+          <FilterSection
+            dialogRef={dialogRef}
+            hideFilters={hideFilters}
+            setFilterData={setFilterData}
+          />
         )}
 
-        <AdvMoviesList />
+        <AdvMoviesList filterData={filterData} />
       </div>
       <div className='adv-search__test'></div>
     </div>

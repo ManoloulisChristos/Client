@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import '../../styles/FilterSection.scss';
 import Icons from '../../components/Icons';
 import Tooltip from '../../components/Tooltip';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 const allGenresStatic = [
   'Drama',
@@ -31,19 +32,149 @@ const allGenresStatic = [
   'Western',
 ];
 
-const FilterSection = ({ dialogRef, hideFilters }) => {
+const FilterSection = ({ dialogRef, hideFilters, setFilterData }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+
+  // Checks the URLSearchParams and asign defaults
+  const sortBy = searchParams.get('sortBy');
+  const sort = searchParams.get('sort');
+  const page = searchParams.get('page');
+  let genreQuery = '';
+  let dateFromQuery = '';
+  let dateToQuery = '';
+  let ratingFromQuery = '';
+  let ratingToQuery = '';
+  let titleQuery = searchParams.get('title') ?? '';
+  let plotQuery = searchParams.get('plot') ?? '';
+  let castQuery = searchParams.get('cast') ?? '';
+
+  const genreAcceptedValues = [
+    'Drama',
+    'Comedy',
+    'Music',
+    'Action',
+    'Romance',
+    'Musical',
+    'Crime',
+    'Adventure',
+    'Animation',
+    'Short',
+    'Mystery',
+    'Documentary',
+    'Sci-Fi',
+    'History',
+    'Fantasy',
+    'Family',
+    'War',
+    'Sport',
+    'News',
+    'Thriller',
+    'Film-Noir',
+    'Biography',
+    'Horror',
+    'Talk-Show',
+    'Western',
+  ];
+
+  // Check to see if there are any search params and if there are, check if all filter values are correct.
+  if (searchParams.toString()) {
+    const genre = searchParams.get('genre');
+    const dateFrom = searchParams.get('dateFrom');
+    const dateTo = searchParams.get('dateTo');
+    const ratingFrom = searchParams.get('ratingFrom');
+    const ratingTo = searchParams.get('ratingTo');
+
+    // Validate genre param by creating an array and checking it against the accepted values
+    genre?.split(',').forEach((gen, i) => {
+      if (genreAcceptedValues.includes(gen)) {
+        if (i === 0) {
+          genreQuery = `${gen}`;
+        } else {
+          genreQuery = `${genreQuery},${gen}`;
+        }
+      }
+    });
+
+    // Validate Date
+
+    let testDateFrom = isNaN(new Date(dateFrom).getTime()) ? null : dateFrom;
+    let testDateTo = isNaN(new Date(dateTo).getTime()) ? null : dateTo;
+
+    if (testDateFrom && testDateTo) {
+      if (new Date(testDateFrom) > new Date(testDateTo)) {
+        testDateFrom = null;
+      }
+    }
+
+    dateFromQuery = testDateFrom ? dateFrom : '';
+    dateToQuery = testDateTo ? dateTo : '';
+
+    // Validate Ratings by checking if they are between 1 and 10 and if the "from" is smaller from "to".
+
+    const checkRatingRange = (rating) => {
+      if (rating) {
+        const numRating = Number(rating);
+        if (numRating >= 1 && numRating <= 10) {
+          return Number(numRating.toFixed(1));
+        }
+      }
+      return null;
+    };
+    let testRatingFrom = checkRatingRange(ratingFrom);
+    let testRatingTo = checkRatingRange(ratingTo);
+
+    // Both ratings exist and passed the validation but if the "from" is bigger than the "to" rating,
+    // then disregard it.
+    if (testRatingFrom && testRatingTo) {
+      if (testRatingFrom > testRatingTo) {
+        testRatingFrom = null;
+      }
+    }
+
+    // If the tests passed and i have a value then convert the rating back to String.
+
+    ratingFromQuery = testRatingFrom ? String(testRatingFrom) : '';
+    ratingToQuery = testRatingTo ? String(testRatingTo) : '';
+  }
+
   // Text inputs
-  const [title, setTitle] = useState('');
-  const [plot, setPlot] = useState('');
-  const [cast, setCast] = useState('');
+  const [title, setTitle] = useState(titleQuery);
+  const [plot, setPlot] = useState(plotQuery);
+  const [cast, setCast] = useState(castQuery);
   // Number inputs
-  const [ratingFrom, setRatingFrom] = useState('');
-  const [ratingTo, setRatingTo] = useState('');
+  const [ratingFrom, setRatingFrom] = useState(ratingFromQuery);
+  const [ratingTo, setRatingTo] = useState(ratingToQuery);
   // Date inputs
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [dateFrom, setDateFrom] = useState(dateFromQuery);
+  const [dateTo, setDateTo] = useState(dateToQuery);
   // Checkboxes
-  const [checkedValues, setCheckedValues] = useState([]);
+  const [checkedValues, setCheckedValues] = useState(genreQuery.split(','));
+
+  const [trackLocation, setTrackLocation] = useState(location.key);
+
+  // Errors
+
+  const [ratingFromError, setRatingFromError] = useState('');
+  const [ratingToError, setRatingToError] = useState('');
+  const [dateFromError, setDateFromError] = useState('');
+
+  const dateFromRef = useRef(null);
+  const dateToRef = useRef(null);
+
+  const memoGenre = useMemo(() => [...genreQuery.split(',')], [genreQuery]);
+
+  if (location.key !== trackLocation) {
+    setTitle(titleQuery);
+    setCheckedValues(memoGenre);
+    setDateFrom(dateFromQuery);
+    setDateTo(dateToQuery);
+    setRatingFrom(ratingFromQuery);
+    setRatingTo(ratingToQuery);
+    setPlot(plotQuery);
+    setCast(castQuery);
+    setTrackLocation(location.key);
+  }
 
   // Takes the current time and formats it into yyyy-mm-dd, which is a viable option for the max attribute.
   const formatMaxDate = () => {
@@ -72,10 +203,90 @@ const FilterSection = ({ dialogRef, hideFilters }) => {
     }
   };
 
+  const handleInvalidNumberInput = (e) => {
+    const input = e.target;
+    let setState;
+    if (input.id.includes('from')) {
+      setState = setRatingFromError;
+    } else {
+      setState = setRatingToError;
+    }
+
+    if (input.validity.rangeUnderflow) {
+      setState('Value must be greater than or equal to 1.');
+    } else if (input.validity.rangeOverflow) {
+      setState('Value must be less than or equal to 10.');
+    } else if (input.validity.stepMismatch) {
+      setState('Only values with one decimal place are allowed (e.g. 0.1).');
+    }
+  };
+
+  const handleResetClick = () => {
+    setTitle('');
+    setPlot('');
+    setCast('');
+    setCheckedValues([]);
+    setDateFrom('');
+    setDateTo('');
+    setRatingFrom('');
+    setRatingTo('');
+    setDateFromError('');
+    setRatingFromError('');
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = new FormData(e.target);
-    console.log([data.getAll('genre')]);
+    setRatingFromError('');
+    setRatingToError('');
+    setDateFromError('');
+    if (e.target.checkValidity()) {
+      if (dateFrom && dateTo) {
+        if (dateFromRef.current.valueAsDate > dateToRef.current.valueAsDate) {
+          setDateFromError(
+            'The "From" date must precede or match the "To" date.'
+          );
+          return;
+        }
+      }
+
+      if (ratingFrom && ratingTo) {
+        if (ratingFrom > ratingTo) {
+          setRatingFromError(
+            'The "From" rating should not be greater than the "To" rating.'
+          );
+          return;
+        }
+      }
+
+      // Take the form data and pass them to the URL search params
+      const formData = new FormData(e.target);
+
+      const filtersToParams = {};
+
+      // Create a comma seperated list for the genre param
+      const genre = formData.getAll('genre');
+
+      if (genre?.length) {
+        filtersToParams.genre = genre.join();
+      }
+
+      // Populate the filter object with the rest of the values
+      for (const [key, val] of formData.entries()) {
+        if (key !== 'genre' && val) {
+          filtersToParams[key] = val;
+        }
+      }
+
+      const sortBy = searchParams.get('sortBy');
+      const sort = searchParams.get('sort');
+      const page = searchParams.get('page');
+      setSearchParams({
+        sortBy,
+        sort,
+        page,
+        ...filtersToParams,
+      });
+    }
   };
 
   const populatedGenreInput = allGenresStatic.map((item) => (
@@ -128,7 +339,8 @@ const FilterSection = ({ dialogRef, hideFilters }) => {
       <form
         className='adv-filter__form'
         id='adv-filter-form'
-        onSubmit={handleSubmit}>
+        onSubmit={handleSubmit}
+        noValidate>
         <div className='adv-filter__input-wrapper adv-filter__input-wrapper--text'>
           <label
             htmlFor='adv-filter-title-input'
@@ -166,13 +378,22 @@ const FilterSection = ({ dialogRef, hideFilters }) => {
               From
             </label>
             <input
+              ref={dateFromRef}
               id='adv-filter-date-from-input'
               className='adv-filter__input adv-filter__input--date'
               type='date'
               name='dateFrom'
+              aria-invalid={dateFromError ? true : false}
+              aria-describedby='adv-filter-date-from-error'
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
             />
+            <p
+              id='adv-filter-date-from-error'
+              className='adv-filter__error'
+              aria-live='assertive'>
+              {dateFromError}
+            </p>
           </div>
           <div className='adv-filter__input-wrapper adv-filter__input-wrapper--date'>
             <label
@@ -181,6 +402,7 @@ const FilterSection = ({ dialogRef, hideFilters }) => {
               To
             </label>
             <input
+              ref={dateToRef}
               id='adv-filter-date-to-input'
               className='adv-filter__input adv-filter__input--date'
               type='date'
@@ -208,10 +430,20 @@ const FilterSection = ({ dialogRef, hideFilters }) => {
               placeholder='1'
               min='1'
               max='10'
+              step='0.1'
               name='ratingFrom'
+              aria-invalid={ratingFromError ? true : false}
+              aria-describedby='adv-filter-rating-from-error'
               value={ratingFrom}
               onChange={(e) => setRatingFrom(e.target.value)}
+              onInvalid={handleInvalidNumberInput}
             />
+            <p
+              id='adv-filter-rating-from-error'
+              className='adv-filter__error'
+              aria-live='assertive'>
+              {ratingFromError}
+            </p>
           </div>
           <div className='adv-filter__input-wrapper adv-filter__input-wrapper--rating'>
             <label
@@ -226,10 +458,20 @@ const FilterSection = ({ dialogRef, hideFilters }) => {
               placeholder='10'
               min='1'
               max='10'
+              step='0.1'
               name='ratingTo'
+              aria-invalid={ratingToError ? true : false}
+              aria-describedby='adv-filter-rating-to-error'
               value={ratingTo}
               onChange={(e) => setRatingTo(e.target.value)}
+              onInvalid={handleInvalidNumberInput}
             />
+            <p
+              id='adv-filter-rating-to-error'
+              className='adv-filter__error'
+              aria-live='assertive'>
+              {ratingToError}
+            </p>
           </div>
         </fieldset>
         <div className='adv-filter__input-wrapper adv-filter__input-wrapper--text'>
@@ -271,7 +513,8 @@ const FilterSection = ({ dialogRef, hideFilters }) => {
         <div className='adv-filter__button-wrapper'>
           <button
             type='reset'
-            className='adv-filter__button adv-filter__button--reset'>
+            className='adv-filter__button adv-filter__button--reset'
+            onClick={handleResetClick}>
             Reset
           </button>
           <button

@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import Icons from '../../components/Icons';
 import '../../styles/MoviesListToolbar.scss';
 import Tooltip from '../../components/Tooltip';
-import { updateView } from './moviesToolbarSlice';
+import { updateView } from '../movies/moviesToolbarSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 
-function MovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
+function AdvMovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
   const dispatch = useDispatch();
   const view = useSelector((state) => state.moviesToolbar.view); //state to persist the display view of the component between page transitions
 
@@ -35,6 +35,13 @@ function MovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
     }
 
     queryString = `sortBy=${sortByQuery}&sort=${sortQuery}&page=${pageQuery}`;
+
+    // Populate queryString with the filter params
+    searchParams.forEach((val, key) => {
+      if (key !== 'sortBy' && key !== 'sort' && key !== 'page') {
+        queryString = `${queryString}&${key}=${val}`;
+      }
+    });
   }
 
   const [trackQueryString, setTrackQueryString] = useState(queryString); //Whenever the query changes via the toolbar
@@ -78,20 +85,28 @@ function MovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
   // Updates the query string and also changes the URL accordingly (this forces an update to the MoviesList and to request new data)
   // Must be used in conjunction with all state values of the component that handle query changes.
   const changeQueryString = (key, val) => {
-    const obj = {
+    const paramsObj = {
       sortBy: sortByQuery,
       sort: sortQuery,
       page: pageQuery,
     };
     if (key === 'sortBy' || key === 'sort' || key === 'page') {
-      obj[key] = val.toString();
-      // force page query to default(1) when the sort option changes
+      paramsObj[key] = val.toString();
+      // force page query to default(1) when the sortBy option changes
       if (key === 'sortBy') {
-        obj.page = '1';
+        paramsObj.page = '1';
         setSpinButtonValue(1);
       }
     }
-    const params = new URLSearchParams(obj);
+
+    // Populate with filter params
+    searchParams.forEach((val, key) => {
+      if (key !== 'sortBy' && key !== 'sort' && key !== 'page') {
+        paramsObj[key] = val;
+      }
+    });
+
+    const params = new URLSearchParams(paramsObj);
     setSearchParams(params);
     setTrackQueryString(params.toString());
   };
@@ -633,4 +648,4 @@ function MovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
   );
 }
 
-export default MovieListToolbar;
+export default AdvMovieListToolbar;
