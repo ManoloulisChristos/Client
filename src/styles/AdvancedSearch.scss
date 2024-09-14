@@ -44,7 +44,34 @@ html:has(.adv-search__dialog[open]) {
     @media screen and (max-width: 72em) {
       flex-direction: column;
       align-items: stretch;
+      gap: 0.5rem;
     }
+  }
+
+  &__filter-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-inline-size: max-content;
+    padding-block: 0.5rem;
+    padding-inline: 1rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--on-primary));
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:focus-visible {
+      outline: var(--focus);
+      outline-offset: 2px;
+    }
+  }
+
+  &__filter-icon {
+    stroke: currentColor;
   }
 
   &__dialog {

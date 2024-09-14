@@ -13,6 +13,16 @@
     --_size-max: 1.8;
     font-size: var(--size-clamp);
   }
+
+  &__initial-text {
+    margin-inline-start: 0.2rem;
+    margin-block-start: 0.5rem;
+  }
+
+  &__search-icon {
+    max-inline-size: 90ch;
+  }
+
   &__result {
     white-space: nowrap;
   }

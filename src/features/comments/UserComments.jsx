@@ -11,6 +11,7 @@ import {
   useGetUserCommentsQuery,
 } from './commentsApiSlice';
 import '../../styles/UserComments.scss';
+import HelmetWrapper from '../../components/HelmetWrapper';
 
 const UserComments = () => {
   const { id: userId } = useParams();
@@ -243,6 +244,7 @@ const UserComments = () => {
 
   return (
     <>
+      <HelmetWrapper noIndex={true} />
       <ProgressBar
         size={docsCount}
         loaded={progressBarLoaded}

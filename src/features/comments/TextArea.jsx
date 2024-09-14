@@ -204,7 +204,6 @@ const TextArea = ({ movieId, userComment, setResetCache, setPage }) => {
 
   useEffect(() => {
     const textarea = textareaRef.current;
-    console.log(autoUpdateTextRef.current);
     // User not logged in.
     if (!auth?.id) {
       setTextareaPlaceholder('You must sign up, in order to leave a comment.');

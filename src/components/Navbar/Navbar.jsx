@@ -60,6 +60,10 @@ const Navbar = ({ topLevelSentinelRef }) => {
     }
   };
 
+  const closeMobileNav = () => {
+    setNavExpanded(false);
+  };
+
   useEffect(() => {
     const burgerButton = nodesMapRef.current.get(0);
     const burgerButtonDisplayState =
@@ -252,7 +256,8 @@ const Navbar = ({ topLevelSentinelRef }) => {
                     id='nav-link-0'
                     ref={(n) => insertNodesToMapRef(n, 1)}
                     className='header__link'
-                    to='test'>
+                    to='test'
+                    onClick={closeMobileNav}>
                     Genres
                   </NavLink>
                 </li>
@@ -260,7 +265,8 @@ const Navbar = ({ topLevelSentinelRef }) => {
                   <NavLink
                     id='nav-link-1'
                     ref={(n) => insertNodesToMapRef(n, 2)}
-                    className='header__link'>
+                    className='header__link'
+                    onClick={closeMobileNav}>
                     Trending
                   </NavLink>
                 </li>
@@ -268,7 +274,8 @@ const Navbar = ({ topLevelSentinelRef }) => {
                   <NavLink
                     id='nav-link-2'
                     ref={(n) => insertNodesToMapRef(n, 3)}
-                    className='header__link'>
+                    className='header__link'
+                    onClick={closeMobileNav}>
                     Top100
                   </NavLink>
                 </li>
@@ -277,7 +284,8 @@ const Navbar = ({ topLevelSentinelRef }) => {
                     id='nav-link-3'
                     ref={(n) => insertNodesToMapRef(n, 4)}
                     className='header__link'
-                    to='/search/advanced?sortBy=Default&sort=-1&page=1'>
+                    to='/search/advanced?sortBy=Default&sort=-1&page=1'
+                    onClick={closeMobileNav}>
                     Search+
                   </NavLink>
                 </li>
@@ -285,6 +293,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
                   <UserMenu
                     navBarInsertNodesToMapRef={insertNodesToMapRef}
                     navBarNodesMapRef={nodesMapRef}
+                    closeMobileNav={closeMobileNav}
                   />
                 </li>
               </ul>

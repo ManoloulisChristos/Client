@@ -2,10 +2,11 @@ import { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import '../../styles/AdvancedSearch.scss';
 import FilterSection from './FilterSection';
 import AdvMoviesList from './AdvMoviesList';
+import Icons from '../../components/Icons';
 
 const AdvancedSearch = () => {
   const [hideFilters, setHideFilters] = useState(false);
-  const [filterData, setFilterData] = useState(null);
+  const [filterBuckets, setFilterBuckets] = useState(null);
 
   const dialogRef = useRef(null);
 
@@ -58,10 +59,17 @@ const AdvancedSearch = () => {
         {hideFilters ? (
           <>
             <button
-              onClick={handleOpenDialog}
+              className='adv-search__filter-button'
               aria-controls='adv-search-dialog'
               aria-haspopup='dialog'
-              aria-expanded='false'>
+              aria-expanded='false'
+              onClick={handleOpenDialog}>
+              <Icons
+                name='filter'
+                width='20'
+                height='20'
+                svgClassName='adv-search__filter-icon'
+              />
               Open filter options
             </button>
             <dialog
@@ -73,7 +81,7 @@ const AdvancedSearch = () => {
               <FilterSection
                 dialogRef={dialogRef}
                 hideFilters={hideFilters}
-                setFilterData={setFilterData}
+                filterBuckets={filterBuckets}
               />
             </dialog>
           </>
@@ -81,11 +89,11 @@ const AdvancedSearch = () => {
           <FilterSection
             dialogRef={dialogRef}
             hideFilters={hideFilters}
-            setFilterData={setFilterData}
+            filterBuckets={filterBuckets}
           />
         )}
 
-        <AdvMoviesList filterData={filterData} />
+        <AdvMoviesList setFilterBuckets={setFilterBuckets} />
       </div>
       <div className='adv-search__test'></div>
     </div>

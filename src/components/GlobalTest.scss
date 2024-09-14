@@ -1,19 +1,27 @@
 .test {
+  --_ba: 0;
   &__div {
     display: grid;
   }
-  &__label {
-    grid-area: 1 / 1;
+
+  &__h {
+    color: hsl(var(--_ba) 50% 50%);
+    &--animate {
+      animation: test-anim 3s linear infinite;
+    }
   }
-  &__input {
-    grid-area: 1 / 1;
-    appearance: none;
-    border: none;
-    background: none;
-    grid-area: 1 / 1;
-    z-index: -1;
-    inline-size: 100%;
-    block-size: 100%;
-    outline: none;
+
+  @keyframes test-anim {
+    20% {
+      --_ba: 20;
+    }
+
+    60% {
+      --_ba: 100;
+    }
+
+    100% {
+      --_ba: 360;
+    }
   }
 }

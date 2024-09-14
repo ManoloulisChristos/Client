@@ -10,7 +10,11 @@ import Icons from '../Icons';
 import Tooltip from '../Tooltip';
 import useSession from '../../hooks/useSession';
 
-const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
+const UserMenu = ({
+  navBarInsertNodesToMapRef,
+  navBarNodesMapRef,
+  closeMobileNav,
+}) => {
   const [persist] = usePersist();
   const [session] = useSession();
   const auth = useAuth();
@@ -119,6 +123,7 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
 
   const handleLinkClick = () => {
     setMenuOpen(false);
+    closeMobileNav();
   };
 
   useLayoutEffect(() => {
@@ -161,7 +166,8 @@ const UserMenu = ({ navBarInsertNodesToMapRef, navBarNodesMapRef }) => {
           ref={(node) => navBarInsertNodesToMapRef(node, 5)}
           to={'/auth/login'}
           id='nav-link-4'
-          className='header__link header__link--login'>
+          className='header__link header__link--login'
+          onClick={closeMobileNav}>
           Sign in
         </NavLink>
       ) : (

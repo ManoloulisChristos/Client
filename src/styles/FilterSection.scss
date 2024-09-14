@@ -26,7 +26,19 @@
   }
 
   &__close-button {
+    display: flex;
+    align-items: center;
+    padding: 0.2rem;
     background-color: transparent;
+    border-radius: 50%;
+    &:hover {
+      background-color: hsl(var(--background-outline));
+    }
+
+    &:focus-visible {
+      outline: var(--focus);
+      background-color: hsl(var(--background-outline));
+    }
   }
 
   &__form {
@@ -138,6 +150,10 @@
         color: hsl(var(--on-primary));
       }
 
+      &:checked ~ label .adv-filter__genre-count {
+        color: hsl(var(--on-primary));
+      }
+
       &:focus-visible ~ label {
         outline: var(--focus);
         outline-offset: 2px;
@@ -145,6 +161,7 @@
       @media (pointer: fine) {
         &:not(:checked):is(:hover, :focus-visible) ~ label {
           color: hsl(var(--primary));
+          background-color: hsl(var(--background-outline));
         }
       }
 
@@ -175,6 +192,11 @@
     &[aria-invalid='true'] {
       border-color: hsl(var(--error-outline));
     }
+  }
+
+  &__genre-count {
+    color: hsl(var(--on-surface-variant));
+    font-size: 0.9rem;
   }
 
   &__button-wrapper {

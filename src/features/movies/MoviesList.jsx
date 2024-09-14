@@ -22,6 +22,7 @@ import MovieDetailsModal from './MovieDetailsModal';
 import RatingModal from './RatingModal';
 import { useGetMoviesWithTitleQuery } from './moviesApiSlice';
 import '../../styles/MoviesList.scss';
+import HelmetWrapper from '../../components/HelmetWrapper';
 
 // The data are coming as an array with 2 objects
 // 1. The movies that are nested inside as an Array of Objects
@@ -268,6 +269,11 @@ const MoviesList = () => {
   );
   return (
     <>
+      <HelmetWrapper
+        title='Search Results'
+        description={`Movie results for searching the title ${title}`}
+        keywords={`Search, Movies, Results, ${title}`}
+      />
       <ProgressBar
         size={progressBarSize}
         loaded={progressBarLoaded}

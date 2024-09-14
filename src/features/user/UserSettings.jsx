@@ -13,6 +13,7 @@ import Tooltip from '../../components/Tooltip';
 import { useDispatch } from 'react-redux';
 import { createToast } from '../toast/toastsSlice';
 import Spinner from '../../components/Spinner';
+import HelmetWrapper from '../../components/HelmetWrapper';
 
 const UserSettings = () => {
   const { id } = useParams();
@@ -232,6 +233,7 @@ const UserSettings = () => {
 
   return (
     <div className='user-settings'>
+      <HelmetWrapper noIndex={true} />
       {isLoading ? (
         <Spinner />
       ) : (

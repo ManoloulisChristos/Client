@@ -11,6 +11,7 @@ import {
 } from './watchlistApiSlice';
 import { createToast } from '../toast/toastsSlice';
 import '../../styles/Watchlist.scss';
+import HelmetWrapper from '../../components/HelmetWrapper';
 
 const Watchlist = () => {
   const { id: userId } = useParams();
@@ -240,6 +241,7 @@ const Watchlist = () => {
 
   return (
     <>
+      <HelmetWrapper noIndex={true} />
       <ProgressBar
         size={docsCount}
         loaded={progressBarLoaded}

@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 
 import './styles/App.scss';
 import { useLayoutEffect, useRef } from 'react';
+import HelmetWrapper from './components/HelmetWrapper';
 
 function App() {
   const topLevelSentinelRef = useRef(null);
@@ -36,6 +37,7 @@ function App() {
   return (
     <div className='App'>
       <ScrollRestoration />
+      <HelmetWrapper />
       <nav aria-label='Skip to content'>
         <ul className='off-screen'>
           <li>

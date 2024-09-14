@@ -12,6 +12,7 @@ import RatingModal from '../movies/RatingModal';
 import { useDispatch } from 'react-redux';
 import '../../styles/UserRatings.scss';
 import { createToast } from '../toast/toastsSlice';
+import HelmetWrapper from '../../components/HelmetWrapper';
 
 const UserRatings = () => {
   const { id: userId } = useParams();
@@ -242,6 +243,7 @@ const UserRatings = () => {
 
   return (
     <>
+      <HelmetWrapper noIndex={true} />
       <ProgressBar
         size={docsCount}
         loaded={progressBarLoaded}

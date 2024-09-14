@@ -6,7 +6,7 @@ import tomatoes from '../../assets/SVG/tomatoes_logo.svg';
 import '../../styles/Movie.scss';
 import Icons from '../../components/Icons';
 import RatingModal from '../movies/RatingModal';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useGetRatingsQuery } from '../ratings/ratingsApiSlice';
 import {
   useAddToWatchlistMutation,
@@ -18,6 +18,7 @@ import { useDispatch } from 'react-redux';
 import { createToast } from '../toast/toastsSlice';
 import Carousel from '../../components/Carousel';
 import Feed from '../comments/Feed';
+import HelmetWrapper from '../../components/HelmetWrapper';
 
 const Movie = () => {
   const { id } = useParams();
@@ -117,6 +118,135 @@ const Movie = () => {
       dispatch(createToast('success', 'Added to Watchlist'));
     }
   };
+  console.log(movie);
+
+  const formatDateYYYYMMDD = (data) => {
+    //Set Intl API options
+    const dateOptions = {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+    };
+    const normDate = new Intl.DateTimeFormat('en-CA', dateOptions);
+    return data?.released ? normDate.format(new Date(data.released)) : '';
+  };
+
+  ({
+    '@context': 'https://schema.org',
+    '@type': 'Movie',
+    name: 'Movie Title',
+    director: {
+      '@type': 'Person',
+      name: 'Director Name',
+    },
+    actor: [
+      {
+        '@type': 'Person',
+        name: 'Actor 1 Name',
+      },
+      {
+        '@type': 'Person',
+        name: 'Actor 2 Name',
+      },
+    ],
+    datePublished: formatDateYYYYMMDD(movie),
+    image: 'URL to movie poster image',
+    description: 'Brief description of the movie',
+    genre: ['Genre 1', 'Genre 2'],
+    duration: 'PT2H30M',
+    contentRating: 'PG-13',
+    inLanguage: 'en',
+    productionCompany: {
+      '@type': 'Organization',
+      name: 'Production Company Name',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.5',
+      reviewCount: '1000',
+    },
+  });
+
+  // Construct JSON-LD for schema.org and keywords meta tag
+  const structuredData = useMemo(() => {
+    const keywords = ['Movie'];
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'Movie',
+    };
+
+    if (movie?.title) {
+      schema.name = movie.title;
+      keywords.push(movie.title);
+    }
+
+    if (movie?.directors?.length) {
+      schema.director = movie.directors.map((item) => ({
+        '@type': 'Person',
+        name: item,
+      }));
+
+      movie.directors.forEach((item) => keywords.push(item));
+    }
+
+    if (movie?.cast?.length) {
+      schema.actor = movie.cast.map((item) => ({
+        '@type': 'Person',
+        name: item,
+      }));
+
+      movie.cast.forEach((item) => keywords.push(item));
+    }
+    if (movie?.released) {
+      schema.datePublished = formatDateYYYYMMDD(movie);
+    }
+
+    if (movie?.poster) {
+      schema.image = movie.poster;
+    }
+
+    if (movie?.plot) {
+      schema.description = movie.plot;
+    }
+
+    if (movie?.genres?.length) {
+      schema.genre = movie.genres.map((item) => item);
+
+      movie.genres.forEach((item) => keywords.push(item));
+    }
+
+    if (movie?.runtime) {
+      schema.duration = `PT${Math.floor(movie.runtime / 60)}H${
+        movie.runtime % 60
+      }M`;
+    }
+
+    if (movie?.rated) {
+      schema.contentRating = movie.rated;
+      keywords.push(movie.rated);
+    }
+
+    if (movie?.imdb) {
+      if (movie?.imdb?.rating) {
+        schema.aggregateRating = {
+          '@type': 'AggregateRating',
+          ratingValue: movie.imdb.rating,
+        };
+        if (movie?.imdb?.votes) {
+          schema.aggregateRating.reviewCount = movie.imdb.votes;
+        }
+      }
+    }
+
+    if (movie?.tomatoes?.production) {
+      schema.productionCompany = {
+        '@type': 'Organization',
+        name: movie.tomatoes.production,
+      };
+    }
+
+    return { schema, keywords };
+  }, [movie]);
 
   return (
     <>
@@ -125,6 +255,14 @@ const Movie = () => {
         movieId={movie?._id}
         movieRating={rating?.rating}
         movieTitle={movie?.title}
+      />
+      <HelmetWrapper
+        title={movie?.title}
+        description={movie?.plot}
+        ogImage={movie?.poster}
+        ogImageAlt={movie?.poster ? `${movie?.title} poster image.` : null}
+        structuredData={structuredData.schema}
+        keywords={structuredData.keywords}
       />
 
       <article className='movie'>

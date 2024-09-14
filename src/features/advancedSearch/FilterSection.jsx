@@ -32,7 +32,7 @@ const allGenresStatic = [
   'Western',
 ];
 
-const FilterSection = ({ dialogRef, hideFilters, setFilterData }) => {
+const FilterSection = ({ dialogRef, hideFilters, filterBuckets }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
@@ -189,6 +189,30 @@ const FilterSection = ({ dialogRef, hideFilters, setFilterData }) => {
     return new Intl.DateTimeFormat('en-CA', options).format(now);
   };
 
+  const findAndFormatNumber = (item) => {
+    let amount = null;
+    filterBuckets?.buckets?.forEach((bucket) => {
+      if (bucket._id === item) {
+        amount = bucket.count;
+      }
+    });
+    if (amount) {
+      return (
+        <span className='adv-filter__genre-count'>
+          {' '}
+          (
+          {new Intl.NumberFormat('en-GB', {
+            notation: 'compact',
+            compactDisplay: 'short',
+          }).format(amount)}
+          ){' '}
+        </span>
+      );
+    } else {
+      return null;
+    }
+  };
+
   const handleCloseButtonClick = () => {
     dialogRef.current.close();
     dialogRef.current.setAttribute('inert', '');
@@ -286,6 +310,12 @@ const FilterSection = ({ dialogRef, hideFilters, setFilterData }) => {
         page,
         ...filtersToParams,
       });
+
+      // Close modal when it is rendered if all checks pass.
+      if (hideFilters) {
+        dialogRef.current.close();
+        dialogRef.current.setAttribute('inert', '');
+      }
     }
   };
 
@@ -305,7 +335,8 @@ const FilterSection = ({ dialogRef, hideFilters, setFilterData }) => {
       <label
         htmlFor={`adv-filter-${item}-input`}
         className='adv-filter__label adv-filter__label--genre'>
-        {item}
+        <span>{item}</span>
+        <span>{findAndFormatNumber(item)}</span>
       </label>
     </div>
   ));
