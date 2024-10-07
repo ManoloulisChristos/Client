@@ -1,27 +1,24 @@
 .test {
-  --_ba: 0;
-  &__div {
-    display: grid;
+  display: grid;
+  place-content: center;
+  margin-block-start: 5rem;
+  place-items: center;
+  gap: 15rem;
+
+  .line {
+    border: 2px dashed lightblue;
+  }
+  .arrow {
+    // border: 2px dashed lightblue;
+    // margin-block-start: 2rem;
+  }
+  .states {
+    font-family: 'Georgia', serif;
+    font-size: 120px;
+    font-weight: 900;
   }
 
-  &__h {
-    color: hsl(var(--_ba) 50% 50%);
-    &--animate {
-      animation: test-anim 3s linear infinite;
-    }
-  }
-
-  @keyframes test-anim {
-    20% {
-      --_ba: 20;
-    }
-
-    60% {
-      --_ba: 100;
-    }
-
-    100% {
-      --_ba: 360;
-    }
+  .group {
+    // display: flex;
   }
 }

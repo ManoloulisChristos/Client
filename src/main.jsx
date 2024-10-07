@@ -4,6 +4,7 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
   Navigate,
+  Outlet,
   Route,
   RouterProvider,
 } from 'react-router-dom';
@@ -11,7 +12,7 @@ import { Provider } from 'react-redux';
 import { store } from './app/store';
 import './main.scss';
 import App from './App';
-import ErrorPage from './error-page';
+import NotFound from './NotFound';
 import MoviesList from './features/movies/MoviesList';
 import Login from './features/auth/Login';
 import Register from './features/auth/Register';
@@ -29,58 +30,23 @@ import Watchlist from './features/watchlist/Watchlist';
 import Movie from './features/singleMovie/Movie';
 import UserComments from './features/comments/UserComments';
 import AdvancedSearch from './features/advancedSearch/AdvancedSearch';
+import TopMovies from './features/topMovies/TopMovies';
+import Home from './components/Home';
 
 if (import.meta.env.DEV) {
   import('@axe-core/react').then((axe) => axe.default(React, ReactDOM, 1000));
 }
 
-// const router = createBrowserRouter([
-//   {
-//     path: '/',
-//     element: <App />,
-//     errorElement: <ErrorPage />,
-//     children: [
-//       {
-//         path: '/test',
-//         element: <GlobalTest />,
-//       },
-//       {
-//         path: '/search/title/:title',
-//         element: <MoviesList />,
-//       },
-//       {
-//         path: '/search/id/:id',
-//         element: <SingleMovie />,
-//       },
-//       {
-//         path: '/auth/login',
-//         element: <Login />,
-//       },
-//       {
-//         path: '/auth/register',
-//         element: <Register />,
-//       },
-//       {
-//         element: <RequireAuth />,
-//         children: [
-//           {
-//             path: '/user/:id/edit',
-//             element: <EditUser />,
-//           },
-//         ],
-//       },
-//     ],
-//   },
-// ]);
-
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path='/' element={<App />} errorElement={<ErrorPage />}>
+    <Route path='/' element={<App />} errorElement={<NotFound />}>
+      <Route index element={<Home />} />
       <Route path='/test' element={<GlobalTest />} />
 
       <Route path='/search/title/:title' element={<MoviesList />} />
       <Route path='/search/id/:id' element={<Movie />} />
       <Route path='/search/advanced' element={<AdvancedSearch />} />
+      <Route path='/search/top100' element={<TopMovies />} />
 
       <Route path='/auth/login' element={<Login />} />
       <Route path='/auth/register' element={<Register />} />
@@ -114,6 +80,7 @@ const router = createBrowserRouter(
           </Route>
         </Route>
       </Route>
+      <Route path='*' element={<NotFound />} />
     </Route>
   )
 );

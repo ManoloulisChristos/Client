@@ -231,6 +231,20 @@ const FilterIcon = ({ width, height, svgClassName }) => (
   </IconWrapper>
 );
 
+const HomeIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <path d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'></path>
+    <polyline points='9 22 9 12 15 12 15 22'></polyline>
+  </IconWrapper>
+);
+
+const ArrowLeftIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <line x1='19' y1='12' x2='5' y2='12'></line>
+    <polyline points='12 19 5 12 12 5'></polyline>
+  </IconWrapper>
+);
+
 const iconsMap = {
   clock: ClockIcon,
   calendar: CalendarIcon,
@@ -259,6 +273,8 @@ const iconsMap = {
   trash: TrashIcon,
   edit: EditIcon,
   filter: FilterIcon,
+  home: HomeIcon,
+  arrowLeft: ArrowLeftIcon,
 };
 
 // All the icons are wrapped with an svg element which has a standard viewbox since all icons come from feathericons.com

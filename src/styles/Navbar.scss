@@ -1,3 +1,9 @@
+@media (pointer: coarse) {
+  html:has(.header__nav[data-is-open='true']) {
+    overflow: hidden;
+  }
+}
+
 .header-container {
   --_header-before-opacity: initial;
   display: flex;
@@ -67,9 +73,14 @@
       inset: var(--body-margin-default) 0 0 100%;
       block-size: calc(100vh - var(--body-margin-default));
       inline-size: 100vw;
-      background-color: hsl(var(--surface2) / 0.9);
+      background-color: hsl(var(--surface1));
       z-index: 99999;
       transition: transform 300ms ease-in, visibility 300ms;
+
+      @supports (backdrop-filter: blur(6px)) {
+        background-color: hsl(var(--surface1) / 0.9);
+        backdrop-filter: blur(6px);
+      }
 
       &[data-is-open='true'] {
         visibility: visible;

@@ -275,6 +275,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
                     id='nav-link-2'
                     ref={(n) => insertNodesToMapRef(n, 3)}
                     className='header__link'
+                    to='/search/top100?genre=All'
                     onClick={closeMobileNav}>
                     Top100
                   </NavLink>

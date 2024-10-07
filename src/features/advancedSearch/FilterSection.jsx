@@ -414,6 +414,7 @@ const FilterSection = ({ dialogRef, hideFilters, filterBuckets }) => {
               className='adv-filter__input adv-filter__input--date'
               type='date'
               name='dateFrom'
+              max={formatMaxDate()}
               aria-invalid={dateFromError ? true : false}
               aria-describedby='adv-filter-date-from-error'
               value={dateFrom}
