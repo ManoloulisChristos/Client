@@ -1,24 +1,2 @@
 .test {
-  display: grid;
-  place-content: center;
-  margin-block-start: 5rem;
-  place-items: center;
-  gap: 15rem;
-
-  .line {
-    border: 2px dashed lightblue;
-  }
-  .arrow {
-    // border: 2px dashed lightblue;
-    // margin-block-start: 2rem;
-  }
-  .states {
-    font-family: 'Georgia', serif;
-    font-size: 120px;
-    font-weight: 900;
-  }
-
-  .group {
-    // display: flex;
-  }
 }

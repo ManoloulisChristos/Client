@@ -44,6 +44,33 @@
     url('./fonts/inter-v12-latin-700.woff') format('woff');
 }
 
+/* luckiest-guy-regular - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Luckiest Guy';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./fonts/luckiest-guy-v22-latin-regular.woff2') format('woff2');
+}
+
+/* spicy-rice-regular - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Spicy Rice';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./fonts/spicy-rice-v25-latin-regular.woff2') format('woff2');
+}
+
+/* carter-one-regular - latin */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: 'Carter One';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./fonts/carter-one-v17-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
 * {
   /* brand foundation */
   --brand-hue: 212;
