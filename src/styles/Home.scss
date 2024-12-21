@@ -2,6 +2,10 @@
 @import url('https://fonts.googleapis.com/css?family=Oleo+Script:400,700');
 @import url('https://fonts.googleapis.com/css?family=Sancreek');
 .home {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 70px);
 }
 
 .curved {
@@ -16,22 +20,29 @@
 }
 
 .cow {
-  width: 50%;
-  margin-left: 25%;
+  &__ear {
+    transform-box: fill-box;
+    &--left {
+      transform-origin: center right;
+    }
+    &--right {
+      transform-origin: center left;
+    }
+  }
 }
 
-#eye_left {
+#bottom-lip {
+  // transform: scale(0.95) translate(0, -23px);
   transform-box: fill-box;
   transform-origin: center;
-
-  // animation: test-eye-roll 2s infinite;
+  // animation: test-test 1s alternate infinite;
 }
 
-@keyframes test-eye-roll {
-  // from {
-  //   transform: translate(20px, 30px);
-  // }
-  to {
-    transform: translate(20px, 30px);
+@keyframes test-test {
+  0% {
+    transform: scale(1) translate(0px, 0px);
+  }
+  0% {
+    transform: scale(0.95) translate(0, -24px);
   }
 }
