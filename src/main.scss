@@ -163,8 +163,8 @@
   );
 
   // b = y - mx
-  // b= y-axis-intersection
-  // m = slope
+  // where <b> is the  y-axis-intersection and <m> is the slope
+
   // Caution!!! >> pixel values in widths(pixels) must be converted into rems
   --Y-axis-intersection: calc(
     var(--size-min) - (var(--slope) * (var(--min-vw) / var(--root-font-size)))

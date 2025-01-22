@@ -37,6 +37,94 @@ const Home = () => {
   const homeRef = useRef(null);
   const animationTestRef = useRef(null);
 
+  const frontNodesRef = useRef(null);
+  const containersRef = useRef(null);
+
+  const getMap = (ref) => {
+    if (!ref.current) {
+      ref.current = new Map();
+    }
+
+    return ref.current;
+  };
+
+  /////// Curved letters with 3D animation ///////
+  // Each letter container is set in an offset-path: ellipse() with vmin values for responsiveness
+  // To achieve a "fat" (bold) letter in 3D of 20px depth, 20 identical letters are used each  one
+  // translated 1px behind the other in the Z axis plus a text-stroke for the outline of each letter.
+
+  // All letters have a scene parent with an independent persepective and a box container which is the anchor point for absolute positioning
+  // and also the rotation object for the group of letters.
+
+  // The scene dimensions must be exactly the same as the rendered width and height of each letter in order for the rotation in the Y axis
+  //  to be centered in the middle of each letter and have no offset.
+
+  // When the letters are perpendicular to the screen the rendering of each letter is not smooth and gaps are showing, that is in the
+  // 90 and 270 degrees of rotation in the Y axis. With an animation on top of that, rotating the box constantly is disturbing to
+  // the eye.
+
+  ///////// The solution //////////
+  //  is to have an object rotated perpendicular to the screen (left-right side) so when the container (box) rotates
+  // there is something to obscure the gap of the letters upon rotation. In order to achieve a result where the left and right side
+  // are exactly the same width and height I must calculate the exact height of each different letter dynamically and count the resizing.
+  /////  BUT////////
+  // the height of the letters is not exactly the same as the contect-box because each letter has different dimensions and is always
+  //  smaller than the rendered content-box, plus absolute positioning is making things even harder.
+  // The width can be the boldness of the letters which is 20 px though.
+
+  // Workaround is to have the letter "I" instead of a "crafted" element because it is exactly 20px wide and the height is in the center
+  // of the content-box no matter which letter is being used when they are rotated at a perpendicular angle. So this "hack" achieves
+  // great results with zero effort.
+
+  // Caviat of using the "I":
+  //  If the left and right side (letter "I) are shown constantly in the animation in letters like "O" or "V",
+  //  which have curve in their shape the "I" protrudes in an ungly shape which is not fluid or normal looking.
+  // In order to achieve a result which is "OK" (not perfect) i found the range of the angles of rotation which the
+  // "I" needs to be used to hide the not rendering part of letters when they are perpendicular to the screen.
+  // They are +/- 5 degrees of 90 and 270. So 85-95 and 265-275 degrees.
+
+  // I HAVE ONLY TESTED CAPITAL LETTERS atm.
+
+  // The next step is to divide the range of 0-360 degrees to a range of 0-100 (%) for the animation keyframes and change the opacity
+  // of the left and right side only in that range and avoid all the above.
+
+  ////////////// BUG //////////////
+  // In firefox the 3D animation breaks when it gets offseted, otherwise it is smooth.
+
+  ////// Important //////
+  // When an element is offseted using offset-path the dimensions change, so caution is needed upon measuring dimensions!
+
+  // Measure dimensions of each "front" letter (biggest letter in dimensions)
+  // upon first render and make the scene (container) the same size.
+  useLayoutEffect(() => {
+    frontNodesRef.current.forEach((val, key) => {
+      const box = containersRef.current.get(key);
+      box.style.height = `${val.clientHeight}px`;
+      box.style.width = `${val.clientWidth}px`;
+    });
+  }, []);
+
+  // Do the same for window resizing using ResizeObserver
+  useEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      let accumulator = 0;
+      for (const entry of entries) {
+        const container = containersRef.current.get(accumulator);
+        accumulator++;
+        container.style.width = `${entry.contentBoxSize[0].inlineSize}px`;
+        container.style.height = `${entry.contentBoxSize[0].blockSize}px`;
+      }
+    });
+
+    frontNodesRef.current.forEach((val, index) => {
+      observer.observe(val);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const moovies = ['M', 'O', 'O', 'V', 'I', 'E', 'S'];
+
   // useLayoutEffect(() => {
   //   // const groupBox = groupRef.current.getBBox();
 
@@ -146,9 +234,63 @@ const Home = () => {
 
   return (
     <article ref={homeRef} className='home'>
-      <button onClick={() => animationTestRef.current.beginElement()}>
-        ANItest
-      </button>
+      <h1 className='home__title'>
+        {moovies.map((letter, index) => (
+          <span
+            key={index}
+            ref={(node) =>
+              node
+                ? getMap(containersRef).set(index, node)
+                : getMap(containersRef).delete(index)
+            }
+            className={`home__curved-3d home__curved-3d--${index + 1}`}>
+            <span className='home__letters-box'>
+              {/* render 19 of the same letters which are the thickness of the animated letter and position them
+                +/- 9 px from the 0 point in the Z axis  */}
+              <span
+                aria-hidden='true'
+                className='home__letter home__letter--back'>
+                {letter}
+              </span>
+              {[...Array(19).keys()].map((n) => {
+                const splitIndex = n - 9;
+                const translateZ =
+                  splitIndex < 0
+                    ? `translateZ(-${Math.abs(splitIndex)}px)`
+                    : `translateZ(${splitIndex}px)`;
+                return (
+                  <span
+                    aria-hidden='true'
+                    key={n}
+                    className='home__letter home__letter--middle'
+                    style={{ transform: translateZ }}>
+                    {letter}
+                  </span>
+                );
+              })}
+              <span
+                aria-hidden='true'
+                className={`home__letter home__letter--left`}>
+                I
+              </span>
+              <span
+                aria-hidden='true'
+                className={`home__letter home__letter--right`}>
+                I
+              </span>
+              <span
+                ref={(node) =>
+                  node
+                    ? getMap(frontNodesRef).set(index, node)
+                    : getMap(frontNodesRef).delete(index)
+                }
+                className='home__letter home__letter--front'>
+                {letter}
+              </span>
+            </span>
+          </span>
+        ))}
+      </h1>
       <svg
         width='50%'
         preserveAspectRatio='xMidYMid meet'
@@ -655,28 +797,7 @@ const Home = () => {
           strokeWidth={4}
         /> */}
       </svg>
-      <svg width='200' height='200' xmlns='http://www.w3.org/2000/svg'>
-        <rect x='10' y='10' width='50' height='50' fill='blue'>
-          <animateTransform
-            id='hello2'
-            attributeName='transform'
-            attributeType='XML'
-            type='scale'
-            values='1;2;1'
-            begin='click'
-            dur='5s'
-          />
-          <animateTransform
-            attributeName='transform'
-            attributeType='XML'
-            type='translate'
-            values='0;20;0'
-            begin='hello2.begin'
-            dur='5s'
-            additive='sum'
-          />
-        </rect>
-      </svg>
+      <p className='par-test'>search like you never did before</p>
       {/* <svg
         version='1.1'
         width='500'
