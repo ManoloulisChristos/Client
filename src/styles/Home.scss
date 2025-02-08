@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css?family=Racing+Sans+One');
-@import url('https://fonts.googleapis.com/css?family=Oleo+Script:400,700');
-@import url('https://fonts.googleapis.com/css?family=Sancreek');
+// @import url('https://fonts.googleapis.com/css?family=Racing+Sans+One');
+// @import url('https://fonts.googleapis.com/css?family=Oleo+Script:400,700');
+// @import url('https://fonts.googleapis.com/css?family=Sancreek');
 
 #bottom-lip {
   // transform: scale(0.95) translate(0, -23px);
@@ -19,13 +19,13 @@
 }
 
 .cow {
-  @media (min-aspect-ratio: 1 / 1) {
-    width: 25%;
-  }
+  // @media (min-aspect-ratio: 1 / 1) {
+  //   width: 20%;
+  // }
 
-  @media (max-aspect-ratio: 1 / 1) {
-    width: 70%;
-  }
+  // @media (max-aspect-ratio: 1 / 1) {
+  //   width: 70%;
+  // }
 
   &__ear {
     transform-box: fill-box;
@@ -47,6 +47,72 @@
   justify-items: center;
   grid-template-rows: 0.5fr 1fr 0.5fr;
   align-items: center;
+  position: relative;
+
+  &__star {
+    display: block;
+    // position: absolute;
+    // --_size-min: 4;
+    // --_size-max: 15;
+    // --_min-vw: 320;
+    // --max-vw: 3500;
+    // width: var(--size-clamp);
+    // height: var(--size-clamp);
+
+    @media (min-aspect-ratio: 1 / 1) {
+      width: 35vmin;
+    }
+
+    @media (max-aspect-ratio: 1 / 1) {
+      width: 25vmax;
+    }
+
+    z-index: 2;
+    // offset-path: ellipse(55vmin 35vmin at center 49vmin);
+    // offset-distance: 71%;
+    // transform: scale(0.4);
+    // offset-path: ray(75.5deg sides);
+    // offset-distance: 51.6vmin;
+    offset-rotate: 0deg;
+    opacity: 1;
+    .cow-wrapper {
+      // display: none;
+    }
+
+    .star-circle {
+      opacity: 1;
+    }
+    // @keyframes test-Z {
+    //   0% {
+    //     offset-path: ellipse(55vmin 35vmin at center 49vmin);
+    //     transform: rotate(0turn) scale(0.5);
+    //     offset-distance: 55%;
+    //   }
+    //   35% {
+    //     offset-path: ellipse(55vmin 35vmin at center 49vmin);
+    //     offset-distance: 94.5%;
+    //     transform: rotate(3turn) scale(0.5);
+    //   }
+    //   35.001% {
+    //     offset-path: ray(75.5deg sides);
+    //     offset-distance: 51.6vmin;
+    //   }
+
+    //   50% {
+    //     offset-distance: 20vmin;
+    //   }
+
+    //   80% {
+    //     offset-distance: 0vmin;
+    //     transform: rotate(7turn) scale(0.5);
+    //   }
+    //   100% {
+    //     offset-path: ray(1080deg sides);
+    //     offset-distance: 0vmin;
+    //     transform: rotate(7turn) scale(1);
+    //   }
+    // }
+  }
 
   &__title {
     --_size-min: 2.5;
@@ -60,7 +126,7 @@
     display: inline-block;
     perspective: 500px;
     offset-path: ellipse(55vmin 35vmin at center 45vmin);
-
+    opacity: 0;
     &--1 {
       offset-distance: 61%;
     }
@@ -95,22 +161,21 @@
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
+    transform: translateZ(-10px);
 
-    // animation: rotate-M 1s infinite linear;
+    // animation: rotate-M 1500ms linear forwards;
 
-    @keyframes rotate-M {
-      0% {
-        transform: scale(1) translateZ(-10px) rotateY(0deg);
-      }
+    // @keyframes rotate-M {
+    //   0% {
+    //     // transform: scale(1) translateZ(-10px) rotateY(0deg);
+    //     transform: translateZ(-10px) translateY(0px) rotateX(0deg);
+    //   }
 
-      50% {
-        transform: scale(1.5) translateZ(-10px) rotateY(360deg);
-      }
-
-      100% {
-        transform: scale(1) translateZ(-10px) rotateY(720deg);
-      }
-    }
+    //   100% {
+    //     // transform: scale(1) translateZ(-10px) rotateY(360deg);
+    //     transform: translateZ(-10px) translateY(-20px) rotateX(20deg);
+    //   }
+    // }
   }
 
   &__letter {
@@ -130,64 +195,89 @@
 
     &--left {
       left: 0;
+      opacity: 0;
       transform: translateX(-50%) rotateY(90deg);
-      // animation: test-opacityleft 0.5s infinite linear;
-      @keyframes test-opacityleft {
-        0% {
-          opacity: 0;
-        }
 
-        22% {
-          opacity: 0;
-        }
-        23% {
-          opacity: 1;
-        }
-
-        26% {
-          opacity: 1;
-        }
-        27% {
-          opacity: 0;
-        }
-
-        100% {
-          opacity: 0;
-        }
+      // On the letters "O O V" the "I" must be smaller due to curvature
+      &-2,
+      &-3,
+      &-7 {
+        transform: translateX(-50%) rotateY(90deg) scaleY(0.95);
       }
+
+      &-4 {
+        transform: translateX(-50%) rotateY(90deg) scaleY(0.95);
+      }
+
+      // animation: test-opacityleft 500ms infinite linear;
+
+      // @keyframes test-opacityleft {
+      //   0% {
+      //     opacity: 0;
+      //   }
+
+      //   22% {
+      //     opacity: 0;
+      //   }
+      //   23% {
+      //     opacity: 1;
+      //   }
+
+      //   26% {
+      //     opacity: 1;
+      //   }
+      //   27% {
+      //     opacity: 0;
+      //   }
+
+      //   100% {
+      //     opacity: 0;
+      //   }
+      // }
     }
 
     &--right {
       right: 0;
-      color: purple;
+      opacity: 0;
       transform: translateX(50%) rotateY(270deg);
 
-      // animation: test-opacity 0.5s infinite linear;
-
-      @keyframes test-opacity {
-        0% {
-          opacity: 0;
-        }
-
-        72% {
-          opacity: 0;
-        }
-
-        73% {
-          opacity: 1;
-        }
-
-        76% {
-          opacity: 1;
-        }
-        77% {
-          opacity: 0;
-        }
-
-        100% {
-          opacity: 0;
-        }
+      // On the letters "O O V" the "I" must be smaller due to curvature
+      &-2,
+      &-3,
+      &-7 {
+        transform: translateX(50%) rotateY(270deg) scaleY(0.95);
       }
+
+      &-4 {
+        transform: translateX(50%) rotateY(270deg) scaleY(0.95);
+      }
+
+      // animation: test-opacity 500ms infinite linear;
+
+      // @keyframes test-opacity {
+      //   0% {
+      //     opacity: 0;
+      //   }
+
+      //   72% {
+      //     opacity: 0;
+      //   }
+
+      //   73% {
+      //     opacity: 1;
+      //   }
+
+      //   76% {
+      //     opacity: 1;
+      //   }
+      //   77% {
+      //     opacity: 0;
+      //   }
+
+      //   100% {
+      //     opacity: 0;
+      //   }
+      // }
     }
   }
 }
