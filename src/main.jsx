@@ -31,7 +31,7 @@ import Movie from './features/singleMovie/Movie';
 import UserComments from './features/comments/UserComments';
 import AdvancedSearch from './features/advancedSearch/AdvancedSearch';
 import TopMovies from './features/topMovies/TopMovies';
-import Home from './components/Home';
+import Home from './components/Home/Home';
 
 if (import.meta.env.DEV) {
   import('@axe-core/react').then((axe) => axe.default(React, ReactDOM, 1000));

@@ -126,7 +126,7 @@
     display: inline-block;
     perspective: 500px;
     offset-path: ellipse(55vmin 35vmin at center 45vmin);
-    opacity: 0;
+    opacity: 1;
     &--1 {
       offset-distance: 61%;
     }
@@ -156,12 +156,14 @@
   }
 
   &__letters-box {
+    --_protrusionSize: 20;
+
     position: relative;
     display: inline-block;
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
-    transform: translateZ(-10px);
+    transform: translateZ(-10px) rotateY(60deg);
 
     // animation: rotate-M 1500ms linear forwards;
 

@@ -131,41 +131,42 @@ const Movie = () => {
     return data?.released ? normDate.format(new Date(data.released)) : '';
   };
 
-  ({
-    '@context': 'https://schema.org',
-    '@type': 'Movie',
-    name: 'Movie Title',
-    director: {
-      '@type': 'Person',
-      name: 'Director Name',
-    },
-    actor: [
-      {
-        '@type': 'Person',
-        name: 'Actor 1 Name',
-      },
-      {
-        '@type': 'Person',
-        name: 'Actor 2 Name',
-      },
-    ],
-    datePublished: formatDateYYYYMMDD(movie),
-    image: 'URL to movie poster image',
-    description: 'Brief description of the movie',
-    genre: ['Genre 1', 'Genre 2'],
-    duration: 'PT2H30M',
-    contentRating: 'PG-13',
-    inLanguage: 'en',
-    productionCompany: {
-      '@type': 'Organization',
-      name: 'Production Company Name',
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.5',
-      reviewCount: '1000',
-    },
-  });
+  // Schema structure
+  // ({
+  //   '@context': 'https://schema.org',
+  //   '@type': 'Movie',
+  //   name: 'Movie Title',
+  //   director: {
+  //     '@type': 'Person',
+  //     name: 'Director Name',
+  //   },
+  //   actor: [
+  //     {
+  //       '@type': 'Person',
+  //       name: 'Actor 1 Name',
+  //     },
+  //     {
+  //       '@type': 'Person',
+  //       name: 'Actor 2 Name',
+  //     },
+  //   ],
+  //   datePublished: formatDateYYYYMMDD(movie),
+  //   image: 'URL to movie poster image',
+  //   description: 'Brief description of the movie',
+  //   genre: ['Genre 1', 'Genre 2'],
+  //   duration: 'PT2H30M',
+  //   contentRating: 'PG-13',
+  //   inLanguage: 'en',
+  //   productionCompany: {
+  //     '@type': 'Organization',
+  //     name: 'Production Company Name',
+  //   },
+  //   aggregateRating: {
+  //     '@type': 'AggregateRating',
+  //     ratingValue: '4.5',
+  //     reviewCount: '1000',
+  //   },
+  // });
 
   // Construct JSON-LD for schema.org and keywords meta tag
   const structuredData = useMemo(() => {

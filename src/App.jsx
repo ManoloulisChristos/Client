@@ -21,6 +21,7 @@ function App() {
           : 'light';
     };
 
+    // Check the users preference on font-size
     const getUserFontSize = () => {
       const root = document.firstElementChild;
       const fontSize = parseInt(getComputedStyle(root).fontSize);

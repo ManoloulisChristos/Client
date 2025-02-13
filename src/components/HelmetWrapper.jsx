@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet';
 import { useLocation } from 'react-router-dom';
 
 const baseUrl = window.location.origin;
@@ -31,7 +30,7 @@ const HelmetWrapper = ({
     ogImageAlt || 'A cow in a green field surrounded by cameras';
 
   return (
-    <Helmet>
+    <div>
       <title>{titleFinal}</title>
       <link rel='canonical' href={canonicalUrlFinal} />
       <meta name='description' content={descriptionFinal} />
@@ -60,7 +59,7 @@ const HelmetWrapper = ({
           {JSON.stringify(structuredData)}
         </script>
       )}
-    </Helmet>
+    </div>
   );
 };
 
