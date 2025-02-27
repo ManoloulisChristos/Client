@@ -1,7 +1,7 @@
 import { apiSlice } from '../api/apiSlice';
 import { createToast } from '../toast/toastsSlice';
 import { setCredentials, clearCredentials } from './authSlice';
-import { redirect } from 'react-router-dom';
+import { redirect } from 'react-router';
 
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({

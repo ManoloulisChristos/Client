@@ -7,21 +7,22 @@ import Icons from '../../components/Icons';
 const AdvancedSearch = () => {
   const [hideFilters, setHideFilters] = useState(false);
   const [filterBuckets, setFilterBuckets] = useState(null);
+  const [inertDialog, setInertDialog] = useState(true);
 
   const dialogRef = useRef(null);
 
   const handleOpenDialog = () => {
     dialogRef.current.showModal();
-    dialogRef.current.removeAttribute('inert');
+    setInertDialog(false);
   };
 
-  const handleOnDialogClose = (e) => {
-    const dialog = e.target;
-    dialog.setAttribute('inert', '');
+  const handleOnDialogClose = () => {
+    setInertDialog(true);
   };
 
   useLayoutEffect(() => {
-    if (window.innerWidth <= 1152) {
+    const mediaMatch = window.matchMedia('(max-width: 76em)').matches; // 1152px
+    if (mediaMatch) {
       setHideFilters(true);
     } else {
       setHideFilters(false);
@@ -29,18 +30,19 @@ const AdvancedSearch = () => {
   }, [setHideFilters]);
 
   useEffect(() => {
-    const watchViewportWidth = () => {
-      if (window.innerWidth <= 1152) {
+    const mql = window.matchMedia('(max-width: 76em)'); // 1152px
+
+    const mediaMatch = (e) => {
+      if (e.matches) {
         setHideFilters(true);
       } else {
         setHideFilters(false);
       }
     };
-    window.addEventListener('resize', watchViewportWidth);
 
-    return () => {
-      window.removeEventListener('resize', watchViewportWidth);
-    };
+    mql.addEventListener('change', mediaMatch);
+
+    return () => mql.removeEventListener('change', mediaMatch);
   }, []);
 
   return (
@@ -76,7 +78,7 @@ const AdvancedSearch = () => {
               ref={dialogRef}
               id='adv-search-dialog'
               className='adv-search__dialog'
-              inert=''
+              inert={inertDialog}
               onClose={handleOnDialogClose}>
               <FilterSection
                 dialogRef={dialogRef}

@@ -4,7 +4,7 @@ import '../../styles/MoviesListToolbar.scss';
 import Tooltip from '../../components/Tooltip';
 import { updateView } from '../movies/moviesToolbarSlice';
 import { useSelector, useDispatch } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 function AdvMovieListToolbar({ totalResults, newMoviesLoaded, currentPage }) {
   const dispatch = useDispatch();

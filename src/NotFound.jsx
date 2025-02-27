@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import './styles/NotFound.scss';
 import notFoundPoster from '../src/assets/img/not-found-poster.webp';
 import Icons from './components/Icons';

@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router';
 import { selectAccessToken, selectTokenError } from './authSlice';
 import Icons from '../../components/Icons';
 import '../../styles/RequireAuth.scss';

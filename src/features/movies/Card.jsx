@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { memo, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Icons from '../../components/Icons';
@@ -19,6 +19,8 @@ const Card = memo(function Card({
   setRatedMovieData,
   movieModalRef,
   ratingModalRef,
+  setInertRatingModal,
+  setInertMovieModal,
 }) {
   const view = useSelector((state) => state.moviesToolbar.view);
 
@@ -79,7 +81,7 @@ const Card = memo(function Card({
         setModalData(movie);
         setRatedMovieData(rating);
         ratingModalRef.current.showModal();
-        ratingModalRef.current.removeAttribute('inert');
+        setInertRatingModal(false);
       } else {
         dispatch(
           createToast(
@@ -225,8 +227,8 @@ const Card = memo(function Card({
                     aria-expanded='false'
                     onClick={() => {
                       setModalData(movie);
+                      setInertMovieModal(false);
                       movieModalRef.current.showModal();
-                      movieModalRef.current.removeAttribute('inert');
                     }}>
                     <Icons name={'info'} svgClassName='card__i' />
                   </button>
@@ -288,12 +290,7 @@ const Card = memo(function Card({
                         aria-haspopup='dialog'
                         aria-controls='rating-modal'
                         aria-expanded='false'
-                        onClick={() => {
-                          setModalData(movie);
-                          setRatedMovieData(rating);
-                          ratingModalRef.current.showModal();
-                          ratingModalRef.current.removeAttribute('inert');
-                        }}>
+                        onClick={handleRatingClick}>
                         <Icons
                           name={'star'}
                           svgClassName={`card-list__star card-list__star--blue ${
@@ -344,7 +341,7 @@ const Card = memo(function Card({
                     onClick={() => {
                       setModalData(movie);
                       movieModalRef.current.showModal();
-                      movieModalRef.current.removeAttribute('inert');
+                      setInertMovieModal(false);
                     }}>
                     <Icons name={'info'} svgClassName='card-list__i' />
                   </button>

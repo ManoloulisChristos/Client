@@ -6,7 +6,7 @@ import Icons from '../../components/Icons';
 import Tooltip from '../../components/Tooltip';
 import '../../styles/Register.scss';
 import usePersist from '../../hooks/usePersist';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 const Register = () => {
   const dispatch = useDispatch();

@@ -1,15 +1,16 @@
-import { forwardRef } from 'react';
 import '../../styles/MovieDetailsModal.scss';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import Icons from '../../components/Icons';
 import metacritic from '../../assets/SVG/metacritic_logo.svg';
 import imdb from '../../assets/SVG/imdb_logo.svg';
 import tomatoes from '../../assets/SVG/tomatoes_logo.svg';
 
-const MovieDetailsModal = forwardRef(function MovieDetailsModal(
-  { movie },
-  ref
-) {
+const MovieDetailsModal = ({
+  movie,
+  ref,
+  inertMovieModal,
+  setInertMovieModal,
+}) => {
   const noInfoSpan = (
     <span>
       <span aria-hidden='true'>--</span>
@@ -40,23 +41,24 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
   };
 
   const lightDismiss = (e) => {
+    // this works because Dialog element expands to the whole screen
     if (e.target.nodeName === 'DIALOG') {
       ref.current.close();
     }
   };
 
   const handleDialogClose = (e) => {
-    e.currentTarget.setAttribute('inert', '');
+    setInertMovieModal(true);
   };
 
   return (
     <dialog
+      ref={ref}
       id='movie-details-modal'
       className='movie-modal'
-      ref={ref}
       onClick={lightDismiss}
       onClose={handleDialogClose}
-      inert=''>
+      inert={inertMovieModal}>
       <article className='movie-modal__article'>
         <header className='movie-modal__header'>
           <h3 className='movie-modal__title'>
@@ -153,6 +155,6 @@ const MovieDetailsModal = forwardRef(function MovieDetailsModal(
       </article>
     </dialog>
   );
-});
+};
 
 export default MovieDetailsModal;

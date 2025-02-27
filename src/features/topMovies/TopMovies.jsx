@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { useGetTopMoviesQuery } from './topMoviesApiSlice';
 import TopMoviesList from './TopMoviesList';

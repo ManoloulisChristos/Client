@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router';
 import { useDispatch } from 'react-redux';
 import ProgressBar from '../../components/ProgressBar';
 import Spinner from '../../components/Spinner';

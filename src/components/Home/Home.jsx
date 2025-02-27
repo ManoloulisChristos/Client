@@ -25,7 +25,8 @@ import '../../styles/Home.scss';
 // tranform-origin and tranform-box: fill-box via CSS so the element is animated or moved around itself.
 
 const Home = () => {
-  const [protrusionSize, setProtrusionSize] = useState(20); // Front + Back + Middle letters sum of pixels in depth
+  const [protrusionSize, setProtrusionSize] = useState(21); // Front + Back + Middle letters sum of pixels in depth
+  const [aspectRatioOver, setAspectRatioOver] = useState(true); // Over 1 / 1 > 1.1, 1.2 etc
 
   const circlePatternRef = useRef({ node: null, animation: null });
   const circlePatternRef2 = useRef({ node: null, animation: null });
@@ -41,12 +42,13 @@ const Home = () => {
   const svgContainerRef = useRef(null);
   const svgAnimRef = useRef(null);
 
+  // Letter elements
   const containersRef = useRef(null);
   const boxesRef = useRef(null);
   const frontNodesRef = useRef(null);
   const leftNodesRef = useRef(null);
   const rightNodesRef = useRef(null);
-
+  // Letter animations
   const containerAnimRef = useRef(null);
   const leftSideAnimRef = useRef(null);
   const rightSideAnimRef = useRef(null);
@@ -74,6 +76,8 @@ const Home = () => {
   // To achieve a "fat" (bold) letter in 3D of 20px depth, 20 identical letters are used each  one
   // translated 1px behind the other in the Z axis plus a text-stroke for the outline of each letter.
 
+  // Inter font update from v12 to v18 broke the text stroke due to some glyph updates so i changed it to Inter-Tight.
+
   // All letters have a scene parent with an independent persepective and a box container which is the anchor point for absolute positioning
   // and also the rotation object for the group of letters.
 
@@ -99,18 +103,19 @@ const Home = () => {
 
   // Caviat of using the "I":
   //  If the left and right side (letter "I) are shown constantly in the animation in letters like "O" or "V",
-  //  which have curve in their shape the "I" protrudes in an ungly shape which is not fluid or normal looking.
+  //  which have a curve in their shape the "I" protrudes in an ungly shape which is not fluid or normal looking.
   // In order to achieve a result which is "OK" (not perfect) i found the range of the angles of rotation which the
   // "I" needs to be used to hide the not rendering part of letters when they are perpendicular to the screen.
   // They are +/- 5 degrees of 90 and 270. So 85-95 and 265-275 degrees.
+  // If more range is added the "I" protrucion is seen during the animation so min-maxing it its the range previously mentioned.
 
   // I HAVE ONLY TESTED CAPITAL LETTERS atm.
 
-  // The next step is to divide the range of 0-360 degrees to a range of 0-100 (%) for the animation keyframes and change the opacity
+  // The next step is to divide the range of 0-360 degrees to a range of 0-100 (%) for the animation keyframes and animate the opacity
   // of the left and right side only in that range and avoid all the above.
 
   ////////////// BUG //////////////
-  // In firefox the 3D animation breaks when it gets offseted, otherwise it is smooth.
+  // In firefox the 3D animation breaks when it gets offseted(offset-path), otherwise it is smooth.
 
   ////// Important //////
   // When an element is offseted using offset-path the dimensions change, so caution is needed upon measuring dimensions!
@@ -118,44 +123,108 @@ const Home = () => {
   // Measure dimensions of each "front" letter (biggest letter in dimensions)
   // upon first render and make the scene (container) the same size.
 
-  // First aproach was to use a resizeObserver in a useEffect in order to keep the scene (container) in check with the
-  // letters when they change font-size based on the viewport resizing but when the observer gets initialized
-  // it autmatically makes a pass through for all the observed elements giving all the info i need.
-  // So no clientWidth / height needs to be used just the observer and that is the reason
-  // the layoutEffect is used insted of useEffect.
+  /////// Adding Responsiveness //////
+  // In order for the letters to have the correct depth ("fatness") in different dimensions and taking in consideration the dynamic change
+  // of the font-size via CSS, a different number of middle letters must be added. The font-size of the letter "I"
+  // (which is crucial for the rotating animation to work) is the dictaror of how many middle letters should be rendered in different viewport sizes.
+  //  So having a correct depth (middle letters) in combination with "how big" (font-size) is the "I" brings a responsive solution to the animation.
 
+  // Resize Observer //
+  // Observe all front-letters and update the scene to the correct size & watch for breakpoints upon resizing and update the number of middle letters
+  // No need to listen for change event since i have the observer "observing"...
   useLayoutEffect(() => {
     const matchViewport = () => {
       const vw600 = window.matchMedia('(max-width: 37.5em)').matches;
       const vw1200 = window.matchMedia('(max-width: 75em)').matches;
       const vw1920 = window.matchMedia('(max-width: 120em)').matches;
       const vw2560 = window.matchMedia('(max-width: 160em)').matches;
-      const allElse = window.matchMedia('(min-width: 160.01em)').matches;
+      const allElse = window.matchMedia('(min-width: 160.001em)').matches;
+      const mqlAspectRatio = window.matchMedia(
+        '(min-aspect-ratio: 1 / 1)'
+      ).matches;
+      // console.log(
+      //   getComputedStyle(boxesRef.current.get(0)).getPropertyValue(
+      //     '--_protrusionSize'
+      //   )
+      // );
+      // console.log(
+      //   getComputedStyle(boxesRef.current.get(0)).getPropertyValue('transform')
+      // );
 
+      // ORDER MATTERS because all the big viewports .matches will be true in smaller viewports
       if (vw600) {
-        setProtrusionSize(8);
+        setProtrusionSize(9);
       } else if (vw1200) {
-        setProtrusionSize(12);
+        setProtrusionSize(13);
       } else if (vw1920) {
-        setProtrusionSize(16);
+        setProtrusionSize(17);
       } else if (vw2560) {
-        setProtrusionSize(20);
+        setProtrusionSize(21);
       } else if (allElse) {
-        setProtrusionSize(24);
+        setProtrusionSize(25);
+      }
+
+      if (mqlAspectRatio) {
+        setAspectRatioOver(true);
+      } else {
+        setAspectRatioOver(false);
       }
     };
 
+    ///////////// BUG ///////////////////
+    // When the window gets resized rapidly everything works well, but when the window is resized slowly the entry particularly on the
+    // letter "I" is not getting reported, so i miss one entry, this introduces two problems.
+    // 1. Based on the structure that I have: index numbers as keys from the order of rendering the letters, the itterations through the
+    // observed letters, when one entry is missing i get a mismatch from the container to the actual letter sizing.
+    // 2. I need to measure that letter
+
+    // Solution is to add a direct reference between letters and the containers and ONLY when i am missing an entry then i will
+    // measure the letter that is missing in a rAF to avoid a synchronous layout measurment.
     const observer = new ResizeObserver((entries) => {
-      let accumulator = 0;
+      // Populate Map with letter - container references
+      const lettersToContainersMap = new Map();
+      frontNodesRef.current.forEach((val, key) =>
+        lettersToContainersMap.set(val, containersRef.current.get(key))
+      );
+
+      // Set container dimensions based on entries
       for (const entry of entries) {
-        const container = containersRef.current.get(accumulator);
-        accumulator++;
+        const container = lettersToContainersMap.get(entry.target);
         container.style.width = `${Math.ceil(
           entry.contentBoxSize[0].inlineSize
         )}px`;
         container.style.height = `${Math.ceil(
           entry.contentBoxSize[0].blockSize
         )}px`;
+
+        // Delete from the map all nodes that were configured
+        lettersToContainersMap.delete(entry.target);
+      }
+
+      // If any entry is missing catch it here measure it and update the container
+      // Important!!! Seperate reads from writes to avoid layout thrashing
+      if (lettersToContainersMap.size) {
+        requestAnimationFrame(() => {
+          const dimensions = {};
+          let accumulatorKey = 0;
+          // Reads
+          lettersToContainersMap.forEach((container, letter) => {
+            dimensions[accumulatorKey] = {
+              width: letter.clientWidth,
+              height: letter.clientHeight,
+            };
+            accumulatorKey++;
+          });
+
+          // Reset key
+          accumulatorKey = 0;
+          // Writes
+          lettersToContainersMap.forEach((container, letter) => {
+            container.style.width = `${dimensions[accumulatorKey].width}px`;
+            container.style.height = `${dimensions[accumulatorKey].height}px`;
+            accumulatorKey++;
+          });
+        });
       }
       matchViewport();
     });
@@ -230,10 +299,11 @@ const Home = () => {
   // This method can be called before play() to add a delay or set any of the timing properties of an animation
   // so it is the preffered method overall.
 
-  ////// Opacity //////
+  ////// Opacity & 3D animations //////
 
   // Opacity cannot be set on an element with transform-style: preserve-3d because it breaks the 3d effect.
-  // So i cannot set the opacity on the letter-box element so its either the scene or each letter independetly.
+  // So i cannot set the opacity on the letter-box element. It's either the scene or each letter independetly.
+  // https://css-tricks.com/things-watch-working-css-3d/
 
   useEffect(() => {
     // Letter keyframeEffect + options
@@ -258,26 +328,35 @@ const Home = () => {
     const sidesOptions = { duration: 500, iterations: 5 };
 
     // Box
-    // the box has a default transform: translateZ(-10px) in order to place back the whole scene in its default
+    // the box has a default transform: translateZ(- some pxs) in order to place back the whole scene in its default
     // position and not be zoomed in also i read that it helps in letter anti-aliasing
+    const zAxisOriginal = -((protrusionSize - 1) / 2);
+    console.log(protrusionSize);
+    console.log(zAxisOriginal);
     const boxEntranceKeyframes = [
       {
-        transform: 'translateZ(-10px) rotateY(0deg)',
+        transform: `translateZ(${zAxisOriginal}px) rotateY(0deg)`,
         offset: 0,
       },
-      { transform: 'translateZ(-10px) rotateY(180deg)', offset: 0.5 },
-      { transform: 'translateZ(-10px) rotateY(360deg)', offset: 1 },
+      {
+        transform: `translateZ(${zAxisOriginal}px) rotateY(180deg)`,
+        offset: 0.5,
+      },
+      {
+        transform: `translateZ(${zAxisOriginal}px) rotateY(360deg)`,
+        offset: 1,
+      },
     ];
 
     const boxEntranceOptions = { duration: 500, iterations: 5 };
 
     const boxEndingKeyframes = [
       {
-        transform: ' translateZ(-10px) translateY(0px) rotateX(0deg)',
+        transform: `translateZ(${zAxisOriginal}px) translateY(0px) rotateX(0deg)`,
         offset: 0,
       },
       {
-        transform: ' translateZ(-10px) translateY(-20px) rotateX(20deg)',
+        transform: `translateZ(${zAxisOriginal}px) translateY(-20px) rotateX(20deg)`,
         offset: 1,
       },
     ];
@@ -306,16 +385,25 @@ const Home = () => {
 
     // Svg star + cow
 
+    // Define X,Y and position based on the aspect ratio of the screen
+    // X & Y must match the ellispe X & Y of the letters container(3d-scene) applied via CSS.
+    let offsetPathElipse = 'ellipse(55vmin 35vmin at center 49vmin)';
+    if (aspectRatioOver) {
+      offsetPathElipse = 'ellipse(55vmin 35vmin at center 49vmin)';
+    } else {
+      offsetPathElipse = 'ellipse(45vmin 15vmax at center 37vmax)';
+    }
+
     const svgContainerKeyframes = [
       {
-        offsetPath: 'ellipse(55vmin 35vmin at center 49vmin)',
+        offsetPath: `${offsetPathElipse}`,
         transform: 'rotate(0turn) scale(0.4)',
         offsetDistance: '56%',
         opacity: 1,
         offset: 0,
       },
       {
-        offsetPath: 'ellipse(55vmin 35vmin at center 49vmin)',
+        offsetPath: `${offsetPathElipse}`,
         transform: 'rotate(3turn) scale(0.4)',
         offsetDistance: '94.5%',
         offset: 0.35,
@@ -540,41 +628,26 @@ const Home = () => {
     // Check if i am not running in development
     // Otherwise wait for the component to run once and then create the animations
     // in order to avoid creating them twice.
-    if (!import.meta.env.DEV) {
-      effectRanRef.current = true;
-    }
 
-    if (effectRanRef.current) {
-      // playAllAnimations();
-    }
-
-    starAnimateRef.current.onbegin = (e) => {
-      console.log(e);
-    };
+    // playAllAnimations();
 
     // return () => {
-    //   // when i save the file the effect runs again stacking animations for no reason and bypassing the
-    //   // check from the effectRanRef (because it is already true)
-    //   if (import.meta.env.DEV && effectRanRef.current) {
-    //     const leftSideAnimMap = getMap(leftSideAnimRef);
-    //     const rightSideAnimMap = getMap(rightSideAnimRef);
-    //     const boxEntranceAnimMap = getMap(boxEnteranceAnimRef);
-    //     const containerAnimMap = getMap(containerAnimRef);
+    //   // Cancel all animations
+    //   const leftSideAnimMap = getMap(leftSideAnimRef);
+    //   const rightSideAnimMap = getMap(rightSideAnimRef);
+    //   const boxEntranceAnimMap = getMap(boxEnteranceAnimRef);
+    //   const containerAnimMap = getMap(containerAnimRef);
 
-    //     for (let i = 0; i <= 6; i++) {
-    //       leftSideAnimMap.get(i).cancel();
-    //       rightSideAnimMap.get(i).cancel();
-    //       boxEntranceAnimMap.get(i).cancel();
-    //       containerAnimMap.get(i).cancel();
-    //     }
-    //     svgAnimRef.current.cancel();
-    //     console.log(document.getAnimations());
+    //   for (let i = 0; i <= 6; i++) {
+    //     leftSideAnimMap.get(i).cancel();
+    //     rightSideAnimMap.get(i).cancel();
+    //     boxEntranceAnimMap.get(i).cancel();
+    //     containerAnimMap.get(i).cancel();
     //   }
-    //   // Flag in order to avoid creating multiple animations in development strict mode
-    //   // checks the first render upon component mount
-    //   effectRanRef.current = true;
+    //   svgAnimRef.current.cancel();
+    //   console.log(document.getAnimations());
     // };
-  }, []);
+  }, [protrusionSize, aspectRatioOver]);
 
   // If i have the star and the cow in the same <svg> either under the <g> tag or under the <svg>
   // (with viewports and width/height = 100% ) changing the opacity of the cow that is inside <g> or <svg>
@@ -696,7 +769,7 @@ const Home = () => {
     const boxEntranceAnimMap = getMap(boxEnteranceAnimRef);
     const containterAnimMap = getMap(containerAnimRef);
 
-    // Function use for seperate Promise fullfilment to commit each style instead of Promise.all because
+    // Function use for seperate Promise fullfilment to commit each style, instead of Promise.all because
     // i need instant commitment of styles for each animation seperately
     const commitStyles = async (animation) => {
       await animation.finished;
@@ -783,31 +856,35 @@ const Home = () => {
             }
             className={`home__curved-3d home__curved-3d--${index + 1}`}>
             <span
+              style={{ '--_protrusionSize': `${protrusionSize}` }}
               ref={(node) =>
                 node
                   ? getMap(boxesRef).set(index, node)
                   : getMap(boxesRef).delete(index)
               }
               className='home__letters-box'>
-              {/* render 18 of the same letters which are the thickness of the animated letter and position them
-                +/- 9 px from the 0 point in the Z axis  */}
+              {/* Render the middle letters which are the thickness (depth) of the animation.
+                Take note in what viwport width i am at and render the appropriate number and always take account of the 0 px point
+                which means if i want a depth of 20px total i will render 19 middle letters from -9px to +9px and position them on Z axis  */}
               <span
                 aria-hidden='true'
                 className='home__letter home__letter--back'>
                 {letter}
               </span>
-              {[...Array(18).keys()].map((n, i, arr) => {
-                const splitIndex = n - arr.length / 2;
-                const translateZ =
-                  splitIndex < 0
-                    ? `translateZ(-${Math.abs(splitIndex)}px)`
-                    : `translateZ(${splitIndex}px)`;
+
+              {[...Array(protrusionSize - 2).keys()].map((n, i, arr) => {
+                {
+                  /* arr.length is an odd number so i first round it and then subtract it from the current array(n) value i am at in order to 
+                  get correct translation values */
+                }
+                const zPosition = n - Math.floor(arr.length / 2);
+
                 return (
                   <span
                     aria-hidden='true'
                     key={n}
                     className='home__letter home__letter--middle'
-                    style={{ transform: translateZ }}>
+                    style={{ transform: `translateZ(${zPosition}px)` }}>
                     {letter}
                   </span>
                 );

@@ -2,7 +2,7 @@ import Tooltip from './Tooltip';
 import '../styles/Carousel.scss';
 import Icons from './Icons';
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { useGetMoreLikeThisQuery } from '../features/singleMovie/movieApiSlice';
 
 const Carousel = ({ movieData }) => {

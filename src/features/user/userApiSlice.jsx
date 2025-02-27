@@ -1,4 +1,4 @@
-import { redirect } from 'react-router-dom';
+import { redirect } from 'react-router';
 import { apiSlice } from '../api/apiSlice';
 import { clearCredentials } from '../auth/authSlice';
 import { createToast } from '../toast/toastsSlice';

@@ -1,5 +1,5 @@
 import { memo, useEffect, useState, useCallback, useRef } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router';
 import { useDispatch } from 'react-redux';
 import Icons from '../../components/Icons';
 import ProgressBar from '../../components/ProgressBar';

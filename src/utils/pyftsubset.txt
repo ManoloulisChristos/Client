@@ -1,0 +1,72 @@
+!!! The fonts file from the src directory has been removed for production 
+>>>>ALL PATHS POINT TO A REMOVED FOLDER<<<
+the fonts have been moved to the public folder for production !!!
+
+Command to create a subset font
+Carefull on where the file points too.
+Key takeaways:
+1. keep all the layout features because they play a crucial role especially kerning
+2. Provide correct unicode ranges in order for the text to be loaded correctly and watch out for spacing
+3. Dont use the --text flag because it has unpredictable results and maybe the pyftsubset does not
+    interpolate the letters provided with the glyphs correctly.
+4. --no-hinting and ----desubroutinize do not provide a difference and increase the size maybe the 
+    the font i am using plays a role here.
+
+5.https://www.zachleat.com/web/css-tricks-web-fonts/#give-me-something-to-copy-and-paste
+6.https://wakamaifondue.com/beta/
+
+>>>>>>>>>>>>> ALL PATHS POINT TO A REMOVED FOLDER <<<<<<<<<<<
+
+>>Inter-300<<
+Includes: only the string: Search (no spacing)
+Usage: its only for the placeholder text in the autocomplete form (currenlty)
+Command: pyftsubset "src/fonts/original/inter-v18-latin-300.woff2" --output-file="src/fonts/subset/inter-subset-v18-latin-300.woff2" --layout-features=ccmp,locl,mark,mkmk,kern --unicodes=U+0053,U+0065,U+0061,U+0072,U+0063,U+0068
+
+>>Inter-regular<<
+Letters: A-Z, a-z
+Digits: 0-9
+Basic Punctuation: !, ,, ., /, :, ; , \
+Symbols: #, *, &, @, _
+Quotation Marks: ", ', «, », ‘, ’, ‚, “, ”, „, ‹, ›, etc.
+Parentheses: (, )
+Dashes: -, –, —
+Spaces:   ,   (Regular Space, Non-breaking space)
+
+Usage: Everywhere
+Command:  pyftsubset "src/fonts/original/inter-v18-latin-regular.woff2" --output-file="src/fonts/subset/inter-subset-v18-latin-regular.woff2" --layout-features=ccmp,locl,mark,mkmk,kern --unicodes=U+0041-005A,U+0061-007A,U+0030-0039,U+0021,U+0023,U+002A,U+002C,U+002E,U+002F,U+003A,U+003B,U+005C,U+0022,U+0027,U+00AB,U+00BB,U+2018,U+2019,U+201A,U+201C,U+201D,U+201E,U+2039,U+203A,U+0028,U+0029,U+002D,U+005F,U+2013,U+2014,U+0026,U+0040,U+0020,U+00A0
+
+
+>>Inter-500<<
+Letters: A-Z, a-z
+Digits: 0-9
+Basic Punctuation: !, ,, ., /, :, ; , \
+Symbols: #, *, &, @, _
+Quotation Marks: ", ', «, », ‘, ’, ‚, “, ”, „, ‹, ›, etc.
+Parentheses: (, )
+Dashes: -, –, —
+Spaces:   ,   (Regular Space, Non-breaking space)
+
+Usage: Titles or subtitles and movie titles in Card component also it used in fractions like 1/2 
+so the frac layout-feature is added
+Command:  pyftsubset "src/fonts/original/inter-v18-latin-500.woff2" --output-file="src/fonts/subset/inter-subset-v18-latin-500.woff2" --layout-features=ccmp,locl,mark,mkmk,kern,frac --unicodes=U+0041-005A,U+0061-007A,U+0030-0039,U+0021,U+0023,U+002A,U+002C,U+002E,U+002F,U+003A,U+003B,U+005C,U+0022,U+0027,U+00AB,U+00BB,U+2018,U+2019,U+201A,U+201C,U+201D,U+201E,U+2039,U+203A,U+0028,U+0029,U+002D,U+005F,U+2013,U+2014,U+0026,U+0040,U+0020,U+00A0   
+
+>>Inter-600<<
+Letters: A-Z, a-z
+Digits: 0-9
+Basic Punctuation: !, ,, ., /, :, ; , \
+Symbols: #, *, &, @, _
+Quotation Marks: ", ', «, », ‘, ’, ‚, “, ”, „, ‹, ›, etc.
+Parentheses: (, )
+Dashes: -, –, —
+Spaces:   ,   (Regular Space, Non-breaking space)
+
+Usage: Big titles but punctuations are needed because it also shows what the user typed in autocomplete form
+Command: pyftsubset "src/fonts/original/inter-v18-latin-600.woff2" --output-file="src/fonts/subset/inter-subset-v18-latin-600.woff2" --layout-features=ccmp,locl,mark,mkmk,kern --unicodes=U+0041-005A,U+0061-007A,U+0030-0039,U+0021,U+0023,U+002A,U+002C,U+002E,U+002F,U+003A,U+003B,U+005C,U+0022,U+0027,U+00AB,U+00BB,U+2018,U+2019,U+201A,U+201C,U+201D,U+201E,U+2039,U+203A,U+0028,U+0029,U+002D,U+005F,U+2013,U+2014,U+0026,U+0040,U+0020,U+00A0
+
+>>Inter(-tight)-700<<
+Inter-tight is used because it has text-stroke compatability while v18 Inter broke text-stroke
+
+Includes: only the string: MOVIES (no spacing)
+
+Usage: its only used for the Home component for the letter animation
+Command:  pyftsubset "src/fonts/original/inter-tight-v7-latin-700.woff2" --output-file="src/fonts/subset/inter-tight-subset2-v7-latin-700.woff2" --layout-features=ccmp,locl,mark,mkmk,kern --unicodes=U+004D,U+004F,U+0056,U+0049,U+0045,U+0053

@@ -69,8 +69,17 @@
 
     z-index: 2;
     // offset-path: ellipse(55vmin 35vmin at center 49vmin);
-    // offset-distance: 71%;
-    // transform: scale(0.4);
+
+    offset-path: ellipse(41vmin 33vmin at center 36.5vmax);
+    offset-distance: 94.5%;
+    // Small<<<<
+    offset-path: ray(48.5deg sides);
+    offset-distance: 49.5vmin;
+    // BIG
+    // offset-path: ray(53.5deg sides);
+    // offset-distance: 47.5vmin;
+
+    transform: scale(0.4);
     // offset-path: ray(75.5deg sides);
     // offset-distance: 51.6vmin;
     offset-rotate: 0deg;
@@ -84,14 +93,14 @@
     }
     // @keyframes test-Z {
     //   0% {
-    //     offset-path: ellipse(55vmin 35vmin at center 49vmin);
-    //     transform: rotate(0turn) scale(0.5);
+    //     offset-path: ellipse(45vmin 15vmax at center 35vmax);
+    //     transform: rotate(0turn) scale(0.4);
     //     offset-distance: 55%;
     //   }
     //   35% {
-    //     offset-path: ellipse(55vmin 35vmin at center 49vmin);
+    //     offset-path: ellipse(45vmin 15vmax at center 35vmax);
     //     offset-distance: 94.5%;
-    //     transform: rotate(3turn) scale(0.5);
+    //     transform: rotate(3turn) scale(0.4);
     //   }
     //   35.001% {
     //     offset-path: ray(75.5deg sides);
@@ -119,6 +128,7 @@
     --_size-max: 12;
     --_min-vw: 320;
     --max-vw: 3500;
+    font-weight: 700;
     font-size: var(--size-clamp);
   }
 
@@ -126,6 +136,11 @@
     display: inline-block;
     perspective: 500px;
     offset-path: ellipse(55vmin 35vmin at center 45vmin);
+
+    // In portrait mode change the position to vmax(height)
+    @media (max-aspect-ratio: 1 / 1) {
+      offset-path: ellipse(45vmin 35vmin at center 30vmax);
+    }
     opacity: 1;
     &--1 {
       offset-distance: 61%;
@@ -156,26 +171,34 @@
   }
 
   &__letters-box {
-    --_protrusionSize: 20;
+    // Must be always an odd number, middle + front + back letters.
+    // Middle letters traslations must cover the point of 0px in translation e.g.:
+    // I want a total depth of 20px
+    // Back is -10px & Front is 10px
+    // Middle letters must be from -9px to +9px but i have to take in account the 0px point so its 19 total NOT 18.
+    // So in order to have the divisions output integer values i always subtract 1.
+    --_protrusionSize: 21;
 
     position: relative;
     display: inline-block;
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
-    transform: translateZ(-10px) rotateY(60deg);
+    // Make the whole box translate back to its original position before translations were applied
+    // So its the whole box depth / 2 subtracting the 0px point from the total size.
+    transform: translateZ(calc(((var(--_protrusionSize) - 1) / 2) * -1px));
 
-    // animation: rotate-M 1500ms linear forwards;
+    // animation: rotate-M 1000ms infinite linear;
 
     // @keyframes rotate-M {
     //   0% {
-    //     // transform: scale(1) translateZ(-10px) rotateY(0deg);
-    //     transform: translateZ(-10px) translateY(0px) rotateX(0deg);
+    //     transform: scale(1) translateZ(-10px) rotateY(0deg);
+    //     // transform: translateZ(-10px) translateY(0px) rotateX(0deg);
     //   }
 
     //   100% {
-    //     // transform: scale(1) translateZ(-10px) rotateY(360deg);
-    //     transform: translateZ(-10px) translateY(-20px) rotateX(20deg);
+    //     transform: scale(1) translateZ(-10px) rotateY(360deg);
+    //     // transform: translateZ(-10px) translateY(-20px) rotateX(20deg);
     //   }
     // }
   }
@@ -185,11 +208,11 @@
     -webkit-text-stroke: 4px purple;
 
     &--front {
-      transform: translateZ(10px);
+      transform: translateZ(calc(((var(--_protrusionSize) - 1) / 2) * 1px));
     }
 
     &--back {
-      transform: translateZ(-10px);
+      transform: translateZ(calc(((var(--_protrusionSize) - 1) / 2) * -1px));
     }
 
     &--middle {
@@ -198,6 +221,7 @@
     &--left {
       left: 0;
       opacity: 0;
+      color: purple;
       transform: translateX(-50%) rotateY(90deg);
 
       // On the letters "O O V" the "I" must be smaller due to curvature
@@ -211,7 +235,7 @@
         transform: translateX(-50%) rotateY(90deg) scaleY(0.95);
       }
 
-      // animation: test-opacityleft 500ms infinite linear;
+      // animation: test-opacityleft 1000ms infinite linear;
 
       // @keyframes test-opacityleft {
       //   0% {
@@ -239,6 +263,7 @@
     }
 
     &--right {
+      color: purple;
       right: 0;
       opacity: 0;
       transform: translateX(50%) rotateY(270deg);
@@ -254,7 +279,7 @@
         transform: translateX(50%) rotateY(270deg) scaleY(0.95);
       }
 
-      // animation: test-opacity 500ms infinite linear;
+      // animation: test-opacity 1000ms infinite linear;
 
       // @keyframes test-opacity {
       //   0% {

@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import '../../styles/FilterSection.scss';
 import Icons from '../../components/Icons';
 import Tooltip from '../../components/Tooltip';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router';
 
 const allGenresStatic = [
   'Drama',
@@ -256,6 +256,7 @@ const FilterSection = ({ dialogRef, hideFilters, filterBuckets }) => {
     setRatingTo('');
     setDateFromError('');
     setRatingFromError('');
+    setRatingToError('');
   };
 
   const handleSubmit = (e) => {
@@ -274,7 +275,7 @@ const FilterSection = ({ dialogRef, hideFilters, filterBuckets }) => {
       }
 
       if (ratingFrom && ratingTo) {
-        if (ratingFrom > ratingTo) {
+        if (Number(ratingFrom) > Number(ratingTo)) {
           setRatingFromError(
             'The "From" rating should not be greater than the "To" rating.'
           );

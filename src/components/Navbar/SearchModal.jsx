@@ -1,19 +1,24 @@
 import '../../styles/SearchModal.scss';
 
-import { forwardRef } from 'react';
 import Tooltip from '../Tooltip';
 import Icons from '../Icons';
 
-const SearchModal = forwardRef(function SearchModal(props, ref) {
+const SearchModal = ({
+  children,
+  ref,
+  showSearchModal,
+  inertSearchModal,
+  setInertSearchModal,
+}) => {
   return (
     <>
-      {props.show ? (
+      {showSearchModal ? (
         <dialog
           className='search-modal'
           ref={ref}
-          inert=''
-          onClose={() => ref.current.setAttribute('inert', '')}>
-          {props.children}
+          inert={inertSearchModal}
+          onClose={() => setInertSearchModal(true)}>
+          {children}
           <Tooltip
             text='Close search'
             tip='left'
@@ -37,10 +42,10 @@ const SearchModal = forwardRef(function SearchModal(props, ref) {
           </Tooltip>
         </dialog>
       ) : (
-        props.children
+        children
       )}
     </>
   );
-});
+};
 
 export default SearchModal;

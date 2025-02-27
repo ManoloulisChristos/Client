@@ -1,4 +1,4 @@
-import { forwardRef, useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import '../../styles/RatingModal.scss';
 import Icons from '../../components/Icons';
 import {
@@ -9,10 +9,14 @@ import useAuth from '../../hooks/useAuth';
 import { useDispatch } from 'react-redux';
 import { createToast } from '../toast/toastsSlice';
 
-const RatingModal = forwardRef(function RatingModal(
-  { movieId, movieTitle, movieRating },
-  ref
-) {
+const RatingModal = ({
+  ref,
+  movieId,
+  movieTitle,
+  movieRating,
+  inertRatingModal,
+  setInertRatingModal,
+}) => {
   const dispatch = useDispatch();
 
   const [rangeValue, setRangeValue] = useState('1');
@@ -94,14 +98,16 @@ const RatingModal = forwardRef(function RatingModal(
   };
 
   const lightDismiss = (e) => {
+    // this works because Dialog element expands to the whole screen
     if (e.target.nodeName === 'DIALOG') {
       ref.current.close();
     }
   };
 
+  // Provides inert for all method of closing dialog including Esc
   const handleDialogClose = (e) => {
-    e.currentTarget.setAttribute('inert', '');
     setRotateStar(false);
+    setInertRatingModal(true);
   };
 
   const handleSubmit = (e) => {
@@ -198,7 +204,7 @@ const RatingModal = forwardRef(function RatingModal(
       ref={ref}
       id='rating-modal'
       className='rating-modal'
-      inert=''
+      inert={inertRatingModal}
       onClick={lightDismiss}
       onClose={handleDialogClose}>
       <form className='rating-modal__form' onSubmit={handleSubmit}>
@@ -216,7 +222,6 @@ const RatingModal = forwardRef(function RatingModal(
               aria-expanded='true'
               onClick={() => {
                 ref.current.close();
-                ref.current.setAttribute('inert', '');
               }}>
               <Icons name='close' />
               <span className='visually-hidden'>Close</span>
@@ -328,7 +333,9 @@ const RatingModal = forwardRef(function RatingModal(
             <button
               type='button'
               className='rating-modal__button rating-modal__button--cancel'
-              onClick={() => ref.current.close()}>
+              onClick={() => {
+                ref.current.close();
+              }}>
               Cancel
             </button>
             <button
@@ -342,6 +349,6 @@ const RatingModal = forwardRef(function RatingModal(
       </form>
     </dialog>
   );
-});
+};
 
 export default RatingModal;

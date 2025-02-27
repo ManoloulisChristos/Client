@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useRefreshMutation } from './authApiSlice';
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 import usePersist from '../../hooks/usePersist';
 import useAuth from '../../hooks/useAuth';
 import useSession from '../../hooks/useSession';

@@ -4,7 +4,7 @@ import {
   useSearchParams,
   useNavigate,
   useLocation,
-} from 'react-router-dom';
+} from 'react-router';
 import { useAutocompleteQuery } from '../../features/api/apiSlice';
 import Tooltip from '../Tooltip';
 import '../../styles/AutocompleteForm.scss';

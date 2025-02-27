@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router';
 import { useGetMovieQuery } from './movieApiSlice';
 import metacritic from '../../assets/SVG/metacritic_logo.svg';
 import imdb from '../../assets/SVG/imdb_logo.svg';

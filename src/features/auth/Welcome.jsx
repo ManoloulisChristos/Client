@@ -1,5 +1,5 @@
 import useAuth from '../../hooks/useAuth';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import { useSendVerificationEmailMutation } from './authApiSlice';
 import VerificationBoilerplate from './VerificationBoilerplate';
 import { useDispatch } from 'react-redux';

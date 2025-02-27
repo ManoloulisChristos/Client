@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router';
 import usePersist from '../../hooks/usePersist';
 import useAuth from '../../hooks/useAuth';
 import {

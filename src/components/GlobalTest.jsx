@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { createToast } from '../features/toast/toastsSlice';
 import usePersist from '../hooks/usePersist';
 import Carousel from './Carousel';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router';
 
 const GlobalTest = () => {
   const box1Ref = useRef(null);
@@ -48,7 +48,7 @@ const GlobalTest = () => {
       testRef.current = true;
     };
   }, []);
-
+  console.log(document.fonts);
   const animatebox1 = async (e) => {
     // console.log('1', animRef.current.effect.getComputedTiming());
     // // animRef.current.currentTime = -4000;
@@ -87,7 +87,7 @@ const GlobalTest = () => {
         <div className='h2'> */}
       {/* <div className='test__svg-wrapper'> */}
 
-      <svg className='test__svg' width='100%' height='50vh'>
+      {/* <svg className='test__svg' width='100%' height='50vh'>
         <svg width='100%' height='100%' viewBox='0 0 100 100'>
           <circle cx='50' cy='50' r='50' fill='lightblue'></circle>
         </svg>
@@ -97,8 +97,8 @@ const GlobalTest = () => {
           <svg width='20' height='20' x='4' y='4' viewBox='-192 -384 2048 2048'>
             <path d='M1408 736v480q0 26-19 45t-45 19h-384v-384h-256v384h-384q-26 0-45-19t-19-45v-480q0-1 .5-3t.5-3l575-474 575 474q1 2 1 6zm223-69l-62 74q-8 9-21 11h-3q-13 0-21-7l-692-577-692 577q-12 8-24 7-13-2-21-11l-62-74q-8-10-7-23.5t11-21.5l719-599q32-26 76-26t76 26l244 204v-195q0-14 9-23t23-9h192q14 0 23 9t9 23v408l219 182q10 8 11 21.5t-7 23.5z'></path>
           </svg>
-        </svg>
-        {/* <svg
+        </svg> */}
+      {/* <svg
             viewBox='0 0 1000 1000'
             xmlns='http://www.w3.org/2000/svg'
             preserveAspectRatio='xMidYMid meet'>
@@ -684,7 +684,7 @@ const GlobalTest = () => {
               </g>
             </g>
           </svg> */}
-        <line
+      {/* <line
           x1='0'
           x2='100'
           y1='50'
@@ -702,11 +702,23 @@ const GlobalTest = () => {
           className='test__svg-path'
           d='M 40 40 L 50 50 L 40 50'
           stroke='black'></path>
-      </svg>
+      </svg> */}
       {/* </div> */}
       {/* 
         </div>
       </div> */}
+      <h1 className='test-sub'>Search for: "batman" 19 total results</h1>
+      <p>Punctuation: !"#$%&'()*+,-./?</p>
+      <p> </p>
+      <p>Digits: 0123456789:;</p>
+      <p> </p>
+      <p>Uppercase Letters: ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
+      <p> </p>
+      <p>Lowercase Letters: abcdefghijklmnopqrstuvwxyz</p>
+      <p> </p>
+      <p>Spaces & Dashes:  ––</p>
+      <p>Voyage Wa Te Ty AV</p>
+      <p className='test-p'>1/4</p>
     </div>
   );
 };

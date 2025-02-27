@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import AutocompleteForm from './AutocompleteForm';
 import '../../styles/Navbar.scss';
 import ThemeButton from './ThemeButton';
@@ -9,7 +9,8 @@ import UserMenu from './UserMenu';
 
 const getWindowSizeOnPageLoad800 = () => {
   if (typeof window !== 'undefined') {
-    if (window.innerWidth <= 800) {
+    // 800 px
+    if (window.matchMedia('(max-width: 50em').matches) {
       return true;
     }
     return false;
@@ -18,13 +19,13 @@ const getWindowSizeOnPageLoad800 = () => {
 
 const getWindowSizeOnPageLoad550 = () => {
   if (typeof window !== 'undefined') {
-    if (window.innerWidth <= 550) {
+    // 550px
+    if (window.matchMedia('(max-width: 34.375em').matches) {
       return true;
     }
     return false;
   }
 };
-
 const Navbar = ({ topLevelSentinelRef }) => {
   // When in smaller viewport sizes the burger button is displayed and the navigation is set to display: none,
   // that means it is out of reach in the tab sequence, display is controlled only through the burger button and when it is opened
@@ -37,6 +38,8 @@ const Navbar = ({ topLevelSentinelRef }) => {
   const [widthBellow550, setWidthBellow550] = useState(
     getWindowSizeOnPageLoad550
   );
+
+  const [inertSearchModal, setInertSearchModal] = useState(true);
 
   // Nodes in the Map include all nav-links and the burger button
   const nodesMapRef = useRef(null);
@@ -72,7 +75,6 @@ const Navbar = ({ topLevelSentinelRef }) => {
     const trapFocus = (e) => {
       // If not Tab key then do nothing
       if (e.key === 'Escape' || e.key === 'Esc') {
-        console.log(e.target.matches('.header__menu-link'));
         setNavExpanded(false);
         return;
       }
@@ -106,7 +108,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
     }
   }, [navExpanded]);
 
-  // Intersection Observer on the Navigation bar with a sentinel at the top of the page
+  // Intersection Observer on the Navigation bar with a sentinel at the top of the page (sentinel is in App component)
   useEffect(() => {
     const options = {
       root: null,
@@ -136,29 +138,37 @@ const Navbar = ({ topLevelSentinelRef }) => {
   }, [topLevelSentinelRef]);
 
   useEffect(() => {
-    const watchViewportWidth = () => {
-      // When navigation is open and the user resizes the window, removes the traping of focus in nav-links
+    const mqlMin1152px = window.matchMedia('(min-width: 72em)');
+    const mqlMax800px = window.matchMedia('(max-width: 50em)');
+    const mqlMax550px = window.matchMedia('(max-width: 34.375em)');
 
-      if (window.innerWidth > 1152) {
+    const match1152px = (e) => {
+      if (e.matches) {
         setNavExpanded(false);
       }
-
-      if (window.innerWidth <= 800) {
+    };
+    const match800px = (e) => {
+      if (e.matches) {
         setShowSearchModal(true);
       } else {
         setShowSearchModal(false);
       }
-
-      if (window.innerWidth <= 550) {
+    };
+    const match550px = (e) => {
+      if (e.matches) {
         setWidthBellow550(true);
       } else {
         setWidthBellow550(false);
       }
     };
-    window.addEventListener('resize', watchViewportWidth);
 
+    mqlMin1152px.addEventListener('change', match1152px);
+    mqlMax800px.addEventListener('change', match800px);
+    mqlMax550px.addEventListener('change', match550px);
     return () => {
-      window.removeEventListener('resize', watchViewportWidth);
+      mqlMin1152px.removeEventListener('change', match1152px);
+      mqlMax800px.removeEventListener('change', match800px);
+      mqlMax550px.removeEventListener('change', match550px);
     };
   }, []);
 
@@ -168,7 +178,11 @@ const Navbar = ({ topLevelSentinelRef }) => {
         <header className='header'>
           <h2 className='header__logo'>LOGO</h2>
 
-          <SearchModal ref={searchModalRef} show={showSearchModal}>
+          <SearchModal
+            ref={searchModalRef}
+            showSearchModal={showSearchModal}
+            inertSearchModal={inertSearchModal}
+            setInertSearchModal={setInertSearchModal}>
             <AutocompleteForm searchModalRef={searchModalRef} />
           </SearchModal>
           <div className='header__divider'>
@@ -187,7 +201,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
                 aria-controls='search-dialog'
                 onClick={() => {
                   searchModalRef.current.showModal();
-                  searchModalRef.current.removeAttribute('inert');
+                  setInertSearchModal(false);
                 }}>
                 <svg
                   className='header__search-icon'

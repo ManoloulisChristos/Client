@@ -1,5 +1,5 @@
 import { useState, useLayoutEffect, useRef, useCallback, memo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
 import Card from '../movies/Card';
 import ProgressBar from '../../components/ProgressBar';
@@ -24,6 +24,8 @@ const TopMoviesList = ({ movies }) => {
 
   const [modalData, setModalData] = useState(); // Sets the movie information for the modals based on the card that was clicked
   const [ratedMovieData, setRatedMovieData] = useState(null);
+  const [inertMovieModal, setInertMovieModal] = useState(true);
+  const [inertRatingModal, setInertRatingModal] = useState(true);
 
   const movieModalRef = useRef(null);
   const ratingModalRef = useRef(null);
@@ -124,12 +126,19 @@ const TopMoviesList = ({ movies }) => {
       {/* Only one dialog element is rendered here for all Card components, because rendering one for each Card slows down the whole app,
        eg: I get more than 130ms recalculation of styles when a user presses the theme toggle button which is obvious and annoying.
        So one global id is used for all the buttons that control the opening of the dialog in all Card components  */}
-      <MovieDetailsModal movie={modalData} ref={movieModalRef} />
+      <MovieDetailsModal
+        movie={modalData}
+        ref={movieModalRef}
+        inertMovieModal={inertMovieModal}
+        setInertMovieModal={setInertMovieModal}
+      />
       <RatingModal
         movieId={modalData?._id}
         movieRating={ratedMovieData?.rating}
         movieTitle={modalData?.title}
         ref={ratingModalRef}
+        inertRatingModal={inertRatingModal}
+        setInertRatingModal={setInertRatingModal}
       />
       {initial ? (
         <Spinner />
@@ -164,6 +173,8 @@ const TopMoviesList = ({ movies }) => {
                 setRatedMovieData={setRatedMovieData}
                 movieModalRef={movieModalRef}
                 ratingModalRef={ratingModalRef}
+                setInertMovieModal={setInertMovieModal}
+                setInertRatingModal={setInertRatingModal}
               />
             ))}
           </ul>

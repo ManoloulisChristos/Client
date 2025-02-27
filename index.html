@@ -6,6 +6,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="Canvas" />
     <meta name="color-scheme" content="light dark" />
+    <!-- Preloaded subsets that are replaced from full font on page load
+      full info in src/utils/pyftsubset.txt 
+    -->
+
+    <link
+      rel="preload"
+      href="/fonts/subset/inter-subset-v18-latin-300.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous" />
+    <link
+      rel="preload"
+      href="/fonts/subset/inter-subset-v18-latin-regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous" />
+    <link
+      rel="preload"
+      href="/fonts/subset/inter-subset-v18-latin-500.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous" />
+    <link
+      rel="preload"
+      href="/fonts/subset/inter-subset-v18-latin-600.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous" />
+    <link
+      rel="preload"
+      href="/fonts/subset/inter-tight-subset-v7-latin-700.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous" />
+    <style>
+      /* Subsets that are replaced from full font on page load must have the same attributes with
+      the ones that are getting replaced programmatically */
+
+      @font-face {
+        font-display: swap;
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 300;
+        src: url('/fonts/subset/inter-subset-v18-latin-300.woff2')
+          format('woff2');
+      }
+
+      @font-face {
+        font-display: swap;
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400;
+        src: url('/fonts/subset/inter-subset-v18-latin-regular.woff2')
+          format('woff2');
+      }
+
+      @font-face {
+        font-display: swap;
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 500;
+        src: url('/fonts/subset/inter-subset-v18-latin-500.woff2')
+          format('woff2');
+      }
+      @font-face {
+        font-display: swap;
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 600;
+        src: url('/fonts/subset/inter-subset-v18-latin-600.woff2')
+          format('woff2');
+      }
+      /* Inter-Tight used only in the MOOVIES string for the home page
+        this is not replaced by a full font */
+      @font-face {
+        font-display: swap;
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 700;
+        src: url('/fonts/subset/inter-tight-subset-v7-latin-700.woff2')
+          format('woff2');
+        unicode-range: U+004D, U+004F, U+0056, U+0049, U+0045, U+0053;
+      }
+    </style>
+
     <title>Moovies</title>
   </head>
   <body>
