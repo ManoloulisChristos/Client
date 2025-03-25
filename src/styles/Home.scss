@@ -49,80 +49,6 @@
   align-items: center;
   position: relative;
 
-  &__star {
-    display: block;
-    // position: absolute;
-    // --_size-min: 4;
-    // --_size-max: 15;
-    // --_min-vw: 320;
-    // --max-vw: 3500;
-    // width: var(--size-clamp);
-    // height: var(--size-clamp);
-
-    @media (min-aspect-ratio: 1 / 1) {
-      width: 35vmin;
-    }
-
-    @media (max-aspect-ratio: 1 / 1) {
-      width: 25vmax;
-    }
-
-    z-index: 2;
-    // offset-path: ellipse(55vmin 35vmin at center 49vmin);
-
-    offset-path: ellipse(41vmin 33vmin at center 36.5vmax);
-    offset-distance: 94.5%;
-    // Small<<<<
-    offset-path: ray(48.5deg sides);
-    offset-distance: 49.5vmin;
-    // BIG
-    // offset-path: ray(53.5deg sides);
-    // offset-distance: 47.5vmin;
-
-    transform: scale(0.4);
-    // offset-path: ray(75.5deg sides);
-    // offset-distance: 51.6vmin;
-    offset-rotate: 0deg;
-    opacity: 1;
-    .cow-wrapper {
-      // display: none;
-    }
-
-    .star-circle {
-      opacity: 1;
-    }
-    // @keyframes test-Z {
-    //   0% {
-    //     offset-path: ellipse(45vmin 15vmax at center 35vmax);
-    //     transform: rotate(0turn) scale(0.4);
-    //     offset-distance: 55%;
-    //   }
-    //   35% {
-    //     offset-path: ellipse(45vmin 15vmax at center 35vmax);
-    //     offset-distance: 94.5%;
-    //     transform: rotate(3turn) scale(0.4);
-    //   }
-    //   35.001% {
-    //     offset-path: ray(75.5deg sides);
-    //     offset-distance: 51.6vmin;
-    //   }
-
-    //   50% {
-    //     offset-distance: 20vmin;
-    //   }
-
-    //   80% {
-    //     offset-distance: 0vmin;
-    //     transform: rotate(7turn) scale(0.5);
-    //   }
-    //   100% {
-    //     offset-path: ray(1080deg sides);
-    //     offset-distance: 0vmin;
-    //     transform: rotate(7turn) scale(1);
-    //   }
-    // }
-  }
-
   &__title {
     --_size-min: 2.5;
     --_size-max: 12;
@@ -130,18 +56,28 @@
     --max-vw: 3500;
     font-weight: 700;
     font-size: var(--size-clamp);
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      font-size: 2.5rem;
+    }
   }
 
   &__curved-3d {
     display: inline-block;
     perspective: 500px;
+    opacity: 1;
+
     offset-path: ellipse(55vmin 35vmin at center 45vmin);
 
     // In portrait mode change the position to vmax(height)
     @media (max-aspect-ratio: 1 / 1) {
       offset-path: ellipse(45vmin 35vmin at center 30vmax);
+      // Tablets 600px
+      @media (min-width: 37.5em) {
+        offset-path: ellipse(45vmin 35vmin at center 38vmax);
+      }
     }
-    opacity: 1;
+
     &--1 {
       offset-distance: 61%;
     }
@@ -179,6 +115,8 @@
     // So in order to have the divisions output integer values i always subtract 1.
     --_protrusionSize: 21;
 
+    --_letterTextStrokeWidth: 4;
+
     position: relative;
     display: inline-block;
     width: 100%;
@@ -205,7 +143,7 @@
 
   &__letter {
     position: absolute;
-    -webkit-text-stroke: 4px purple;
+    -webkit-text-stroke: calc(var(--_letterTextStrokeWidth) * 1px) purple;
 
     &--front {
       transform: translateZ(calc(((var(--_protrusionSize) - 1) / 2) * 1px));
@@ -305,6 +243,429 @@
       //     opacity: 0;
       //   }
       // }
+    }
+  }
+
+  &__main-svg-container {
+    display: block;
+    position: relative;
+    perspective: 500px;
+    width: 55vmin;
+    // Portrait
+    @media (max-aspect-ratio: 1 / 1) {
+      // width: 25vmax;
+      width: 55vmin;
+      // Tablets 600px
+      @media (min-width: 37.5em) {
+        // width: 28vmax;
+        width: 37.4vmin;
+      }
+    }
+    offset-rotate: 0deg;
+    opacity: 1;
+    z-index: 2;
+
+    .cow-wrapper {
+      opacity: 1;
+    }
+
+    .star-circle {
+      opacity: 0;
+    }
+
+    ////// Enable for testing ///////
+    // transform: scale(0.4);
+
+    // Desktop
+    // offset-path: ellipse(55vmin 35vmin at center 49vmin);
+    // offset-distance: 94.5%;
+    // offset-path: ray(75.5deg sides);
+    // offset-distance: 51.6vmin;
+
+    // Small<<<<
+    // offset-path: ellipse(41vmin 33vmin at center 36.5vmax);
+    // offset-distance: 94.5%;
+    // offset-path: ray(50deg sides);
+    // offset-distance: 50vmin;
+    // BIG > bigger than 600px width
+    // offset-path: ellipse(41vmin 28vmin at center 40vmax);
+    // offset-distance: 94.5%;
+    // offset-path: ray(62deg sides);
+    // offset-distance: 42.5vmin;
+
+    // @keyframes test-Z {
+    //   0% {
+    //     offset-path: ellipse(45vmin 15vmax at center 35vmax);
+    //     transform: rotate(0turn) scale(0.4);
+    //     offset-distance: 55%;
+    //   }
+    //   35% {
+    //     offset-path: ellipse(45vmin 15vmax at center 35vmax);
+    //     offset-distance: 94.5%;
+    //     transform: rotate(3turn) scale(0.4);
+    //   }
+    //   35.001% {
+    //     offset-path: ray(75.5deg sides);
+    //     offset-distance: 51.6vmin;
+    //   }
+
+    //   50% {
+    //     offset-distance: 20vmin;
+    //   }
+
+    //   80% {
+    //     offset-distance: 0vmin;
+    //     transform: rotate(7turn) scale(0.5);
+    //   }
+    //   100% {
+    //     offset-path: ray(1080deg sides);
+    //     offset-distance: 0vmin;
+    //     transform: rotate(7turn) scale(1);
+    //   }
+    // }
+  }
+
+  &__svg-turbulance {
+    display: none;
+    z-index: -1;
+    position: absolute;
+    inset: 0 0 0 0;
+    filter: blur(6px);
+    perspective: 500px;
+    transform: translateZ(200px) rotateX(-35deg) scale(0.2, 1) skew(0deg, 60deg)
+      rotateZ(-60deg);
+    // animation: crashTheGlass 2.5s linear forwards;
+    // @keyframes crashTheGlass {
+    //   0% {
+    //     transform: translateZ(0px) rotateX(0deg);
+    //   }
+
+    //   70% {
+    //     transform: translateZ(-450px) rotateX(0deg);
+    //   }
+
+    //   75% {
+    //     transform: translateZ(-500px) rotateX(-35deg);
+    //   }
+
+    //   85% {
+    //     transform: translateZ(0px) rotateX(-35deg);
+    //   }
+
+    //   100% {
+    //     transform: translateZ(200px) rotateX(-35deg);
+    //   }
+    // }
+  }
+
+  &__svg-glass-container {
+    // display: none;
+    position: absolute;
+    z-index: 3;
+    width: 100%;
+    height: calc(100vh - 70px);
+  }
+
+  &__svg-glass-circle {
+    @media only screen and (max-width: 600px) {
+      r: 30;
+    }
+  }
+
+  &__svg-glass-empty {
+    stroke-dashoffset: 0;
+  }
+  &__svg-glass-full {
+    stroke-dashoffset: 20;
+  }
+
+  &__svg-glass-transition-half {
+    transition: stroke-dashoffset 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    stroke-dashoffset: 10;
+
+    &--0 {
+      transition-delay: 0s;
+    }
+    &--37 {
+      transition-delay: 1s;
+    }
+    &--34 {
+      transition-delay: 1.5s;
+    }
+    &--42 {
+      transition-delay: 1.5s;
+    }
+    &--6 {
+      transition-delay: 2s;
+    }
+    &--25 {
+      transition-delay: 2s;
+    }
+    &--11 {
+      transition-delay: 2.5s;
+    }
+    &--20 {
+      transition-delay: 2.5s;
+    }
+    &--12 {
+      transition-delay: 2.8s;
+    }
+    &--43 {
+      transition-delay: 2.9s;
+    }
+    &--32 {
+      transition-delay: 3s;
+    }
+    &--23 {
+      transition-delay: 3.3s;
+    }
+    &--4 {
+      transition-delay: 3.3s;
+    }
+    &--5 {
+      transition-delay: 3.3s;
+    }
+    &--27 {
+      transition-delay: 3.4s;
+    }
+    &--18 {
+      transition-delay: 3.5s;
+    }
+    &--36 {
+      transition-delay: 3.5s;
+    }
+
+    &--26 {
+      transition-delay: 3.6s;
+    }
+    &--9 {
+      transition-delay: 3.7s;
+    }
+    &--29 {
+      transition-delay: 3.8s;
+    }
+    &--3 {
+      transition-delay: 3.8s;
+    }
+    &--8 {
+      transition-delay: 4s;
+    }
+    &--41 {
+      transition-delay: 4s;
+    }
+    &--36 {
+      transition-delay: 4.1s;
+    }
+    &--22 {
+      transition-delay: 4.15s;
+    }
+    &--1 {
+      transition-delay: 4.25s;
+    }
+    &--16 {
+      transition-delay: 4.3s;
+    }
+    &--7 {
+      transition-delay: 4.35s;
+    }
+    &--33 {
+      transition-delay: 4.4s;
+    }
+    &--14 {
+      transition-delay: 4.45s;
+    }
+    &--24 {
+      transition-delay: 4.5s;
+    }
+    &--28 {
+      transition-delay: 4.55s;
+    }
+    &--16 {
+      transition-delay: 4.6s;
+    }
+    &--2 {
+      transition-delay: 4.65s;
+    }
+    &--21 {
+      transition-delay: 4.7s;
+    }
+    &--31 {
+      transition-delay: 4.75s;
+    }
+    &--39 {
+      transition-delay: 4.8s;
+    }
+    &--35 {
+      transition-delay: 4.85s;
+    }
+    &--13 {
+      transition-delay: 4.9s;
+    }
+    &--15 {
+      transition-delay: 4.95s;
+    }
+    &--19 {
+      transition-delay: 5s;
+    }
+    &--38 {
+      transition-delay: 5.05s;
+    }
+    &--40 {
+      transition-delay: 5.1s;
+    }
+    &--30 {
+      transition-delay: 5.15s;
+    }
+    &--17 {
+      transition-delay: 5.2s;
+    }
+    &--10 {
+      transition-delay: 5.2s;
+    }
+  }
+
+  &__svg-glass-transition-full {
+    transition: stroke-dashoffset 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    stroke-dashoffset: 20;
+    --_delay: 0.05;
+    &--0 {
+      // transition-delay: calc(var(--_delay) * 0s);
+    }
+    &--37 {
+      transition-delay: calc(var(--_delay) * 1s);
+    }
+    &--34 {
+      transition-delay: calc(var(--_delay) * 2s);
+    }
+    &--42 {
+      transition-delay: calc(var(--_delay) * 2s);
+    }
+    &--6 {
+      transition-delay: calc(var(--_delay) * 3s);
+    }
+    &--25 {
+      transition-delay: calc(var(--_delay) * 3s);
+    }
+    &--11 {
+      transition-delay: calc(var(--_delay) * 4s);
+    }
+    &--20 {
+      transition-delay: calc(var(--_delay) * 4s);
+    }
+    &--12 {
+      transition-delay: calc(var(--_delay) * 5s);
+    }
+    &--43 {
+      transition-delay: calc(var(--_delay) * 6s);
+    }
+    &--32 {
+      transition-delay: calc(var(--_delay) * 7s);
+    }
+    &--23 {
+      transition-delay: calc(var(--_delay) * 8s);
+    }
+    &--4 {
+      transition-delay: calc(var(--_delay) * 9s);
+    }
+    &--5 {
+      transition-delay: calc(var(--_delay) * 9s);
+    }
+    &--27 {
+      transition-delay: calc(var(--_delay) * 10s);
+    }
+    &--18 {
+      transition-delay: calc(var(--_delay) * 11s);
+    }
+    &--36 {
+      transition-delay: calc(var(--_delay) * 11s);
+    }
+
+    &--26 {
+      transition-delay: calc(var(--_delay) * 12s);
+    }
+    &--9 {
+      transition-delay: calc(var(--_delay) * 13s);
+    }
+    &--29 {
+      transition-delay: calc(var(--_delay) * 14s);
+    }
+    &--3 {
+      transition-delay: calc(var(--_delay) * 14s);
+    }
+    &--8 {
+      transition-delay: calc(var(--_delay) * 15s);
+    }
+    &--41 {
+      transition-delay: calc(var(--_delay) * 15s);
+    }
+    &--36 {
+      transition-delay: calc(var(--_delay) * 16s);
+    }
+    &--22 {
+      transition-delay: calc(var(--_delay) * 17s);
+    }
+    &--1 {
+      transition-delay: calc(var(--_delay) * 18s);
+    }
+    &--16 {
+      transition-delay: calc(var(--_delay) * 19s);
+    }
+    &--7 {
+      transition-delay: calc(var(--_delay) * 20s);
+    }
+    &--33 {
+      transition-delay: calc(var(--_delay) * 21s);
+    }
+    &--14 {
+      transition-delay: calc(var(--_delay) * 22s);
+    }
+    &--24 {
+      transition-delay: calc(var(--_delay) * 23s);
+    }
+    &--28 {
+      transition-delay: calc(var(--_delay) * 24s);
+    }
+    &--16 {
+      transition-delay: calc(var(--_delay) * 25s);
+    }
+    &--2 {
+      transition-delay: calc(var(--_delay) * 26s);
+    }
+    &--21 {
+      transition-delay: calc(var(--_delay) * 27s);
+    }
+    &--31 {
+      transition-delay: calc(var(--_delay) * 28s);
+    }
+    &--39 {
+      transition-delay: calc(var(--_delay) * 29s);
+    }
+    &--35 {
+      transition-delay: calc(var(--_delay) * 30s);
+    }
+    &--13 {
+      transition-delay: calc(var(--_delay) * 31s);
+    }
+    &--15 {
+      transition-delay: calc(var(--_delay) * 32s);
+    }
+    &--19 {
+      transition-delay: calc(var(--_delay) * 33s);
+    }
+    &--38 {
+      transition-delay: calc(var(--_delay) * 34s);
+    }
+    &--40 {
+      transition-delay: calc(var(--_delay) * 35s);
+    }
+    &--30 {
+      transition-delay: calc(var(--_delay) * 36s);
+    }
+    &--17 {
+      transition-delay: calc(var(--_delay) * 37s);
+    }
+    &--10 {
+      transition-delay: calc(var(--_delay) * 38s);
     }
   }
 }
