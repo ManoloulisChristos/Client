@@ -1,10 +1,5 @@
 import { useRef, useState } from 'react';
-import {
-  Link,
-  useSearchParams,
-  useNavigate,
-  useLocation,
-} from 'react-router';
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router';
 import { useAutocompleteQuery } from '../../features/api/apiSlice';
 import Tooltip from '../Tooltip';
 import '../../styles/AutocompleteForm.scss';
@@ -274,7 +269,9 @@ const AutocompleteForm = ({ searchModalRef }) => {
                     <div className='autocomplete__cast'>
                       <span className='visually-hidden'>, cast: </span>
                       <span>
-                        {`${item.cast?.[0]},` ?? 'No data for actors'}
+                        {item.cast?.[0]
+                          ? `${item.cast?.[0]},`
+                          : 'No data for actors'}
                       </span>
                       <span>{item.cast?.[1]}</span>
                     </div>

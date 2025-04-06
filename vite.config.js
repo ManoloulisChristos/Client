@@ -10,6 +10,7 @@ export default defineConfig({
       cache: false,
       include: ['./src/**/*.js', './src/**/*.jsx'],
       exclude: [],
+      failOnWarning: false,
     }),
     visualizer({
       open: true,

@@ -17,35 +17,30 @@ const GlobalTest = () => {
   const circle2Ref = useRef(null);
 
   const animRef = useRef(null);
+  const [state1, setState1] = useState('state-1__init');
+  const [state2, setState2] = useState('state-2__init');
+  const [state3, setState3] = useState('state-3__init');
 
-  useEffect(() => {
-    // const fun = async () => {
-    //   animRef.current = box1Ref.current.animate(
-    //     [{ transform: 'translate(500px)' }],
-    //     {
-    //       duration: 2000,
-    //     }
-    //   );
-    //   // animRef.current.startTime = 3500;
-    //   animRef.current.pause();
-    //   console.log(animRef.current.currentTime);
-    // };
-    // if (testRef.current) {
-    //   console.log('funct');
-    //   fun();
-    // }
-    // const key = new KeyframeEffect(
-    //   box1Ref.current,
-    //   [{ transform: 'rotate(3turn)' }],
-    //   {
-    //     duration: 2000,
-    //     fill: 'forwards',
-    //   }
-    // );
-    // animRef.current = new Animation(key);
-    // animRef.current.play();
-    // console.log(document.getAnimations());
+  useLayoutEffect(() => {
+    setState1('state1__phase-1');
   }, []);
+  useLayoutEffect(() => {
+    // setState2('state-2__phase-1');
+    console.log('layout-2', state1);
+    console.log('layout-2', state2);
+    console.log('effect', state3);
+  }, [state1, state2, state3]);
+  useEffect(() => {
+    console.log('effect', state1);
+    console.log('effect', state2);
+    console.log('effect', state3);
+    setState3('state-3__phase-1');
+  }, [state1, state2, state3]);
+
+  console.log('first', state1);
+  console.log('first', state2);
+  console.log('first', state3);
+
   const animatebox1 = async (e) => {
     // console.log('1', animRef.current.effect.getComputedTiming());
     // // animRef.current.currentTime = -4000;
@@ -90,7 +85,7 @@ const GlobalTest = () => {
     rect2Ref.current.setAttribute('y', bbox.y);
     rect2Ref.current.setAttribute('width', bbox.width);
     rect2Ref.current.setAttribute('height', bbox.height);
-    rect2Ref.current.setAttribute('transform', 'matrix(' + s + ')');
+    // rect2Ref.current.setAttribute('transform', 'matrix(' + s + ')');
   };
   const clickCircle = () => {
     console.log(circleRef.current.getBBox());
@@ -136,96 +131,6 @@ const GlobalTest = () => {
 
   return (
     <div className='test'>
-      <h1 style={{ zIndex: '2', filter: 'url(#gaussianBlur3)' }}>
-        Hello <button onClick={clickRect}>Rect</button>
-        <button onClick={clickCircle}>Circle</button>
-        <button onClick={clickCircle2}>Circle2</button>
-      </h1>
-      <div className='test__cow-wrapper'>
-        <svg
-          width='100vw'
-          height='100vh'
-          viewBox='0 0 100 100'
-          className='test__svg-arc'>
-          <path
-            d='m 68.1,44.1
-c 0,2.21 -1.79,4 -4,4 -1.52,0 -2.85,-0.85 -3.52,-2.1 -0.31,-0.56 -0.48,-1.21 -0.48,-1.9 0,-2.21 1.79,-4 4,-4 1.43,0 2.68,0.75 3.39,1.87 0.39,0.62 0.61,1.35 0.61,2.13
-z'>
-            {/* <animate
-              id='eye_testt'
-              attributeType='XML'
-              attributeName='d'
-              dur='3s'
-              begin='click'
-              fill='freeze'
-              values='m 68.1,44.1
-c 0,0.04 -1.77,0.13 -3.98,0.13 -2.21,0 -4.02,-0.09 -4.02,-0.13 0,-0.03 1.82,0.11 4.02,0.11 2.21,0 3.98,-0.15 3.98,-0.11
-z;
-
-m 68.1,44.1
-c 0,2.21 -1.79,4 -4,4 -2.21,0 -4,-1.79 -4,-4 0,-2.21 1.84,-4 4.04,-4 2.21,0 3.96,1.79 3.96,4
-z
-
-
-'></animate>
-            <animate
-              attributeType='XML'
-              attributeName='d'
-              dur='3s'
-              begin='eye_testt.end+2s'
-              fill='freeze'
-              values='m 68.1,44.1
-c 0,2.21 -1.79,4 -4,4 -1.52,0 -2.85,-0.85 -3.52,-2.1 -0.31,-0.56 -0.48,-1.21 -0.48,-1.9 0,-2.21 1.79,-4 4,-4 1.43,0 2.68,0.75 3.39,1.87 0.39,0.62 0.61,1.35 0.61,2.13
-z;
-
-m 68.1,44.1
-c 0,2.21 -1.79,4 -4,4 -1.52,0 -2.85,-0.85 -3.52,-2.1 -0.04,-0.5 0.01,-0.94 0.3,-1.4 0.34,-0.53 2.35,-2.02 3.41,-2.45 1.14,-0.47 2.62,-0.57 3.2,-0.18 0.39,0.62 0.61,1.35 0.61,2.13
-z;
-
-m 68.1,44.1
-c 0,2.21 -1.79,4 -4,4 -1.52,0 -2.85,-0.85 -3.52,-2.1 0.34,-0.27 0.67,-0.47 1.02,-0.68 0.86,-0.52 1.84,-1.09 2.88,-1.69 1.17,-0.67 2.3,-1.28 3.01,-1.66 0.39,0.62 0.61,1.35 0.61,2.13
-z
-'></animate> */}
-            <animate
-              id='eye_testt'
-              attributeType='XML'
-              attributeName='d'
-              dur='3s'
-              begin='click'
-              fill='freeze'
-              values='
-              m 48.1,44.04
-c 0,0.04 -1.77,0.13 -3.98,0.13 -2.21,0 -4.02,-0.09 -4.02,-0.13 0,-0.03 1.82,0.11 4.02,0.11 2.21,0 3.98,-0.15 3.98,-0.11
-z;
-             m 48.1,44.1
-c 0,2.21 -1.79,4 -4,4 -2.21,0 -4,-1.79 -4,-4 0,-2.21 1.84,-4 4.04,-4 2.21,0 3.96,1.79 3.96,4
-z
-
-
-'></animate>
-            <animate
-              attributeType='XML'
-              attributeName='d'
-              dur='1s'
-              begin='eye_testt.end'
-              calcMode='spline'
-              keySplines='0.16, 1, 0.3, 1'
-              keyTimes='0; 1'
-              fill='freeze'
-              values='
-             m 40.1,44.1
-c 0,2.21 1.79,4 4,4 1.52,0 2.85,-0.85 3.52,-2.1 0.31,-0.56 0.48,-1.21 0.48,-1.9 0,-2.21 -1.79,-4 -4,-4 -1.43,0 -2.68,0.75 -3.39,1.87 -0.39,0.62 -0.61,1.35 -0.61,2.13
-z;
-        
-m 40.1,44.1
-c 0,2.21 1.79,4 4,4 1.52,0 2.85,-0.85 3.52,-2.1 -0.34,-0.27 -0.67,-0.47 -1.02,-0.68 -0.86,-0.52 -1.84,-1.09 -2.88,-1.69 -1.17,-0.67 -2.3,-1.28 -3.01,-1.66 -0.39,0.62 -0.61,1.35 -0.61,2.13
-z;
-
-
-'></animate>
-          </path>
-        </svg>
-      </div>
       <p>hello paragraph</p>
     </div>
   );

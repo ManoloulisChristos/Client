@@ -65,7 +65,7 @@
   &__curved-3d {
     display: inline-block;
     perspective: 500px;
-    opacity: 1;
+    opacity: 0;
 
     offset-path: ellipse(55vmin 35vmin at center 45vmin);
 
@@ -172,32 +172,6 @@
       &-4 {
         transform: translateX(-50%) rotateY(90deg) scaleY(0.95);
       }
-
-      // animation: test-opacityleft 1000ms infinite linear;
-
-      // @keyframes test-opacityleft {
-      //   0% {
-      //     opacity: 0;
-      //   }
-
-      //   22% {
-      //     opacity: 0;
-      //   }
-      //   23% {
-      //     opacity: 1;
-      //   }
-
-      //   26% {
-      //     opacity: 1;
-      //   }
-      //   27% {
-      //     opacity: 0;
-      //   }
-
-      //   100% {
-      //     opacity: 0;
-      //   }
-      // }
     }
 
     &--right {
@@ -216,61 +190,28 @@
       &-4 {
         transform: translateX(50%) rotateY(270deg) scaleY(0.95);
       }
-
-      // animation: test-opacity 1000ms infinite linear;
-
-      // @keyframes test-opacity {
-      //   0% {
-      //     opacity: 0;
-      //   }
-
-      //   72% {
-      //     opacity: 0;
-      //   }
-
-      //   73% {
-      //     opacity: 1;
-      //   }
-
-      //   76% {
-      //     opacity: 1;
-      //   }
-      //   77% {
-      //     opacity: 0;
-      //   }
-
-      //   100% {
-      //     opacity: 0;
-      //   }
-      // }
     }
   }
 
   &__main-svg-container {
-    display: block;
+    display: grid;
+    grid: [stack-row] 1fr / [stack-column] 1fr;
     position: relative;
-    perspective: 500px;
-    width: 55vmin;
+    opacity: 1;
+    z-index: 2;
+    offset-rotate: 0deg;
+
+    // Landscape
+    width: 35vmin;
     // Portrait
     @media (max-aspect-ratio: 1 / 1) {
-      // width: 25vmax;
-      width: 55vmin;
+      width: 25vmax;
+      // width: 55vmin;
       // Tablets 600px
       @media (min-width: 37.5em) {
         // width: 28vmax;
         width: 37.4vmin;
       }
-    }
-    offset-rotate: 0deg;
-    opacity: 1;
-    z-index: 2;
-
-    .cow-wrapper {
-      opacity: 1;
-    }
-
-    .star-circle {
-      opacity: 0;
     }
 
     ////// Enable for testing ///////
@@ -324,42 +265,72 @@
     //   }
     // }
   }
+  &__svg-star {
+    // display: none;
+    grid-area: stack-row / stack-column;
+    width: 100%;
+    height: 100%;
+    align-self: center;
+    justify-self: center;
+  }
+  &__svg-cow {
+    display: none;
+    z-index: -2;
+    grid-area: stack-row / stack-column;
+    align-self: center;
+    justify-self: center;
+    width: 25vmax;
+    position: absolute;
+    opacity: 1;
+    animation: test-cow-up 2s linear;
+    @keyframes test-cow-up {
+      0% {
+        transform: perspective(500px) scale(0.5) translateZ(-200px)
+          rotateX(50deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+        transform: perspective(500px) scale(1) translateZ(-160px) rotateX(40deg);
+      }
+      to {
+        transform: perspective(500px) translateZ(0px) rotateX(0deg);
+      }
+    }
+  }
+
+  .test-mouth-bottom {
+    transform-style: center;
+    transform-box: fill-box;
+    transform: translateY(55px);
+    transition: transform 1s;
+  }
 
   &__svg-turbulance {
-    display: none;
+    // display: none;
+
+    grid-area: stack-row / stack-column;
+    align-self: center;
+    justify-self: center;
     z-index: -1;
     position: absolute;
-    inset: 0 0 0 0;
-    filter: blur(6px);
-    perspective: 500px;
-    transform: translateZ(200px) rotateX(-35deg) scale(0.2, 1) skew(0deg, 60deg)
-      rotateZ(-60deg);
-    // animation: crashTheGlass 2.5s linear forwards;
-    // @keyframes crashTheGlass {
-    //   0% {
-    //     transform: translateZ(0px) rotateX(0deg);
-    //   }
 
-    //   70% {
-    //     transform: translateZ(-450px) rotateX(0deg);
-    //   }
-
-    //   75% {
-    //     transform: translateZ(-500px) rotateX(-35deg);
-    //   }
-
-    //   85% {
-    //     transform: translateZ(0px) rotateX(-35deg);
-    //   }
-
-    //   100% {
-    //     transform: translateZ(200px) rotateX(-35deg);
-    //   }
-    // }
+    &[data-blur='true'] {
+      filter: blur(6px);
+    }
+    &[data-blur='false'] {
+      filter: none;
+    }
   }
 
   &__svg-glass-container {
-    // display: none;
+    // &[data-display='true'] {
+    //   display: initial;
+    // }
+    // &[data-display='false'] {
+    //   display: none;
+    // }
+
     position: absolute;
     z-index: 3;
     width: 100%;

@@ -28,7 +28,7 @@ const ErrorBoundary = ({ children }) => {
   return (
     <>
       {import.meta.env.DEV ? (
-        <ErrorBoundaryClass children={children} />
+        <ErrorBoundaryClass>{children}</ErrorBoundaryClass>
       ) : (
         children
       )}

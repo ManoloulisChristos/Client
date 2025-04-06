@@ -1,0 +1,10 @@
+2 fill forwards τα οποια θέλουν commit
+containerOptions > opacity
+boxEndingAnimations > translateY
+
+
+
+
+
+
+

@@ -70,3 +70,10 @@ Includes: only the string: MOVIES (no spacing)
 
 Usage: its only used for the Home component for the letter animation
 Command:  pyftsubset "src/fonts/original/inter-tight-v7-latin-700.woff2" --output-file="src/fonts/subset/inter-tight-subset2-v7-latin-700.woff2" --layout-features=ccmp,locl,mark,mkmk,kern --unicodes=U+004D,U+004F,U+0056,U+0049,U+0045,U+0053
+
+>>Creepster-400<<
+
+Includes: only the string: VIBECODING (no spacing)
+
+Usage: its only used for the Home component for the svg turbulence <text>
+Command:  pyftsubset "src/fonts/original/creepster-v13-latin-regular.woff2" --output-file="src/fonts/subset/creepster-v13-latin-regular.woff2" --layout-features=ccmp,locl,mark,mkmk,kern --unicodes=U+0042,U+0043,U+0044,U+0045,U+0047,U+0049,U+004E,U+004F,U+0056
