@@ -2,9 +2,33 @@
 containerOptions > opacity
 boxEndingAnimations > translateY
 
+blur<<<<<
+set classes for glass<<<<
+be carefull of commit styles when canceling animations
+
+
+2 reasons for not playing animation > motion NOT ok & animation has already been played
+i can cancel the anikmations inside the observer and have either on the starting state or at the ending state.
+I have to manage both the starting state and the ending state!!!! for all of the affected elements.
 
 
 
 
 
+  // when i hit the play() method the start time is currently null when i log so maybe it needs some time,
+  // if i set the current time before i hit play when the play() is called it sets it to 0 so i get no delay
+  // but if i change after play it adds a delay normaly and the startTime gets updated like
+  // startTime = document.timeline.currentTime - currentTime
+  // If i set the current time to a + value the startTime is set that +time before the documents currentTime
+  // If i set it to - the start time is set after the documents current time
 
+  // IN the svg if i dont set explicit units like px vh vw in the container the % values of the svg do not respect it and only the width gets applied
+  // and the height follows to make it a square due to the viewbox;
+  // IF!!!! i set a viewbox to the outermost svg it keeps things in check and the preserve aspect ratio does not work as intended
+  //  for the inner elements
+  // And when the inner svg dimensions althought it has an implicit width of 100% , the dimensions are in fact
+  // the dimensions of its biggest element.
+  // so the circle defines what the dimensions are for the entire svg
+  // otherwise it would show its full size and the circle would just be positioned inside it
+  // but it does not show any size other than the biggest element......
+  // This is shown only the chromium dev tools firefox shows it as it should
