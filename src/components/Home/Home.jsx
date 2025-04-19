@@ -26,8 +26,10 @@ import '../../styles/Home.scss';
 
 let initialProtrusion = 21;
 let initialAspectRatioOver = true;
-let initialMaxWidthOver600 = true;
+let initialPortraitAndWidthOver600 = true;
 let initialLetterTextStrokeWidth = 4;
+let initialWidthBellow600 = false;
+let initialWidthBellow1200 = false;
 
 if (typeof window !== 'undefined') {
   const vw600 = window.matchMedia('(max-width: 37.5em)').matches;
@@ -43,9 +45,11 @@ if (typeof window !== 'undefined') {
   if (vw600) {
     initialProtrusion = 9;
     initialLetterTextStrokeWidth = 2;
+    initialWidthBellow600 = true;
   } else if (vw1200) {
     initialProtrusion = 13;
     initialLetterTextStrokeWidth = 2;
+    initialWidthBellow1200 = true;
   } else if (vw1920) {
     initialProtrusion = 17;
   } else if (vw2560) {
@@ -66,9 +70,9 @@ if (typeof window !== 'undefined') {
     initialAspectRatioOver = false;
     // Max 600px
     if (vw600) {
-      initialMaxWidthOver600 = false;
+      initialPortraitAndWidthOver600 = false;
     } else {
-      initialMaxWidthOver600 = true;
+      initialPortraitAndWidthOver600 = true;
     }
   }
 }
@@ -120,15 +124,18 @@ const homeSvgGlassPathsArray = [
   'm50.28 49.72-2.31-1.88.16 3.66Z',
 ];
 
+// Provide different rotate3d multipliers based on the glass path position
 const glassRotateX = '-1, 0, .3';
 const glassRotateXZ = '1, 0, .5';
 const glassRotateXNegY = '.5, -1, .5';
 const glassRotateXPosY = '.5, 1, .5';
 
+// Provide a random degree of rotation
 const getRandomDeg = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+  return Math.floor(Math.random() * (max - min + 1) + min); // Get a random number between a range
 };
 
+// Calculate all the glass paths animations once during the initial load of the component.
 const homeGlassKeyframe3dValuesObj = {
   0: {
     translate3d: '-15px,-35px,500px',
@@ -309,19 +316,33 @@ const homeGlassKeyframe3dValuesObj = {
 };
 
 const Home = () => {
+  // Letter relative states based on different viewports
   const [protrusionSize, setProtrusionSize] = useState(initialProtrusion); // Front + Back + Middle letters sum of pixels in depth
-  const [aspectRatioOver, setAspectRatioOver] = useState(
-    initialAspectRatioOver
-  ); // Over 1 / 1 > 1.1, 1.2 etc
-  const [widthOver600, setWidthOver600] = useState(initialMaxWidthOver600);
   const [letterTextStrokeWidth, setLetterTextStrokeWidth] = useState(
     initialLetterTextStrokeWidth
   );
 
+  // Viewport flags for the Star animation offset-path
+  const [aspectRatioOver, setAspectRatioOver] = useState(
+    initialAspectRatioOver
+  ); // Over 1 / 1 > 1.1, 1.2 etc
+
+  const [portraitAndWidthOver600, setPortraitAndWidthOver600] = useState(
+    initialPortraitAndWidthOver600
+  );
+
+  // Viewport flags for the turbulence dissapear animation
+  const [widthBellow600, setWidthBellow600] = useState(initialWidthBellow600);
+  const [widthBellow1200, setWidthBellow1200] = useState(
+    initialWidthBellow1200
+  );
+
+  // Glass3d offset-path class
   const [toggleGlassClassName, setToggleGlassClassName] = useState(
     'home__svg-glass-empty home__svg-glass-empty--'
   );
 
+  const effectRanRef = useRef(false);
   const [canPlayAnimations, setCanPlayAnimations] = useState(false);
   const leftEyeRef = useRef(null);
   const rightEyeRef = useRef(null);
@@ -346,6 +367,15 @@ const Home = () => {
   const mainSvgContainerRef = useRef(null);
   const mainSvgAnimRef = useRef(null);
 
+  // SVG elements
+  const svgStarRef = useRef(null);
+  const svgCowRef = useRef(null);
+  const svgTubulenceRef = useRef(null);
+
+  // Cow Parts
+  const cowEarLeftRef = useRef(null);
+  const cowEarRightRef = useRef(null);
+  const cowMouthBottomRef = useRef(null);
   // Svg animate element for star
   // This starts a series of animate properties that are interconnected with each other
   const starMorphShapeAnimateRef = useRef(null);
@@ -354,7 +384,6 @@ const Home = () => {
   // One eye is connected with the other and the morphing later is happening with a delay based on the starting animation
   const turblulenceEyeAngryAnimateRef = useRef(null);
   const turbulenceClipAnimateRef = useRef(null);
-  const svgTubulenceRef = useRef(null);
 
   // All glass paths
   const glassContainerRef = useRef(null);
@@ -363,7 +392,9 @@ const Home = () => {
 
   // Animate SVG Elements that control the state of all animated svg elements
   const globalEndAnimateRef = useRef(null);
-  const globalResetAnimateRef = useRef(null);
+  const animateGlobalResetRef = useRef(null);
+  const animateGlobalReverseRef = useRef(null);
+  const animateGlobalReverseResetRef = useRef(null);
 
   // Map getter helper function
   const getMap = (ref) => {
@@ -450,22 +481,37 @@ const Home = () => {
         '(pointer: coarse) and (orientation: landscape) and (max-height: 500px)'
       ).matches;
 
+      const viewportBellow_600_1200 = (w600, w1200) => {
+        setWidthBellow600(w600);
+        setWidthBellow1200(w1200);
+      };
+
       // ORDER MATTERS because all the big viewports .matches will be true in smaller viewports
       if (vw600) {
         setProtrusionSize(9);
         setLetterTextStrokeWidth(2);
+
+        viewportBellow_600_1200(true, false);
       } else if (vw1200) {
         setProtrusionSize(13);
         setLetterTextStrokeWidth(2);
+
+        viewportBellow_600_1200(false, true);
       } else if (vw1920) {
         setProtrusionSize(17);
         setLetterTextStrokeWidth(4);
+
+        viewportBellow_600_1200(false, false);
       } else if (vw2560) {
         setProtrusionSize(21);
         setLetterTextStrokeWidth(4);
+
+        viewportBellow_600_1200(false, false);
       } else if (allElse) {
         setProtrusionSize(25);
         setLetterTextStrokeWidth(4);
+
+        viewportBellow_600_1200(false, false);
       }
 
       // Phone landscape mode
@@ -481,9 +527,9 @@ const Home = () => {
         setAspectRatioOver(false);
         // Max 600px
         if (vw600) {
-          setWidthOver600(false);
+          setPortraitAndWidthOver600(false);
         } else {
-          setWidthOver600(true);
+          setPortraitAndWidthOver600(true);
         }
       }
     };
@@ -500,6 +546,7 @@ const Home = () => {
     const observer = new ResizeObserver((entries) => {
       // Populate Map with letter / container references
       const lettersAndContainersMap = new Map();
+      console.log('resize');
       frontNodesRef.current.forEach((val, key) =>
         lettersAndContainersMap.set(val, containersRef.current.get(key))
       );
@@ -967,17 +1014,72 @@ const Home = () => {
     },
     // Used along with the clipPath animate from turbulence
     turbulenceDisappear: {
+      keyframesFn: (maxWidth600, maxWidth1200) => {
+        // based on the viewport width i need to provide different values for translateY in px
+        // in order for the shadow to go into the cows mouth
+        // the cow and the shadow change size via CSS based on different viewport sizes
+        let y = 1000;
+        if (maxWidth600) {
+          y = 400;
+        }
+        if (maxWidth1200) {
+          y = 700;
+        }
+        console.log('y', y);
+        return [
+          {
+            transform:
+              'perspective(500px) translateZ(200px) rotateX(-55deg) translateY(0px)',
+          },
+          {
+            transform: `perspective(500px) translateZ(-1000px) rotateX(-55deg) translateY(${y}px) translateX(50px)`,
+          },
+        ];
+      },
+      options: { duration: 1000 },
+    },
+    cowAppear: {
       keyframes: [
         {
           transform:
-            'perspective(500px) translateZ(200px) rotateX(-55deg) translateY(0px)',
+            'perspective(500px) scale(0.1) translateZ(-200px) rotateX(25deg)',
+          opacity: '0',
+          offset: 0,
+        },
+        {
+          opacity: '1',
+          offset: 0.2,
         },
         {
           transform:
-            'perspective(500px) translateZ(-1000px) rotateX(-55deg) translateY(1000px) translateX(50px)',
+            ' perspective(500px) scale(1) translateZ(0px) rotateX(0deg)',
+          opacity: '1',
         },
       ],
-      options: { duration: 1000 },
+      options: { duration: 600, fill: 'forwards' },
+    },
+    cowEarFlap: {
+      keyframes: [
+        {
+          transform: 'rotateY(0deg)',
+        },
+        {
+          transform: 'rotateY(55deg)',
+        },
+      ],
+
+      options: { duration: 50, iterations: 42, direction: 'alternate' },
+    },
+    cowMouthCloseNeutral: {
+      keyframes: [
+        {
+          transform: 'translateY(55px)',
+        },
+        {
+          transform: 'translateY(0px)',
+        },
+      ],
+      options: { duration: 1000, fill: 'forwards' },
     },
   };
 
@@ -1020,805 +1122,407 @@ const Home = () => {
     // localStorage.setItem('home-animation-ran', false);
     //Check if animations can be played
     // Normal animations start here.
-    //eslint-disable-next-line
-    if (true) {
-      // Animates all letters and returns the letter "S" animation
-      const letterEntranceAnimations = () => {
-        // star is running through the letters from 0% to 35% in its animation and the total duration is 6500ms
-        // 35% of 6500 = 2275ms
-        // 2275 / 7 (letters) = 325ms
-        // the letters are offsetted equally 5% from each other and the star begins its animation 5% away from
-        // the first letter
-        const delayConstant = 325;
 
-        let letter_S_animation = null;
+    ////////////////// How to reset SMIL Animations /////////////////
+    // Based on the Smill animations spec, all the animate timing functions e.g begin, whether they are defined
+    // as a sync-based or event-based or time relative value with or without a time offset defines that:
+    // IF the time value can be calculated (resolved) it will be written down in the container timeline and cannot be changed
+    // An exception to this is the value indefinite which is not resolvable until the beginElement() gets triggered
+    // Bottom line is that if a time value gets resolved it is written down and cannot be changed.
+    // So if i want to restart the animations or set some global-reset animate element which triggers other animate elements
+    //  that reset the state of all the elements i care about, there is a chance that some time values that have already been written
+    //   from the previously resolved sync-base values are defined to be played later in the timeline and even if i reset all my elements
+    // those previously defined animations will be played nonetheless replacing everything that got reseted to their own values.
 
-        // Iterate over all letters and add iterations based on the letter and delay based on the order of the letter.
-        for (let i = 0; i <= 6; i++) {
-          // Left
-          // Change the opacity of the letter "I" on the left side on apropriate timings.
-          const leftAnimation = getMap(leftNodesRef)
-            .get(i)
-            .animate(
-              letterAnimationArgs.leftSide.keyframes,
-              letterAnimationArgs.leftSide.options
-            );
+    // I can proggramatically change the dur of each object so i end its play state
+    // or end each animation seperatly with an endElement() but that would require to access each animate element seperatly.
+    // There are also some other options but there are limitations and a complexity that does not worth the investment.
+    // Closed-cycles, the animation-sandwitch-model and the timeline that cannot be re-written (except if i remove the SVG element
+    //  from the DOM and re-create it) are reasons to avoid implementing something that ends the animations with the end attribute
+    // or some other way.
 
-          leftAnimation.effect.updateTiming({
-            delay: delayConstant * (i + 1),
-            iterations: letterAnimationArgs.differentiateIterationsFn(i),
-          });
+    // The easiest solution is to set the current time (setCurrentTime())of the SVG element itself which controls the timeline
+    //  that affects all the animate elements and set it some distance into the future where all of the animate elements would
+    // have finished their animation duration. Afterwards it is safe to reset the state of all elements into a starting position
+    //  in order to replace the frozen animation and be ready to replay them.
 
-          // Light
-          // Change the opacity of the letter "I" on the right side on apropriate timings.
-          const rightAnimation = getMap(rightNodesRef)
-            .get(i)
-            .animate(
-              letterAnimationArgs.rightSide.keyframes,
-              letterAnimationArgs.rightSide.options
-            );
-          rightAnimation.pause();
-          rightAnimation.effect.updateTiming({
-            delay: delayConstant * (i + 1),
-            iterations: letterAnimationArgs.differentiateIterationsFn(i),
-          });
+    // Reset SVG container timmers and set all relative animations into their starting states
+    glassContainerRef.current.dataset.display = 'true';
+    setToggleGlassClassName(glass3dAnimationArgs.strokeState.empty);
+    const svgStar = svgStarRef.current;
+    const svgTurbulence = svgTubulenceRef.current;
+    const starCurrTime = svgStar.getCurrentTime();
+    const turblulenceCurrTime = svgTurbulence.getCurrentTime();
+    svgStar.setCurrentTime(starCurrTime + 60);
+    svgTurbulence.setCurrentTime(turblulenceCurrTime + 60);
+    animateGlobalResetRef.current.beginElement();
+    ////////////////////////////////////////////////////////////////////////////
+    // Animates all letters and returns the letter "S" animation
+    const letterEntranceAnimations = () => {
+      // star is running through the letters from 0% to 35% in its animation and the total duration is 6500ms
+      // 35% of 6500 = 2275ms
+      // 2275 / 7 (letters) = 325ms
+      // the letters are offsetted equally 5% from each other and the star begins its animation 5% away from
+      // the first letter
+      const delayConstant = 325;
 
-          // Box
-          // Rotate the box that wraps around the letters and set it on its original position on the Z-axis.
-          const boxAnimation = getMap(boxesRef)
-            .get(i)
-            .animate(
-              letterAnimationArgs.boxEntrance.keyframesFn(protrusionSize),
-              letterAnimationArgs.boxEntrance.options
-            );
+      let letter_S_animation = null;
 
-          boxAnimation.effect.updateTiming({
-            delay: delayConstant * (i + 1),
-            iterations: letterAnimationArgs.differentiateIterationsFn(i),
-          });
+      // Iterate over all letters and add iterations based on the letter and delay based on the order of the letter.
+      for (let i = 0; i <= 6; i++) {
+        // Left
+        // Change the opacity of the letter "I" on the left side on apropriate timings.
+        const leftAnimation = getMap(leftNodesRef)
+          .get(i)
+          .animate(
+            letterAnimationArgs.leftSide.keyframes,
+            letterAnimationArgs.leftSide.options
+          );
 
-          // Get the "S" animation
-          if (i === 6) {
-            letter_S_animation = boxAnimation;
-          }
+        leftAnimation.effect.updateTiming({
+          delay: delayConstant * (i + 1),
+          iterations: letterAnimationArgs.differentiateIterationsFn(i),
+        });
 
-          // Container
-          // Scale the whole container and change its opacity with a delay when the star passes by each letter
-          // Opacity must be changed here to satisfy the 3d animation rules of CSS.
-          const containerAnimation = getMap(containersRef)
-            .get(i)
-            .animate(
-              letterAnimationArgs.container.keyframes,
-              letterAnimationArgs.container.options
-            );
-          containerAnimation.effect.updateTiming({
-            delay: delayConstant * (i + 1),
-          });
+        // Right
+        // Change the opacity of the letter "I" on the right side on apropriate timings.
+        const rightAnimation = getMap(rightNodesRef)
+          .get(i)
+          .animate(
+            letterAnimationArgs.rightSide.keyframes,
+            letterAnimationArgs.rightSide.options
+          );
+
+        rightAnimation.effect.updateTiming({
+          delay: delayConstant * (i + 1),
+          iterations: letterAnimationArgs.differentiateIterationsFn(i),
+        });
+
+        // Box
+        // Rotate the box that wraps around the letters and set it on its original position on the Z-axis.
+        const boxAnimation = getMap(boxesRef)
+          .get(i)
+          .animate(
+            letterAnimationArgs.boxEntrance.keyframesFn(protrusionSize),
+            letterAnimationArgs.boxEntrance.options
+          );
+
+        boxAnimation.effect.updateTiming({
+          delay: delayConstant * (i + 1),
+          iterations: letterAnimationArgs.differentiateIterationsFn(i),
+        });
+
+        // Get the "S" animation
+        if (i === 6) {
+          letter_S_animation = boxAnimation;
         }
 
-        return letter_S_animation;
+        // Container
+        // Scale the whole container and change its opacity with a delay when the star passes by each letter
+        // Opacity must be changed here to satisfy the 3d animation rules of CSS.
+        const containerAnimation = getMap(containersRef)
+          .get(i)
+          .animate(
+            letterAnimationArgs.container.keyframes,
+            letterAnimationArgs.container.options
+          );
+        containerAnimation.effect.updateTiming({
+          delay: delayConstant * (i + 1),
+        });
+      }
+
+      return letter_S_animation;
+    };
+
+    ////////////// BUG //////////////
+    // >>>>This<<<< bugs out the star animation when the ending animations are getting attached.
+    // I am running at 170hz screen, in the performance tab because the star is animating the offset and offset-distance
+    // properties which are going in the main-thread, every tick for animating them is about 2.17ms total.
+
+    // When the letterEnding animation function starts it takes 4.77ms to complete, and then i have another
+    // task at 2.17ms that is from the star(propably...), so the star is running again but then i get 6 concurent dropped frames,
+    // and no tasks are running in those, so i dont know why those frames are getting dropped and why the star animation stutters
+    // since everything that gets animated from the letters goes to the compositor.
+
+    //  I tried the requestAnimtionFrame() with the for loop and it alleviates it somehow but does not fix it.
+    // Recursive requestAnimtionFrame() does the trick thought(almost), but the animations are created in seperate frames and maybe if the
+    // refresh rate is less than mine like 60 fps the effect will be visible because the requestAnimationFrame() will fire
+    // in bigger timing intervals.
+    // So i will add delay dynamicaly with animation.currentTime, based on the timing of each frame concurently to each letter.
+
+    /// Results ///
+    // Logging the computedTiming throughout the animation everything works well BUT letters 2 and 3
+    // are lagging behind 6ms from all other letters, while all the others are giving the same localTime value.
+    // Tested with performance.now() and all works as excepted.
+    // I dont know the reason for that happening and its weird behaviour...
+    let countIteretions = 0;
+    let initialFrameTime = 0;
+    const endingAnimationDelay = 500;
+    // RAF
+    const letterEndingAnimations = (time) => {
+      // >>>>This bugs out the star <<<<
+
+      //   for (let i = 0; i <= 6; i++) {
+      //     const boxAnimation = boxesMap
+      //       .get(i)
+      //       .animate(lettersBoxEndingKeyframes, lettersBoxEndingOptions);
+      //     boxEndingAnimMap.set(i, boxAnimation);
+      //     commitStyles(boxAnimation);
+      //   }
+
+      const commitStyles = async (animation) => {
+        await animation.finished;
+        animation.commitStyles();
+        animation.cancel();
       };
 
-      ////////////// BUG //////////////
-      // >>>>This<<<< bugs out the star animation when the ending animations are getting attached.
-      // I am running at 170hz screen, in the performance tab because the star is animating the offset and offset-distance
-      // properties which are going in the main-thread, every tick for animating them is about 2.17ms total.
+      if (countIteretions === 0) {
+        initialFrameTime = time;
+      }
 
-      // When the letterEnding animation function starts it takes 4.77ms to complete, and then i have another
-      // task at 2.17ms that is from the star(propably...), so the star is running again but then i get 6 concurent dropped frames,
-      // and no tasks are running in those, so i dont know why those frames are getting dropped and why the star animation stutters
-      // since everything that gets animated from the letters goes to the compositor.
+      const frameTimeDiff = time - initialFrameTime;
+      const computedDelay = Math.round(endingAnimationDelay - frameTimeDiff); // Must be added as a negative value to currentTime
 
-      //  I tried the requestAnimtionFrame() with the for loop and it alleviates it somehow but does not fix it.
-      // Recursive requestAnimtionFrame() does the trick thought(almost), but the animations are created in seperate frames and maybe if the
-      // refresh rate is less than mine like 60 fps the effect will be visible because the requestAnimationFrame() will fire
-      // in bigger timing intervals.
-      // So i will add delay dynamicaly with animation.currentTime, based on the timing of each frame concurently to each letter.
+      if (countIteretions < 6) {
+        const boxAnimation = getMap(boxesRef)
+          .get(countIteretions)
+          .animate(
+            letterAnimationArgs.boxEnding.keyframesFn(protrusionSize),
+            letterAnimationArgs.boxEnding.options
+          );
+        boxAnimation.currentTime = -computedDelay;
 
-      /// Results ///
-      // Logging the computedTiming throughout the animation everything works well BUT letters 2 and 3
-      // are lagging behind 6ms from all other letters, while all the others are giving the same localTime value.
-      // Tested with performance.now() and all works as excepted.
-      // I dont know the reason for that happening and its weird behaviour...
-      let countIteretions = 0;
-      let initialFrameTime = 0;
-      const endingAnimationDelay = 500;
-      // RAF
-      const letterEndingAnimations = (time) => {
-        // >>>>This bugs out the star <<<<
+        // commitStyles(boxAnimation);
+        countIteretions++;
+        requestAnimationFrame(letterEndingAnimations);
+      } else {
+        const boxAnimation = getMap(boxesRef)
+          .get(6)
+          .animate(
+            letterAnimationArgs.boxEnding.keyframesFn(protrusionSize),
+            letterAnimationArgs.boxEnding.options
+          );
 
-        //   for (let i = 0; i <= 6; i++) {
-        //     const boxAnimation = boxesMap
-        //       .get(i)
-        //       .animate(lettersBoxEndingKeyframes, lettersBoxEndingOptions);
-        //     boxEndingAnimMap.set(i, boxAnimation);
-        //     commitStyles(boxAnimation);
-        //   }
+        boxAnimation.currentTime = -computedDelay;
+        // commitStyles(boxAnimation);
+      }
+    };
 
-        const commitStyles = async (animation) => {
-          await animation.finished;
-          animation.commitStyles();
-          animation.cancel();
+    // Animate the mainSvgContainer (star) and return the animation
+    const mainSvgAnimation = () => {
+      // Landscape Desktop
+      let keyframes = svgAnimationArgs.containerDesktop.keyframes;
+      let options = svgAnimationArgs.containerDesktop.options;
+      if (!aspectRatioOver) {
+        //  Portrait & Tablet
+        if (portraitAndWidthOver600) {
+          keyframes = svgAnimationArgs.containerPortraitTablet.keyframes;
+          options = svgAnimationArgs.containerPortraitTablet.options;
+        } else {
+          // Phone
+          keyframes = svgAnimationArgs.containerPhone.keyframes;
+          options = svgAnimationArgs.containerPhone.options;
+        }
+      }
+      const animation = mainSvgContainerRef.current.animate(keyframes, options);
+      return animation;
+    };
+    // Variables for holding the callbacks of the nested listeners
+    // And also used as flags in the cleanup of the effect to remove the listener itself
+    // if the variables holds a value.
+    let path10TransitionEndCallback = null;
+    let path4TransitionEndCallback = null;
+    // All elements that listeners attach to
+    const path10 = getMap(glassPathsRef).get(10);
+    const path4 = getMap(glassPathsRef).get(4);
+    const turbulenceEyeAngryAnimate = turblulenceEyeAngryAnimateRef.current;
+
+    //// 3 eventListeners nested one after the other ///
+
+    // wait for the eyes to "to get angry"
+    // wait for last path(10) of the glass cracking to end
+    // wait for middlepoint path(4) to end the cracking and begin animating the turbulence backwards
+
+    // The two nested listeners have the flag once:'true' because they cant distinguish the half point
+    // and the full point of the transition so if they are normally attached they retrigger when both transitions end.
+    const turbulenceAngryEyeListenerCallback = () => {
+      // After the eyes get angry begin the strokedash-offset transition to half
+      setToggleGlassClassName(
+        'home__svg-glass-transition-half home__svg-glass-transition-half--'
+      );
+
+      //  Path 10 is the last one transitioning
+      //  Wait for the transition to end (half-point)
+      path10TransitionEndCallback = () => {
+        // Begin the full strokedash-offset transition
+        setToggleGlassClassName(
+          'home__svg-glass-transition-full home__svg-glass-transition-full--'
+        );
+
+        // Wait for the transition of path 4 to end this is almost midway of all the paths
+        // that are transitioning
+        path4TransitionEndCallback = async () => {
+          //  Move the turbulence backwards in the Z-axis, rotate in the Y-axis
+          // then move fast towards the screen and remove the blur when the glass is broken
+          const turbulenceBreakGlassAnim = svgTubulenceRef.current.animate(
+            svgAnimationArgs.turbulenceBreakGlass.keyframes,
+            svgAnimationArgs.turbulenceBreakGlass.options
+          );
+
+          // Glass 3d animation
+          for (let i = 0; i <= 43; i++) {
+            const path = getMap(glassPathsRef).get(i);
+
+            // Move the different paths of the glass svg in the Z-axis and rotate them differently on the X & Y axes
+            // based on their position around the center of the glass with 2500 delay (half of the turbulence breaking the glass)
+            const animation = path.animate(
+              glass3dAnimationArgs.keyframesFn(homeGlassKeyframe3dValuesObj[i]),
+              glass3dAnimationArgs.options
+            );
+
+            // 42 is the one that hits the center of the screen
+            // when it finishes the animation remove the glass display entirely
+            if (i === 42) {
+              animation.onfinish = () => {
+                glassContainerRef.current.dataset.display = 'false';
+              };
+            }
+          }
+
+          // Wait for the glass animation and then start the shaking
+          await turbulenceBreakGlassAnim.finished;
+
+          // Move the svg turbulence on the X and the Y axis with multiple iterations
+          const turbulenceShakeAnimation = svgTubulenceRef.current.animate(
+            svgAnimationArgs.turbulenceShake.keyframes,
+            svgAnimationArgs.turbulenceShake.options
+          );
+
+          // Shaking steps and increased playback rate with each step
+          await turbulenceShakeAnimation.finished;
+
+          turbulenceShakeAnimation.playbackRate = 1.5;
+          turbulenceShakeAnimation.currentTime = 0;
+          turbulenceShakeAnimation.play();
+          await turbulenceShakeAnimation.finished;
+          turbulenceShakeAnimation.playbackRate = 2;
+          turbulenceShakeAnimation.currentTime = 0;
+          turbulenceShakeAnimation.play();
+          await turbulenceShakeAnimation.finished;
+          turbulenceShakeAnimation.playbackRate = 2.5;
+          turbulenceShakeAnimation.currentTime = 0;
+          turbulenceShakeAnimation.play();
+          await turbulenceShakeAnimation.finished;
+
+          // Wait for the shake to end and then make the turbulence disappear
+          // Animate the clip path defined in the svg
+          turbulenceClipAnimateRef.current.beginElement();
+          // Move the turbulence svg back in the Z axis and try to target the cow's mouth by moving it down in Y axis
+          // It creates a bit of overflow when it hits the max point of the animation but its miniscule
+          const turbulenceDissapearAnimation = svgTubulenceRef.current.animate(
+            svgAnimationArgs.turbulenceDisappear.keyframesFn(
+              widthBellow600,
+              widthBellow1200
+            ),
+            svgAnimationArgs.turbulenceDisappear.options
+          );
+
+          // Change the opacity, scale and move the whole svg cow from negative Z-axis to original position
+          const cowAppearAnimation = svgCowRef.current.animate(
+            svgAnimationArgs.cowAppear.keyframes,
+            svgAnimationArgs.cowAppear.options
+          );
+
+          // Animate the ears by rotating them fast in the Y axis with multiple alternate iterations
+          // Each ear has a different transform-origin defined in CSS based on what side it is.
+          cowEarLeftRef.current.animate(
+            svgAnimationArgs.cowEarFlap.keyframes,
+            svgAnimationArgs.cowEarFlap.options
+          );
+          const cowEarFlapAnimation = cowEarRightRef.current.animate(
+            svgAnimationArgs.cowEarFlap.keyframes,
+            svgAnimationArgs.cowEarFlap.options
+          );
+
+          // Wait for the cow to appear
+          await cowAppearAnimation.finished;
+
+          // Move the mouth on the neutral position in the Y-axis
+          cowMouthBottomRef.current.animate(
+            svgAnimationArgs.cowMouthCloseNeutral.keyframes,
+            svgAnimationArgs.cowMouthCloseNeutral.options
+          );
+          // Cow's ear flap is the last animation playing in general
+          await cowEarFlapAnimation.finished;
+          // After all the animations have finished the ones that have the fill:'forwards' flag are persisting.
+          // So the animations need to get canceled and the styles must be commited for better performance.
+          document.getAnimations().forEach((animation) => {
+            animation.commitStyles();
+            animation.cancel();
+          });
+          console.log(document.getAnimations());
         };
 
-        if (countIteretions === 0) {
-          initialFrameTime = time;
-        }
-
-        const frameTimeDiff = time - initialFrameTime;
-        const computedDelay = Math.round(endingAnimationDelay - frameTimeDiff); // Must be added as a negative value to currentTime
-
-        if (countIteretions < 6) {
-          const boxAnimation = getMap(boxesRef)
-            .get(countIteretions)
-            .animate(
-              letterAnimationArgs.boxEnding.keyframesFn(protrusionSize),
-              letterAnimationArgs.boxEnding.options
-            );
-          boxAnimation.currentTime = -computedDelay;
-
-          commitStyles(boxAnimation);
-          countIteretions++;
-          requestAnimationFrame(letterEndingAnimations);
-        } else {
-          const boxAnimation = getMap(boxesRef)
-            .get(6)
-            .animate(
-              letterAnimationArgs.boxEnding.keyframesFn(protrusionSize),
-              letterAnimationArgs.boxEnding.options
-            );
-
-          boxAnimation.currentTime = -computedDelay;
-          commitStyles(boxAnimation);
-        }
+        // 2nd level of depth
+        path4.addEventListener('transitionend', path4TransitionEndCallback, {
+          once: 'true',
+        });
       };
+      // 1rst level of depth
+      path10.addEventListener('transitionend', path10TransitionEndCallback, {
+        once: 'true',
+      });
+    };
 
-      // Animate the mainSvgContainer (star) and return the animation
-      const mainSvgAnimation = () => {
-        // Landscape Desktop
-        let keyframes = svgAnimationArgs.containerDesktop.keyframes;
-        let options = svgAnimationArgs.containerDesktop.options;
-        if (!aspectRatioOver) {
-          //  Portrait & Tablet
-          if (widthOver600) {
-            keyframes = svgAnimationArgs.containerPortraitTablet.keyframes;
-            options = svgAnimationArgs.containerPortraitTablet.options;
-          } else {
-            // Phone
-            keyframes = svgAnimationArgs.containerPhone.keyframes;
-            options = svgAnimationArgs.containerPhone.options;
-          }
-        }
-        const animation = mainSvgContainerRef.current.animate(
-          keyframes,
-          options
-        );
-        return animation;
-      };
+    // Event listener for the end event of the animate elemnt that "makes the eyes angry"
+    turbulenceEyeAngryAnimate.addEventListener(
+      'endEvent',
+      turbulenceAngryEyeListenerCallback
+    );
 
-      // turblulenceEyeAngryAnimateRef.current.onend = () => {
-      //   // After the eyes get angry begin the strokedash-offset transition to half
-      //   setToggleGlassClassName(
-      //     'home__svg-glass-transition-half home__svg-glass-transition-half--'
-      //   );
-      //   //  Path 10 is the last one transitioning
-      //   const path10 = getMap(glassPathsRef).get(10);
-      //   //  Wait for the transition to end (half-point)
-      //   path10.ontransitionend = () => {
-      //     // Begin the full strokedash-offset transition
-      //     setToggleGlassClassName(
-      //       'home__svg-glass-transition-full home__svg-glass-transition-full--'
-      //     );
-      //     // Wait for the transition to end again (full)
-      //     path10.ontransitionend = async () => {
-      //       //  Start the turbulence animation of going back & break the glass
+    const playAllAnimations = async () => {
+      const starAnimation = mainSvgAnimation();
+      const letter_S_animation = letterEntranceAnimations();
+      // Wait for the S to finish the spin and then animate() the ending
+      await letter_S_animation.finished;
+      requestAnimationFrame(letterEndingAnimations);
+      await starAnimation.finished;
+      starMorphShapeAnimateRef.current.beginElement();
+    };
 
-      //       const turbulenceBreakGlassKeyframes = [
-      //         {
-      //           transform: 'perspective(500px) translateZ(0px) rotateX(0deg)',
-      //           filter: 'blur(6px)',
-      //           offset: 0,
-      //         },
-
-      //         {
-      //           transform:
-      //             'perspective(500px) translateZ(-650px) rotateX(0deg)',
-      //           filter: 'blur(6px)',
-      //           offset: 0.35,
-      //         },
-      //         {
-      //           transform:
-      //             'perspective(500px) translateZ(-650px) rotateX(-35deg)',
-      //           offset: 0.375,
-      //           filter: 'blur(6px)',
-      //           easing: 'cubic-bezier(0.7, 0, 0.84, 0)',
-      //         },
-      //         {
-      //           transform: 'perspective(500px) translateZ(0px) rotateX(-35deg)',
-      //           filter: 'blur(0px)',
-      //           offset: 0.5,
-      //         },
-      //         {
-      //           transform:
-      //             'perspective(500px) translateZ(200px) rotateX(-35deg)',
-      //           filter: 'blur(0px)',
-      //           offset: 1,
-      //         },
-      //       ];
-      //       const turbulenceBreakGlassOptions = {
-      //         duration: 5000,
-      //       };
-      //       const turbulenceBreakGlassAnim = svgTubulenceRef.current.animate(
-      //         turbulenceBreakGlassKeyframes,
-      //         turbulenceBreakGlassOptions
-      //       );
-
-      //       // Glass 3d animation
-      //       for (let i = 0; i <= 43; i++) {
-      //         const path = getMap(glassPathsRef).get(i);
-      //         const keyframes = [
-      //           {
-      //             transformOrigin: 'center',
-      //             transformBox: 'fill-box',
-      //             transform:
-      //               'perspective(500px) translate3d(0px, 0px, 0px) rotate3d(0, 0, 0, 0deg)',
-      //           },
-      //           {
-      //             transformOrigin: 'center',
-      //             transformBox: 'fill-box',
-      //             transform: `perspective(500px) translate3d(${homeGlassKeyframe3dValuesObj[i].translate3d}) rotate3d(${homeGlassKeyframe3dValuesObj[i].rotate3d})`,
-      //           },
-      //         ];
-      //         const options = { duration: 2500, delay: 2500 };
-
-      //         const animation = path.animate(keyframes, options);
-      //         if (i === 42) {
-      //           animation.onfinish = (e) => {
-      //             glassContainerRef.current.dataset.display = 'false';
-      //           };
-      //         }
-      //       }
-
-      //       await turbulenceBreakGlassAnim.finished;
-      //       // Wait for the glass animation and then start the shaking
-      //       const turbulenceShakeKeyframes = [
-      //         {
-      //           transform:
-      //             'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(0px) translateY(0px)',
-      //           filter: 'blur(0px)',
-      //           offset: 0,
-      //         },
-      //         {
-      //           transform:
-      //             'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(-10px) translateY(5px)',
-      //           filter: 'blur(0px)',
-      //           offset: 0.25,
-      //         },
-      //         {
-      //           transform:
-      //             'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(0px) translateY(0px)',
-      //           filter: 'blur(0px)',
-      //           offset: 0.5,
-      //         },
-      //         {
-      //           transform:
-      //             'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(10px) translateY(5px)',
-      //           filter: 'blur(0px)',
-      //           offset: 0.75,
-      //         },
-      //         {
-      //           transform:
-      //             'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(0px) translateY(0px)',
-      //           filter: 'blur(0px)',
-      //           offset: 1,
-      //         },
-      //       ];
-      //       const turbulenceShakeOptions = {
-      //         duration: 250,
-      //         iterations: 5,
-      //       };
-      //       const turbulenceGrabbedAnimation = svgTubulenceRef.current.animate(
-      //         turbulenceShakeKeyframes,
-      //         turbulenceShakeOptions
-      //       );
-
-      //       // Shaking steps and increased playback rate with each step
-      //       await turbulenceGrabbedAnimation.finished;
-      //       turbulenceGrabbedAnimation.effect.updateTiming({ iterations: 10 });
-      //       turbulenceGrabbedAnimation.playbackRate = 1.5;
-      //       turbulenceGrabbedAnimation.currentTime = 0;
-      //       turbulenceGrabbedAnimation.play();
-      //       await turbulenceGrabbedAnimation.finished;
-      //       turbulenceGrabbedAnimation.playbackRate = 2;
-      //       turbulenceGrabbedAnimation.currentTime = 0;
-      //       turbulenceGrabbedAnimation.play();
-      //       await turbulenceGrabbedAnimation.finished;
-      //       turbulenceGrabbedAnimation.playbackRate = 2.5;
-      //       turbulenceGrabbedAnimation.currentTime = 0;
-      //       turbulenceGrabbedAnimation.play();
-      //       await turbulenceGrabbedAnimation.finished;
-      //       // Wait for the shake to end and then make the turbulence disappear
-      //       turbulenceClipAnimateRef.current.beginElement();
-      //       const turbulenceDisappearAnimation =
-      //         svgTubulenceRef.current.animate(
-      //           [
-      //             {
-      //               transform:
-      //                 'perspective(500px) translateZ(200px) rotateX(-55deg) translateY(0px)',
-      //             },
-      //             {
-      //               transform:
-      //                 'perspective(500px) translateZ(-1000px) rotateX(-55deg) translateY(1000px) translateX(50px)',
-      //             },
-      //           ],
-      //           { duration: 1000 }
-      //         );
-      //     };
-      //   };
-      // };
-
-      const playAllAnimations = async () => {
-        // const starAnimation = mainSvgAnimation();
-        // const letter_S_animation = letterEntranceAnimations();
-        // // Wait for the S to finish the spin and then animate() the ending
-        // await letter_S_animation.finished;
-        // requestAnimationFrame(letterEndingAnimations);
-        // await starAnimation.finished;
-        // starMorphShapeAnimateRef.current.beginElement();
-      };
-      playAllAnimations();
-    }
+    playAllAnimations();
+    const homeArticle = homeRef.current;
 
     return () => {
-      //   const animations = document.getAnimations();
-      //   console.log(typeof animations);
-      //   if (animations) {
-      //     console.log(homeRef.current.contains(animations[2].effect.target));
-      //     console.log(homeRef.current.contains(animations[0].effect.target));
-      //     console.log(homeRef.current.contains(animations[10].effect.target));
-      //   }
+      turbulenceEyeAngryAnimate.removeEventListener(
+        'endEvent',
+        turbulenceAngryEyeListenerCallback
+      );
+      if (path10TransitionEndCallback) {
+        path10.removeEventListener(
+          'transitionend',
+          path10TransitionEndCallback,
+          {
+            once: 'true',
+          }
+        );
+      }
+      if (path4TransitionEndCallback) {
+        path4.removeEventListener('transitionend', path4TransitionEndCallback, {
+          once: 'true',
+        });
+      }
+
+      document.getAnimations().forEach((animation) => {
+        if (homeArticle.contains(animation.effect.target)) {
+          animation.cancel();
+        }
+      });
     };
-  }, [aspectRatioOver, protrusionSize, widthOver600]);
-
-  // useLayoutEffect(() => {
-  //   //REVERSE ON TOP
-  //   // Check if i can play the animations or the animations have already been played.
-  //   if (!canPlayAnimations) {
-  //     return;
-  //   }
-  //   // Letter keyframeEffect + options
-  //   const lettersLeftSideKeyframes = [
-  //     { opacity: 0, offset: 0 },
-  //     { opacity: 0, offset: 0.22 },
-  //     { opacity: 1, offset: 0.23 },
-  //     { opacity: 1, offset: 0.26 },
-  //     { opacity: 0, offset: 0.27 },
-  //     { opacity: 0, offset: 1 },
-  //   ];
-
-  //   const lettersRightSideKeyframes = [
-  //     { opacity: 0, offset: 0 },
-  //     { opacity: 0, offset: 0.72 },
-  //     { opacity: 1, offset: 0.73 },
-  //     { opacity: 1, offset: 0.76 },
-  //     { opacity: 0, offset: 0.77 },
-  //     { opacity: 0, offset: 1 },
-  //   ];
-
-  //   const lettersSidesOptions = { duration: 500, iterations: 5 };
-
-  //   // Box
-  //   // the box has a default transform: translateZ(- some pxs) in order to place back the whole scene in its default
-  //   // position and not be zoomed in also i read that it helps in letter anti-aliasing
-  //   const zAxisOriginal = -((protrusionSize - 1) / 2);
-  //   console.log(protrusionSize);
-  //   console.log(zAxisOriginal);
-  //   const lettersBoxEntranceKeyframes = [
-  //     {
-  //       transform: `translateZ(${zAxisOriginal}px) rotateY(0deg)`,
-  //       offset: 0,
-  //     },
-  //     {
-  //       transform: `translateZ(${zAxisOriginal}px) rotateY(180deg)`,
-  //       offset: 0.5,
-  //     },
-  //     {
-  //       transform: `translateZ(${zAxisOriginal}px) rotateY(360deg)`,
-  //       offset: 1,
-  //     },
-  //   ];
-
-  //   const lettersBoxEntranceOptions = { duration: 500, iterations: 5 };
-
-  //   const lettersBoxEndingKeyframes = [
-  //     {
-  //       transform: `translateZ(${zAxisOriginal}px) translateY(0px) rotateX(0deg)`,
-  //       offset: 0,
-  //     },
-  //     {
-  //       transform: `translateZ(${zAxisOriginal}px) translateY(-20px) rotateX(20deg)`,
-  //       offset: 1,
-  //     },
-  //   ];
-
-  //   const lettersBoxEndingOptions = { duration: 1200, fill: 'forwards' };
-
-  //   // Container (scene)
-  //   const letterContainerKeyframes = [
-  //     {
-  //       transform: 'scale(1)',
-  //       opacity: 1,
-  //       offset: 0,
-  //     },
-  //     {
-  //       transform: 'scale(1.5)',
-  //       offset: 0.5,
-  //     },
-  //     {
-  //       transform: 'scale(1)',
-  //       opacity: 1,
-  //       offset: 1,
-  //     },
-  //   ];
-
-  //   const letterContainerOptions = { duration: 500, fill: 'forwards' };
-
-  //   // Svg main container (star)
-
-  //   // Define X,Y and position based on the aspect ratio of the screen
-  //   // X & Y must match the ellispe X & Y of the letters container(3d-scene) applied via CSS.
-
-  //   // Default Landscape screen
-  //   let svgContainerKeyframes = [
-  //     {
-  //       offsetPath: 'ellipse(55vmin 35vmin at center 49vmin)',
-  //       transform: 'rotate(0turn) scale(0.4)',
-  //       offsetDistance: '56%',
-  //       opacity: 1,
-  //       offset: 0,
-  //     },
-  //     {
-  //       offsetPath: 'ellipse(55vmin 35vmin at center 49vmin)',
-  //       transform: 'rotate(3turn) scale(0.4)',
-  //       offsetDistance: '94.5%',
-  //       offset: 0.35,
-  //     },
-
-  //     {
-  //       offsetPath: 'ray(75.5deg sides)',
-  //       offsetDistance: '51.6vmin',
-  //       offset: 0.35001,
-  //     },
-  //     {
-  //       offsetDistance: '20vmin',
-  //       offset: 0.5,
-  //     },
-  //     {
-  //       offsetDistance: '0vmin',
-  //       transform: 'rotate(7turn) scale(0.4)',
-  //       offset: 0.8,
-  //     },
-  //     {
-  //       offsetPath: 'ray(1080deg sides)',
-  //       offsetDistance: '0vmin',
-  //       transform: 'rotate(7turn) scale(1)',
-  //       opacity: 1,
-  //       offset: 1,
-  //     },
-  //   ];
-
-  //   // Portrait
-  //   // In portrait Mode both for phones & tablets the ray must start from the point where the ellipse stops,
-  //   // and make the ray's offset distance smaller kinda linearly in short timings points to keep the animation smooth
-  //   // and also keep the star in the boundaries of the screen.
-  //   if (!aspectRatioOver) {
-  //     //  Portrait & Tablet
-  //     if (widthOver600) {
-  //       svgContainerKeyframes = [
-  //         {
-  //           offsetPath: `ellipse(41vmin 28vmin at center 40vmax)`,
-  //           transform: 'rotate(0turn) scale(0.4)',
-  //           offsetDistance: '54%',
-  //           opacity: 1,
-  //           offset: 0,
-  //         },
-  //         {
-  //           offsetPath: `ellipse(41vmin 28vmin at center 40vmax)`,
-  //           transform: 'rotate(3turn) scale(0.4)',
-  //           offsetDistance: '94.5%',
-  //           offset: 0.35,
-  //         },
-
-  //         {
-  //           offsetPath: `ray(62deg sides)`,
-  //           offsetDistance: `42.5vmin`,
-  //           offset: 0.35001,
-  //         },
-  //         {
-  //           offsetDistance: `39vmin`,
-  //           offset: 0.36,
-  //         },
-  //         {
-  //           offsetDistance: `25vmin`,
-  //           offset: 0.5,
-  //         },
-  //         {
-  //           offsetDistance: '0vmin',
-  //           transform: 'rotate(7turn) scale(0.4)',
-  //           offset: 0.8,
-  //         },
-  //         {
-  //           offsetPath: 'ray(1080deg sides)',
-  //           offsetDistance: '0vmin',
-  //           transform: 'rotate(7turn) scale(1)',
-  //           opacity: 1,
-  //           offset: 1,
-  //         },
-  //       ];
-  //     } else {
-  //       // Portrait & phone
-  //       svgContainerKeyframes = [
-  //         {
-  //           offsetPath: `ellipse(41vmin 33vmin at center 36.5vmax)`,
-  //           transform: 'rotate(0turn) scale(0.4)',
-  //           offsetDistance: '56%',
-  //           opacity: 1,
-  //           offset: 0,
-  //         },
-  //         {
-  //           offsetPath: `ellipse(41vmin 33vmin at center 36.5vmax)`,
-  //           transform: 'rotate(3turn) scale(0.4)',
-  //           offsetDistance: '94.5%',
-  //           offset: 0.35,
-  //         },
-
-  //         {
-  //           offsetPath: `ray(50deg sides)`,
-  //           offsetDistance: `50vmin`,
-  //           offset: 0.35001,
-  //         },
-  //         {
-  //           offsetPath: `ray(65deg sides)`,
-  //           offsetDistance: `45vmin`,
-  //           offset: 0.36,
-  //         },
-  //         {
-  //           offsetDistance: `38vmin`,
-  //           offset: 0.375,
-  //         },
-  //         {
-  //           offsetDistance: `25vmin`,
-  //           offset: 0.5,
-  //         },
-  //         {
-  //           offsetDistance: '0vmin',
-  //           transform: 'rotate(7turn) scale(0.4)',
-  //           offset: 0.8,
-  //         },
-  //         {
-  //           offsetPath: 'ray(1080deg sides)',
-  //           offsetDistance: '0vmin',
-  //           transform: 'rotate(7turn) scale(1)',
-  //           opacity: 1,
-  //           offset: 1,
-  //         },
-  //       ];
-  //     }
-  //   }
-
-  //   const svgContainerOptions = {
-  //     duration: 6500,
-  //   };
-
-  //   // Make each letter rotate(Y) at a different number of iterations for visual effect
-  //   const differentiateIterations = (i) => {
-  //     // i[0 - 6] > M O O V I E S
-  //     // The 3rd and 4rth letter are not animating really well, so i limit the iterations on those (perpendicular angle problem & letter shape)
-  //     let iterations = 1;
-  //     switch (i) {
-  //       case 0:
-  //       case 6:
-  //         // M, S
-  //         iterations = 5;
-  //         break;
-  //       case 1:
-  //       case 4:
-  //         // O(1), I
-  //         iterations = 3;
-  //         break;
-  //       case 2:
-  //       case 3:
-  //         // O(2), V
-  //         iterations = 2;
-  //         break;
-  //       case 5:
-  //         // E
-  //         iterations = 5;
-  //         break;
-  //       default:
-  //         iterations = 1;
-  //     }
-
-  //     return iterations;
-  //   };
-
-  //   // Get Map of all letter relative animations
-  //   // Nodes Ref
-  //   const leftNodesMap = getMap(leftNodesRef);
-  //   const rightNodesMap = getMap(rightNodesRef);
-  //   const boxesMap = getMap(boxesRef);
-  //   const containersMap = getMap(containersRef);
-
-  //   // Animations Ref
-  //   const leftSideAnimMap = getMap(leftSideAnimRef);
-  //   const rightSideAnimMap = getMap(rightSideAnimRef);
-  //   const boxEntranceAnimMap = getMap(boxEnteranceAnimRef);
-  //   const boxEndingAnimMap = getMap(boxEndingAnimRef);
-  //   const containerAnimMap = getMap(containerAnimRef);
-
-  //   const letterEntranceAnimations = () => {
-  //     // star is running through the letters from 0% to 35% in its animation and the total duration is 6500ms
-  //     // 35% of 6500 = 2275ms
-  //     // 2275 / 7 (letters) = 325ms
-  //     // the letters are offsetted equally 5% from each other and the star begins its animation 5% away from
-  //     // the first letter
-  //     const delayConstant = 325;
-
-  //     for (let i = 0; i <= 6; i++) {
-  //       // left
-  //       const leftAnimation = leftNodesMap
-  //         .get(i)
-  //         .animate(lettersLeftSideKeyframes, lettersSidesOptions);
-  //       leftAnimation.pause();
-  //       leftAnimation.effect.updateTiming({
-  //         delay: delayConstant * (i + 1),
-  //         iterations: differentiateIterations(i),
-  //       });
-  //       leftSideAnimMap.set(i, leftAnimation);
-
-  //       // right
-  //       const rightAnimation = rightNodesMap
-  //         .get(i)
-  //         .animate(lettersRightSideKeyframes, lettersSidesOptions);
-  //       rightAnimation.pause();
-  //       rightAnimation.effect.updateTiming({
-  //         delay: delayConstant * (i + 1),
-  //         iterations: differentiateIterations(i),
-  //       });
-  //       rightSideAnimMap.set(i, rightAnimation);
-
-  //       // box
-  //       const boxAnimation = boxesMap
-  //         .get(i)
-  //         .animate(lettersBoxEntranceKeyframes, lettersBoxEntranceOptions);
-  //       boxAnimation.pause();
-  //       boxAnimation.effect.updateTiming({
-  //         delay: delayConstant * (i + 1),
-  //         iterations: differentiateIterations(i),
-  //       });
-  //       boxEntranceAnimMap.set(i, boxAnimation);
-
-  //       // container
-  //       const containerAnimation = containersMap
-  //         .get(i)
-  //         .animate(letterContainerKeyframes, letterContainerOptions);
-  //       containerAnimation.pause();
-  //       containerAnimation.effect.updateTiming({
-  //         delay: delayConstant * (i + 1),
-  //       });
-  //       containerAnimMap.set(i, containerAnimation);
-  //     }
-  //   };
-
-  //   ////////////// BUG //////////////
-  //   // >>>>This<<<< bugs out the star animation when the ending animations are getting attached.
-  //   // I am running at 170hz screen, in the performance tab because the star is animating the offset and offset-distance
-  //   // properties which are going in the main-thread, every tick for animating them is about 2.17ms total.
-
-  //   // When the letterEnding animation function starts it takes 4.77ms to complete, and then i have another
-  //   // task at 2.17ms that is from the star(propably...), so the star is running again but then i get 6 concurent dropped frames,
-  //   // and no tasks are running in those, so i dont know why those frames are getting dropped and why the star animation stutters
-  //   // since everything that gets animated from the letters goes to the compositor.
-
-  //   //  I tried the requestAnimtionFrame() with the for loop and it alleviates it somehow but does not fix it.
-  //   // Recursive requestAnimtionFrame() does the trick thought(almost), but the animations are created in seperate frames and maybe if the
-  //   // refresh rate is less than mine like 60 fps the effect will be visible because the requestAnimationFrame() will fire
-  //   // in bigger timing intervals.
-  //   // So i will add delay dynamicaly with animation.currentTime, based on the timing of each frame concurently to each letter.
-
-  //   /// Results ///
-  //   // Logging the computedTiming throughout the animation everything works well BUT letters 2 and 3
-  //   // are lagging behind 6ms from all other letters, while all the others are giving the same localTime value.
-  //   // Tested with performance.now() and all works as excepted.
-  //   // I dont know the reason for that happening and its weird behaviour...
-  //   let countIteretions = 0;
-  //   let initialFrameTime = 0;
-  //   const endingAnimationDelay = 500;
-  //   // RAF
-  //   const letterEndingAnimations = (time) => {
-  //     // >>>>This bugs out the star <<<<
-
-  //     //   for (let i = 0; i <= 6; i++) {
-  //     //     const boxAnimation = boxesMap
-  //     //       .get(i)
-  //     //       .animate(lettersBoxEndingKeyframes, lettersBoxEndingOptions);
-  //     //     boxEndingAnimMap.set(i, boxAnimation);
-  //     //     commitStyles(boxAnimation);
-  //     //   }
-
-  //     const commitStyles = async (animation) => {
-  //       await animation.finished;
-  //       animation.commitStyles();
-  //       animation.cancel();
-  //     };
-
-  //     if (countIteretions === 0) {
-  //       initialFrameTime = time;
-  //     }
-
-  //     const frameTimeDiff = time - initialFrameTime;
-  //     const computedDelay = Math.round(endingAnimationDelay - frameTimeDiff); // Must be added as a negative value to currentTime
-
-  //     if (countIteretions < 6) {
-  //       const boxAnimation = boxesMap
-  //         .get(countIteretions)
-  //         .animate(lettersBoxEndingKeyframes, lettersBoxEndingOptions);
-  //       boxAnimation.currentTime = -computedDelay;
-  //       boxEndingAnimMap.set(countIteretions, boxAnimation);
-  //       commitStyles(boxAnimation);
-  //       countIteretions++;
-  //       requestAnimationFrame(letterEndingAnimations);
-  //     } else {
-  //       const boxAnimation = boxesMap
-  //         .get(6)
-  //         .animate(lettersBoxEndingKeyframes, lettersBoxEndingOptions);
-  //       boxAnimation.currentTime = -computedDelay;
-  //       boxEndingAnimMap.set(6, boxAnimation);
-  //       commitStyles(boxAnimation);
-  //     }
-  //   };
-
-  //   const mainSvgAnimation = () => {
-  //     mainSvgAnimRef.current = mainSvgContainerRef.current.animate(
-  //       svgContainerKeyframes,
-  //       svgContainerOptions
-  //     );
-  //     mainSvgAnimRef.current.pause();
-  //   };
-
-  //   const playAllAnimations = async () => {
-  //     mainSvgAnimation();
-  //     letterEntranceAnimations();
-  //     // Wait for the S to finish the spin and then animate() the ending
-  //     await boxEntranceAnimMap.get(6).finished;
-
-  //     requestAnimationFrame(letterEndingAnimations);
-  //   };
-
-  //   const motionOk = window.matchMedia(
-  //     '(prefers-reduced-motion: no-preference)'
-  //   ).matches;
-  //   localStorage.setItem('home-animation-ran', false);
-
-  //   playAllAnimations();
-
-  //   return () => {
-  //     // Cancel all animations in every re-render
-  //     const leftSideAnimMap = getMap(leftSideAnimRef);
-  //     const rightSideAnimMap = getMap(rightSideAnimRef);
-  //     const boxEntranceAnimMap = getMap(boxEnteranceAnimRef);
-  //     const containerAnimMap = getMap(containerAnimRef);
-
-  //     for (let i = 0; i <= 6; i++) {
-  //       leftSideAnimMap.get(i).cancel();
-  //       rightSideAnimMap.get(i).cancel();
-  //       boxEntranceAnimMap.get(i).cancel();
-  //       containerAnimMap.get(i).cancel();
-  //     }
-  //     mainSvgAnimRef.current.cancel();
-  //     console.log(document.getAnimations());
-  //   };
-  // }, [protrusionSize, aspectRatioOver, widthOver600, canPlayAnimations]);
+  }, [aspectRatioOver, protrusionSize, portraitAndWidthOver600]);
+  console.log(toggleGlassClassName);
+  console.log('600', widthBellow600);
+  console.log('1200', widthBellow1200);
 
   // If i have the star and the cow in the same <svg> either under the <g> tag or under the <svg>
   // (with viewports and width/height = 100% ) changing the opacity of the cow that is inside <g> or <svg>
@@ -1934,352 +1638,13 @@ const Home = () => {
   //   };
   // }, []);
 
-  const playAnimations = async () => {
-    const leftSideAnimMap = getMap(leftSideAnimRef);
-    const rightSideAnimMap = getMap(rightSideAnimRef);
-    const boxEntranceAnimMap = getMap(boxEnteranceAnimRef);
-    const containterAnimMap = getMap(containerAnimRef);
-
-    // Function use for seperate Promise fullfilment to commit each style, instead of Promise.all because
-    // i need instant commitment of styles for each animation seperately
-    const commitStyles = async (animation) => {
-      await animation.finished;
-      animation.commitStyles();
-      animation.cancel();
-    };
-    for (let i = 0; i <= 6; i++) {
-      leftSideAnimMap.get(i).play();
-      rightSideAnimMap.get(i).play();
-      boxEntranceAnimMap.get(i).play();
-      containterAnimMap.get(i).play();
-      commitStyles(containterAnimMap.get(i));
-    }
-    mainSvgAnimRef.current.play();
-    await mainSvgAnimRef.current.finished;
-    starMorphShapeAnimateRef.current.beginElement();
-
-    turblulenceEyeAngryAnimateRef.current.onend = () => {
-      // After the eyes get angry begin the strokedash-offset transition to half
-      setToggleGlassClassName(
-        'home__svg-glass-transition-half home__svg-glass-transition-half--'
-      );
-      //  Path 10 is the last one transitioning
-      const path10 = getMap(glassPathsRef).get(10);
-      //  Wait for the transition to end (half-point)
-      path10.ontransitionend = () => {
-        // Begin the full strokedash-offset transition
-        setToggleGlassClassName(
-          'home__svg-glass-transition-full home__svg-glass-transition-full--'
-        );
-        // Wait for the transition to end again (full)
-        path10.ontransitionend = async () => {
-          //  Start the turbulence animation of going back & break the glass
-
-          const turbulenceBreakGlassKeyframes = [
-            {
-              transform: 'perspective(500px) translateZ(0px) rotateX(0deg)',
-              filter: 'blur(6px)',
-              offset: 0,
-            },
-
-            {
-              transform: 'perspective(500px) translateZ(-650px) rotateX(0deg)',
-              filter: 'blur(6px)',
-              offset: 0.35,
-            },
-            {
-              transform:
-                'perspective(500px) translateZ(-650px) rotateX(-35deg)',
-              offset: 0.375,
-              filter: 'blur(6px)',
-              easing: 'cubic-bezier(0.7, 0, 0.84, 0)',
-            },
-            {
-              transform: 'perspective(500px) translateZ(0px) rotateX(-35deg)',
-              filter: 'blur(0px)',
-              offset: 0.5,
-            },
-            {
-              transform: 'perspective(500px) translateZ(200px) rotateX(-35deg)',
-              filter: 'blur(0px)',
-              offset: 1,
-            },
-          ];
-          const turbulenceBreakGlassOptions = {
-            duration: 5000,
-          };
-          const turbulenceBreakGlassAnim = svgTubulenceRef.current.animate(
-            turbulenceBreakGlassKeyframes,
-            turbulenceBreakGlassOptions
-          );
-
-          // Glass 3d animation
-          for (let i = 0; i <= 43; i++) {
-            const path = getMap(glassPathsRef).get(i);
-            const keyframes = [
-              {
-                transformOrigin: 'center',
-                transformBox: 'fill-box',
-                transform:
-                  'perspective(500px) translate3d(0px, 0px, 0px) rotate3d(0, 0, 0, 0deg)',
-              },
-              {
-                transformOrigin: 'center',
-                transformBox: 'fill-box',
-                transform: `perspective(500px) translate3d(${homeGlassKeyframe3dValuesObj[i].translate3d}) rotate3d(${homeGlassKeyframe3dValuesObj[i].rotate3d})`,
-              },
-            ];
-            const options = { duration: 2500, delay: 2500 };
-
-            const animation = path.animate(keyframes, options);
-            if (i === 42) {
-              animation.onfinish = (e) => {
-                glassContainerRef.current.dataset.display = 'false';
-              };
-            }
-          }
-
-          await turbulenceBreakGlassAnim.finished;
-          // Wait for the glass animation and then start the shaking
-          const turbulenceShakeKeyframes = [
-            {
-              transform:
-                'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(0px) translateY(0px)',
-              filter: 'blur(0px)',
-              offset: 0,
-            },
-            {
-              transform:
-                'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(-10px) translateY(5px)',
-              filter: 'blur(0px)',
-              offset: 0.25,
-            },
-            {
-              transform:
-                'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(0px) translateY(0px)',
-              filter: 'blur(0px)',
-              offset: 0.5,
-            },
-            {
-              transform:
-                'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(10px) translateY(5px)',
-              filter: 'blur(0px)',
-              offset: 0.75,
-            },
-            {
-              transform:
-                'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(0px) translateY(0px)',
-              filter: 'blur(0px)',
-              offset: 1,
-            },
-          ];
-          const turbulenceShakeOptions = {
-            duration: 250,
-            iterations: 5,
-          };
-          const turbulenceGrabbedAnimation = svgTubulenceRef.current.animate(
-            turbulenceShakeKeyframes,
-            turbulenceShakeOptions
-          );
-
-          // Shaking steps and increased playback rate with each step
-          await turbulenceGrabbedAnimation.finished;
-          turbulenceGrabbedAnimation.effect.updateTiming({ iterations: 10 });
-          turbulenceGrabbedAnimation.playbackRate = 1.5;
-          turbulenceGrabbedAnimation.currentTime = 0;
-          turbulenceGrabbedAnimation.play();
-          await turbulenceGrabbedAnimation.finished;
-          turbulenceGrabbedAnimation.playbackRate = 2;
-          turbulenceGrabbedAnimation.currentTime = 0;
-          turbulenceGrabbedAnimation.play();
-          await turbulenceGrabbedAnimation.finished;
-          turbulenceGrabbedAnimation.playbackRate = 2.5;
-          turbulenceGrabbedAnimation.currentTime = 0;
-          turbulenceGrabbedAnimation.play();
-          await turbulenceGrabbedAnimation.finished;
-          // Wait for the shake to end and then make the turbulence disappear
-          turbulenceClipAnimateRef.current.beginElement();
-          const turbulenceDisappearAnimation = svgTubulenceRef.current.animate(
-            [
-              {
-                transform:
-                  'perspective(500px) translateZ(200px) rotateX(-55deg) translateY(0px)',
-              },
-              {
-                transform:
-                  'perspective(500px) translateZ(-1000px) rotateX(-55deg) translateY(1000px) translateX(50px)',
-              },
-            ],
-            { duration: 1000 }
-          );
-        };
-      };
-    };
-  };
+  const playAnimations = async () => {};
 
   const cancelAnimations = () => {
-    // const leftSideAnimMap = getMap(leftSideAnimRef);
-    // const rightSideAnimMap = getMap(rightSideAnimRef);
-    // const boxEntranceAnimMap = getMap(boxEnteranceAnimRef);
-    // const containterAnimMap = getMap(containerAnimRef);
-    // for (let i = 0; i <= 6; i++) {
-    //   leftSideAnimMap.get(i).cancel();
-    //   rightSideAnimMap.get(i).cancel();
-    //   boxEntranceAnimMap.get(i).cancel();
-    //   containterAnimMap.get(i).cancel();
-    // }
-    // mainSvgAnimRef.current.cancel();
-    // console.log(document.getAnimations());
-    starMorphShapeAnimateRef.current.beginElement();
+    console.log(document.getAnimations());
   };
 
-  const reverseAnimations = async () => {
-    // setToggleGlassClassName(
-    //   'home__svg-glass-transition-half home__svg-glass-transition-half--'
-    // );
-    // const path10 = getMap(glassPathsRef).get(10);
-    // const callback = (e) => {
-    //   console.log(e);
-    //   setToggleGlassClassName(
-    //     'home__svg-glass-transition-full home__svg-glass-transition-full--'
-    //   );
-    // };
-    // path10.addEventListener('transitionend', callback, { once: true });
-
-    const turbulenceBreakGlassKeyframes = [
-      {
-        transform: 'perspective(500px) translateZ(0px) rotateX(0deg)',
-        filter: 'blur(6px)',
-        offset: 0,
-      },
-
-      {
-        transform: 'perspective(500px) translateZ(-650px) rotateX(0deg)',
-        filter: 'blur(6px)',
-        offset: 0.35,
-      },
-      {
-        transform: 'perspective(500px) translateZ(-650px) rotateX(-35deg)',
-        offset: 0.375,
-        filter: 'blur(6px)',
-        easing: 'cubic-bezier(0.7, 0, 0.84, 0)',
-      },
-      {
-        transform: 'perspective(500px) translateZ(0px) rotateX(-35deg)',
-        filter: 'blur(0px)',
-        offset: 0.5,
-      },
-      {
-        transform: 'perspective(500px) translateZ(200px) rotateX(-35deg)',
-        filter: 'blur(0px)',
-        offset: 1,
-      },
-    ];
-    const turbulenceBreakGlassOptions = { duration: 5000, fill: 'forwards' };
-    const turbulenceBreakGlassAnim = svgTubulenceRef.current.animate(
-      turbulenceBreakGlassKeyframes,
-      turbulenceBreakGlassOptions
-    );
-
-    // Glass 3d animation
-    for (let i = 0; i <= 43; i++) {
-      const path = getMap(glassPathsRef).get(i);
-      const keyframes = [
-        {
-          transformOrigin: 'center',
-          transformBox: 'fill-box',
-          transform:
-            'perspective(500px) translate3d(0px, 0px, 0px) rotate3d(0, 0, 0, 0deg)',
-        },
-        {
-          transformOrigin: 'center',
-          transformBox: 'fill-box',
-          transform: `perspective(500px) translate3d(${homeGlassKeyframe3dValuesObj[i].translate3d}) rotate3d(${homeGlassKeyframe3dValuesObj[i].rotate3d})`,
-        },
-      ];
-      const options = { duration: 2500, delay: 2500 };
-
-      const animation = path.animate(keyframes, options);
-      if (i === 42) {
-        animation.onfinish = (e) => {
-          glassContainerRef.current.dataset.display = 'false';
-        };
-      }
-    }
-
-    await turbulenceBreakGlassAnim.finished;
-
-    const turbulenceShakeKeyframes = [
-      {
-        transform:
-          'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(0px) translateY(0px)',
-        filter: 'blur(0px)',
-        offset: 0,
-      },
-      {
-        transform:
-          'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(-10px) translateY(5px)',
-        filter: 'blur(0px)',
-        offset: 0.25,
-      },
-      {
-        transform:
-          'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(0px) translateY(0px)',
-        filter: 'blur(0px)',
-        offset: 0.5,
-      },
-      {
-        transform:
-          'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(10px) translateY(5px)',
-        filter: 'blur(0px)',
-        offset: 0.75,
-      },
-      {
-        transform:
-          'perspective(500px) translateZ(200px) rotateX(-35deg) translateX(0px) translateY(0px)',
-        filter: 'blur(0px)',
-        offset: 1,
-      },
-    ];
-    const turbulenceShakeOptions = {
-      duration: 250,
-      iterations: 5,
-    };
-    const turbulenceGrabbedAnimation = svgTubulenceRef.current.animate(
-      turbulenceShakeKeyframes,
-      turbulenceShakeOptions
-    );
-
-    await turbulenceGrabbedAnimation.finished;
-    turbulenceGrabbedAnimation.effect.updateTiming({ iterations: 10 });
-    turbulenceGrabbedAnimation.playbackRate = 1.5;
-    turbulenceGrabbedAnimation.currentTime = 0;
-    turbulenceGrabbedAnimation.play();
-    await turbulenceGrabbedAnimation.finished;
-    turbulenceGrabbedAnimation.playbackRate = 2;
-    turbulenceGrabbedAnimation.currentTime = 0;
-    turbulenceGrabbedAnimation.play();
-    await turbulenceGrabbedAnimation.finished;
-    turbulenceGrabbedAnimation.playbackRate = 2.5;
-    turbulenceGrabbedAnimation.currentTime = 0;
-    turbulenceGrabbedAnimation.play();
-    await turbulenceGrabbedAnimation.finished;
-    // Make the turbulence dissapear
-    turbulenceClipAnimateRef.current.beginElement();
-    const turbulenceDisappearAnimation = svgTubulenceRef.current.animate(
-      [
-        {
-          transform:
-            'perspective(500px) translateZ(200px) rotateX(-55deg) translateY(0px)',
-        },
-        {
-          transform:
-            'perspective(500px) translateZ(-1000px) rotateX(-55deg) translateY(1000px) translateX(50px)',
-        },
-      ],
-      { duration: 1000 }
-    );
-  };
+  const reverseAnimations = async () => {};
 
   const hello = async () => {
     // cowRef.current.unpauseAnimations();
@@ -2295,39 +1660,38 @@ const Home = () => {
   const arcY = (angle) =>
     (500 + 488 * Math.sin(angle * (Math.PI / 180))).toFixed(4);
 
-  const calcArcValues = (precision, minAngle, maxAngle) => {
-    //Precision of 1 adds a lot of size on the file, but also adds smooth transition
-    // 2 and more the arc jiggles so i will take the extra size.
-    ///// IMPORTANT /////
-    // With precision > 1 the point where the arc passes the 180deg mark and changes from big to small arc must
-    // be handled smoothly in order for the browser to interpolate the values correctly.
-    // That means adding one by one the degrees from that point until the next step in the loop
-    // based on the precision provided and also creating custom keyTimes to maintain the linear animation
-    // because the values would have added extra steps inside the values attribute.
-    let deg = minAngle;
-
-    // Builds up as the loop progresses
-    let str = `M 988 500 A 488 488 0 1 0 ${arcX(minAngle)} ${arcY(
-      minAngle
-    )} L 500 500 Z;`;
-    while (deg <= maxAngle) {
-      if (deg < 180) {
-        str = `${str} M 988 500 A 488 488 0 1 0 ${arcX(deg)} ${arcY(
-          deg
-        )} L 500 500 Z;`;
-      } else {
-        str = `${str} M 988 500 A 488 488 0 0 0 ${arcX(deg)} ${arcY(
-          deg
-        )} L 500 500 Z;`;
-      }
-      // Increase the loop step
-      deg = deg + precision;
-    }
-    return str;
-  };
-
   // Memoize the return value
   const memoArcValues = useMemo(() => {
+    const calcArcValues = (precision, minAngle, maxAngle) => {
+      //Precision of 1 adds a lot of size on the file, but also adds smooth transition
+      // 2 and more the arc jiggles so i will take the extra size.
+      ///// IMPORTANT /////
+      // With precision > 1 the point where the arc passes the 180deg mark and changes from big to small arc must
+      // be handled smoothly in order for the browser to interpolate the values correctly.
+      // That means adding one by one the degrees from that point until the next step in the loop
+      // based on the precision provided and also creating custom keyTimes to maintain the linear animation
+      // because the values would have added extra steps inside the values attribute.
+      let deg = minAngle;
+
+      // Builds up as the loop progresses
+      let str = `M 988 500 A 488 488 0 1 0 ${arcX(minAngle)} ${arcY(
+        minAngle
+      )} L 500 500 Z;`;
+      while (deg <= maxAngle) {
+        if (deg < 180) {
+          str = `${str} M 988 500 A 488 488 0 1 0 ${arcX(deg)} ${arcY(
+            deg
+          )} L 500 500 Z;`;
+        } else {
+          str = `${str} M 988 500 A 488 488 0 0 0 ${arcX(deg)} ${arcY(
+            deg
+          )} L 500 500 Z;`;
+        }
+        // Increase the loop step
+        deg = deg + precision;
+      }
+      return str;
+    };
     return calcArcValues(1, 0.2, 360);
   }, []);
 
@@ -2450,8 +1814,8 @@ const Home = () => {
       </h1>
       <div ref={mainSvgContainerRef} className='home__main-svg-container'>
         <svg
+          ref={svgStarRef}
           className='home__svg-star'
-          ref={cowRef}
           viewBox='0 0 1000 1000'
           xmlSpace='preserve'
           xmlns='http://www.w3.org/2000/svg'
@@ -2463,12 +1827,24 @@ const Home = () => {
             strokeWidth='2'
             d='M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7-8.65-44.37-15.07-89.13-21.59-133.86-6.43-44.13-19.16-116.61-17.27-132.69 1.87-15.83 65.5-72.27 99.03-107.68 30.06-31.75 62.3-61.43 91.56-93.94 22.48-22.78 20.12-40.5-12.8-47.96-47.55-9.24-95.72-14.94-143.52-22.79-44.13-7.24-101.2-11.63-132.25-22.43-5.13-1.78-42.19-87.16-64.5-130.13-21.5-41.37-43.4-82.83-66.8-122.86-15.94-26.68-30.35-13.49-42.82 6.92-11.63 19.03-44.73 78.4-66.2 118.1-22.88 42.33-29.7 53.17-66.69 128.02-1.86 3.75-88.5 15.13-132.81 22.38-47.8 7.83-95.97 13.4-143.53 22.8-32.22 5.92-33.5 25.48-14.68 46.07 53.3 58.34 66.1 65.13 97.67 99.1 32.31 34.77 89.76 82.01 93.85 107.11 3.09 18.98-10.12 86.76-16.32 129.98-6.4 44.74-15.6 89.44-21.58 133.86-5.45 33.25 1.15 47.82 35.3 35.7 34.15-12.12 90.76-44.92 136.37-66.9 39.52-19.04 99.23-57.03 118.95-56.3 18.94.71 82 36.82 118.96 56.3z'>
             <animate
-              ref={globalResetAnimateRef}
+              ref={animateGlobalResetRef}
+              id='home_animate_global_reset'
               begin='indefinite'
-              dur='0s'></animate>
+              dur='0.001s'></animate>
+            <animate
+              ref={animateGlobalReverseRef}
+              id='home_animate_global_reverse'
+              begin='indefinite'
+              dur='0.001s'></animate>
+            <animate
+              ref={animateGlobalReverseResetRef}
+              id='home_animate_global_reverse_reset'
+              begin='indefinite'
+              dur='0.001s'></animate>
             <animate
               ref={starMorphShapeAnimateRef}
               id='home_svg_star_to_circle_anim'
+              attributeType='XML'
               attributeName='d'
               dur='2.5s'
               begin='indefinite'
@@ -2490,18 +1866,32 @@ M638.63 962.53c46.22-12.16 97.34-40.79 119.14-53.68 21.8-12.89 34.48-23.82 52.53
 M638.63 962.53c46.22-12.16 97.34-40.79 119.14-53.68 21.8-12.89 34.48-23.82 52.53-37.6 22.67-17.33 51.69-45.83 76.98-81.71 25.3-35.88 45.16-75.82 65.43-122.79 23.69-54.88 31.6-149.28 31.64-185.53.04-36.25-14.92-93.98-16.76-105.28-2.5-15.4-10.8-41.32-17.1-55.62-11.33-25.67-22.19-57.05-56.26-101.87-34.08-44.83-41.56-52.7-87.41-91.93-38.79-33.18-96.41-66.73-145.97-83.5-49.57-16.76-89.27-25.7-140.56-28.47-29.6-1.6-29.67.73-42.14 21.14-11.63 19.03-22 109.76-66.53 127.57-60.11 24.03-147.56-86.27-183.76-62.8-38.5 24.93-65.13 43.03-103.8 90.71-38.65 47.69-62.25 98.11-75.36 132.39-11.7 30.6-10.42 24.68-17.06 46.56-7.36 24.26-14.86 72.51-16.44 131.13-1.57 58.62 22.58 146.22 39.73 183.46 17.88 38.81 41.3 89.15 71.76 124.02 30.46 34.88 44.91 48.91 68.87 67.78 24.91 19.61 23.63 16.71 36.73 27.08 13.1 10.37 70.99 40.93 128.24 59.42 57.25 18.5 113.85 18.98 139.64 19.3 40.7.48 92.24-7.61 138.46-19.78z;
 M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-30.95 20.84-12.6 71.3-70.62 88.04-95.3 16.73-24.66 57.7-103.97 67.96-139.6 8.07-27.99 18.87-117.46 20.9-148.21 2.02-30.75-10.98-91.11-14.56-107.62-5.67-26.17-9.66-34.69-17.99-59.92-8.7-26.36-24.93-55.55-45.4-87.07-20.48-31.52-57.74-75.93-98.45-110.77-15.3-13.09-80.89-56.86-128.64-76.61-47.75-19.76-108.64-32.52-149.1-34.83-24.6-1.4-42.09-.65-64.82.23-13.18.51-58.94 7.02-90.6 15.22-31.66 8.2-110.28 38.57-150.94 69.97-17.26 13.34-78.18 55.48-112.83 107.02C77.32 258.29 59.8 287.5 47.6 323.59c-9.45 27.96-13.17 33.47-17.38 50.82-4.3 17.7-17.77 81.83-15.34 128.88 2.43 47.04 12.4 122.57 30.7 164.58 7.67 17.63 41.84 96.62 80.67 141.53 38.83 44.9 31.96 37.5 66.38 66.19 15.53 12.94 28.9 22.1 40.04 30.28 11.15 8.18 84.48 48.02 141.1 62.35 56.63 14.33 97.56 15.51 117.28 16.25 18.93.7 115.23-7.83 165.3-26.4z
                 '></animate>
-
             <animate
               attributeType='CSS'
               attributeName='opacity'
-              dur='.01s'
+              dur='.001s'
               begin='home_svg_star_to_circle_anim.end'
               fill='freeze'
-              from='1'
+              from='0'
               to='0'></animate>
+            {/* Global Reset Starting State */}
+            <animate
+              attributeType='CSS'
+              attributeName='opacity'
+              dur='.001s'
+              begin='home_animate_global_reset.begin'
+              fill='freeze'
+              from='1'
+              to='1'></animate>
+            <animate
+              attributeType='XML'
+              attributeName='d'
+              dur='0.001s'
+              begin='home_animate_global_reset.begin'
+              fill='freeze'
+              values='M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7-8.65-44.37-15.07-89.13-21.59-133.86-6.43-44.13-19.16-116.61-17.27-132.69 1.87-15.83 65.5-72.27 99.03-107.68 30.06-31.75 62.3-61.43 91.56-93.94 22.48-22.78 20.12-40.5-12.8-47.96-47.55-9.24-95.72-14.94-143.52-22.79-44.13-7.24-101.2-11.63-132.25-22.43-5.13-1.78-42.19-87.16-64.5-130.13-21.5-41.37-43.4-82.83-66.8-122.86-15.94-26.68-30.35-13.49-42.82 6.92-11.63 19.03-44.73 78.4-66.2 118.1-22.88 42.33-29.7 53.17-66.69 128.02-1.86 3.75-88.5 15.13-132.81 22.38-47.8 7.83-95.97 13.4-143.53 22.8-32.22 5.92-33.5 25.48-14.68 46.07 53.3 58.34 66.1 65.13 97.67 99.1 32.31 34.77 89.76 82.01 93.85 107.11 3.09 18.98-10.12 86.76-16.32 129.98-6.4 44.74-15.6 89.44-21.58 133.86-5.45 33.25 1.15 47.82 35.3 35.7 34.15-12.12 90.76-44.92 136.37-66.9 39.52-19.04 99.23-57.03 118.95-56.3 18.94.71 82 36.82 118.96 56.3z;'></animate>
           </path>
           <path
-            opacity='1'
             stroke='white'
             fill='lightsalmon'
             strokeWidth='.5'
@@ -2513,7 +1903,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               dur='.001s'
               begin='home_svg_star_to_circle_anim.end'
               fill='freeze'
-              from='0'
+              from='1'
               to='1'></animate>
             <animate
               id='home_svg_star_arc_line_extend_anim'
@@ -2535,10 +1925,20 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               dur='3.5s'
               begin='home_svg_star_arc_line_extend_anim.end'
               values={memoArcValues}></animate>
+            {/* Global Reset Starting State */}
+            <animate
+              attributeType='CSS'
+              attributeName='opacity'
+              dur='.001s'
+              begin='home_animate_global_reset.begin'
+              fill='freeze'
+              from='0'
+              to='0'></animate>
           </path>
         </svg>
 
         <svg
+          ref={svgCowRef}
           preserveAspectRatio='xMidYMid meet'
           className='home__svg-cow'
           xmlns='http://www.w3.org/2000/svg'
@@ -2704,7 +2104,9 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               </g>
             </g>
             <g inkscape:label='ears'>
-              <g inkscape:label='ear_left'>
+              <g
+                ref={cowEarLeftRef}
+                className='home__cow-ear home__cow-ear--left'>
                 <path
                   fill='#501202'
                   stroke='#83412f'
@@ -2730,7 +2132,9 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                   d='M324.75 262.02s-18.33 12.87-18.55 41.25c-.22 28.37 43 61.32 71.15 70.49 28.15 9.16 48.45 11.35 81.18 8.07 18.63-1.86 31.94-11.03 43.63-23.42 9.05-9.6 16.59-22.57 20.76-29.4 9.6-15.7 21.82-33.82 24-36 1.23-1.23-13.92-17.09-28.66-30.73-11.53-10.66-21.47-18.62-28.3-22.3 0 0-4.56-5.18-27.11-16.3 0 0-4.95-4.44-23.52-8.37-2.73-.57-10.62-2.18-16.15-2.26-5.45-.08-10.08 1.57-13.88 2.7-18.74 5.6-41.61 15.3-56.18 24.44-20.51 12.88-28.37 21.83-28.37 21.83z'
                 />
               </g>
-              <g inkscape:label='ear_right'>
+              <g
+                ref={cowEarRightRef}
+                className='home__cow-ear home__cow-ear--right'>
                 <path
                   fill='#501202'
                   stroke='#83422f'
@@ -2766,7 +2170,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
             </g>
 
             <g
-              inkscape:label='mouth_bottom'
+              ref={cowMouthBottomRef}
               className='test-mouth-bottom'
               transform='translate(0 -.03)'>
               <path
@@ -3042,11 +2446,10 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
           className='home__svg-turbulance'
           viewBox='0 0 100 100'
           xmlns='http://www.w3.org/2000/svg'
-          preserveAspectRatio='xMidYMid meet'
-          width='100%'>
+          preserveAspectRatio='xMidYMid meet'>
           <defs>
             <path
-              id='test-text-path'
+              id='home_text_path_values_vibecoding'
               d='M 35 60 Q 50 70 65 60'
               stroke='red'
               strokeWidth='.5'
@@ -3076,6 +2479,18 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                           m 0,0.5 99.88,0.62
                           c 0,0 -0.27,-47.27 0.11,-31.53 0.28,21.84 -39,27.8 -50.32,28.06 -11.31,0.25 -49.87,-6.27 -49.61,-27.75
                           z'></animate>
+                {/* Global Reset Starting State */}
+                <animate
+                  attributeType='XML'
+                  attributeName='d'
+                  dur='0.001s'
+                  fill='freeze'
+                  begin='home_animate_global_reset.begin'
+                  values='
+                          m 0,0.5 99.88,0.62
+                          c 0,0 -0.45,80.54 -0.07,96.28 0.28,21.84 -39,27.8 -50.32,28.06 -11.31,0.25 -49.87,-6.27 -49.61,-27.75
+                          z;
+                         '></animate>
               </path>
             </clipPath>
             {/* Smooth turbulence for the eyes with fractalNoise */}
@@ -3094,7 +2509,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                 <animate
                   attributeType='XML'
                   attributeName='baseFrequency'
-                  begin='0s'
+                  begin='home_svg_star_arc_moprh_out.begin'
                   dur='30s'
                   values='0.01 0;0.03 0; 0.01 0;0.03 0;'
                   repeatCount='indefinite'></animate>
@@ -3107,7 +2522,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                 yChannelSelector='R'
                 result='displace'></feDisplacementMap>
             </filter>
-            {/* Turbulence for the mouth with fractalNoise and more frequency */}
+            {/* Turbulence for the mouth with fractalNoise and more frequency & scale */}
             <filter
               id='home-svg-turblulence-filter-mouth'
               x='-.3'
@@ -3136,7 +2551,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                 yChannelSelector='R'
                 result='displace'></feDisplacementMap>
             </filter>
-            {/* Blend of X and Y axes turbulence for the circle (whole svg) */}
+            {/* Blend of X and Y axes of turbulence for the circle (whole svg) */}
             <filter id='home-svg-turblulence-filter' width='160%' height='160%'>
               <feTurbulence
                 type='turbulence'
@@ -3183,7 +2598,6 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
           </defs>
           <g clipPath='url(#home-svg-turbulence-clip)'>
             <circle
-              id='circle_turbbb'
               cx='40'
               cy='40'
               r='40'
@@ -3198,6 +2612,15 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                 to='1'
                 fill='freeze'
                 begin='home_svg_star_arc_moprh_out.begin'></animate>
+              {/* Global Reset Starting State */}
+              <animate
+                attributeType='CSS'
+                attributeName='opacity'
+                dur='0.001s'
+                from='0'
+                to='0'
+                fill='freeze'
+                begin='home_animate_global_reset.begin'></animate>
             </circle>
             <g filter='url(#home-svg-turblulence-filter-eyes)'>
               <path fill='red'>
@@ -3239,10 +2662,23 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
             c 0,2.21 1.79,4 4,4 1.52,0 2.85,-0.85 3.52,-2.1 -0.34,-0.27 -0.67,-0.47 -1.02,-0.68 -0.86,-0.52 -1.84,-1.09 -2.88,-1.69
             C 37.45,38.86 36.32,38.25 35.61,37.87 35.22,38.49 35,39.22 35,40
             Z'></animate>
+                {/* Global Reset Starting State */}
+                <animate
+                  attributeType='XML'
+                  attributeName='d'
+                  dur='0.001s'
+                  begin='home_animate_global_reset.begin'
+                  fill='freeze'
+                  values='
+              m 43,40
+              c 0,0.04 -1.77,0.13 -3.98,0.13
+              C 36.81,40.13 35,40.04 35,40
+              c 0,-0.03 1.82,0.11 4.02,0.11
+              C 41.23,40.11 43,39.96 43,40
+              Z;
+             '></animate>
               </path>
-              <path
-                fill='red'
-                filter='url(#home-svg-turblulence-filter-text-test)'>
+              <path fill='red'>
                 <animate
                   id='home_svg_turbulence_right_eye_open'
                   attributeType='XML'
@@ -3280,11 +2716,26 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
           m 63.42,40.1
           c 0,2.21 -1.79,4 -4,4 -1.52,0 -2.85,-0.85 -3.52,-2.1 0.34,-0.27 0.67,-0.47 1.02,-0.68 0.86,-0.52 1.84,-1.09 2.88,-1.69 1.17,-0.67 2.3,-1.28 3.01,-1.66 0.39,0.62 0.61,1.35 0.61,2.13
           z'></animate>
+                {/* Global Reset Starting State */}
+                <animate
+                  attributeType='XML'
+                  attributeName='d'
+                  dur='0.001s'
+                  begin='home_animate_global_reset.begin'
+                  fill='freeze'
+                  values='
+              m 64,40
+            c 0,0.04 -1.77,0.13 -3.98,0.13
+            C 57.81,40.13 56,40.04 56,40
+            c 0,-0.03 1.82,0.11 4.02,0.11
+            C 62.23,40.11 64,39.96 64,40
+            Z;
+             '></animate>
               </path>
             </g>
             <text filter='url(#home-svg-turblulence-filter-mouth)' opacity='0'>
               <textPath
-                href='#test-text-path'
+                href='#home_text_path_values_vibecoding'
                 stroke='red'
                 fill='red'
                 fontSize='5px'
@@ -3300,6 +2751,15 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                 begin='home_svg_turbulence_left_eye_open.begin'
                 from='0'
                 to='1'
+                fill='freeze'></animate>
+              {/* Global Reset Starting State */}
+              <animate
+                attributeType='CSS'
+                attributeName='opacity'
+                dur='0.001s'
+                begin='home_animate_global_reset.begin'
+                from='0'
+                to='0'
                 fill='freeze'></animate>
             </text>
           </g>

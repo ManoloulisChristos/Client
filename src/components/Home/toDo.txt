@@ -1,17 +1,11 @@
-2 fill forwards τα οποια θέλουν commit
-containerOptions > opacity
-boxEndingAnimations > translateY
-
-blur<<<<<
-set classes for glass<<<<
-be carefull of commit styles when canceling animations
-
-
-2 reasons for not playing animation > motion NOT ok & animation has already been played
-i can cancel the anikmations inside the observer and have either on the starting state or at the ending state.
-I have to manage both the starting state and the ending state!!!! for all of the affected elements.
-
-
+-restart the svgs (not done at all)
+-when restating the animations reset the commited changes
+-make the glass responsive on small screen
+-fix the middle paths of the glass
+-fix the shadow showing appearing maybe
+-Think of ways to make it more performant
+-Vale epitelous to fws apo pisw
+-Maybe add red light on the cows eyes and a cloud coming out of the nostrils when the shadow dissapears.
 
 
 

@@ -274,47 +274,62 @@
     justify-self: center;
   }
   &__svg-cow {
-    display: none;
+    // display: none;
     z-index: -2;
     grid-area: stack-row / stack-column;
     align-self: center;
     justify-self: center;
     width: 25vmax;
     position: absolute;
-    opacity: 1;
-    animation: test-cow-up 2s linear;
-    @keyframes test-cow-up {
-      0% {
-        transform: perspective(500px) scale(0.5) translateZ(-200px)
-          rotateX(50deg);
-        opacity: 0;
-      }
-      20% {
-        opacity: 1;
-        transform: perspective(500px) scale(1) translateZ(-160px) rotateX(40deg);
-      }
-      to {
-        transform: perspective(500px) translateZ(0px) rotateX(0deg);
-      }
+    opacity: 0;
+    // 1300px
+    @media only screen and (max-width: 81.25em) {
+      width: 35vmax;
+    }
+    // 1024px
+    @media only screen and (max-width: 64em) {
+      width: 35vmax;
     }
   }
 
   .test-mouth-bottom {
-    transform-style: center;
+    transform-origin: center;
     transform-box: fill-box;
     transform: translateY(55px);
-    transition: transform 1s;
+  }
+
+  &__cow-ear {
+    transform-box: fill-box;
+    &--left {
+      transform-origin: center right;
+    }
+    &--right {
+      transform-origin: center left;
+    }
   }
 
   &__svg-turbulance {
-    // display: none;
+    &[data-display='true'] {
+      display: initial;
+    }
+    &[data-display='false'] {
+      display: none;
+    }
 
     grid-area: stack-row / stack-column;
     align-self: center;
     justify-self: center;
+    width: 100%;
     z-index: -1;
     position: absolute;
-
+    // 1200px
+    @media only screen and (max-width: 75em) {
+      width: 95%;
+    }
+    // 600px
+    @media only screen and (max-width: 37.5em) {
+      width: 80%;
+    }
     &[data-blur='true'] {
       filter: blur(6px);
     }
@@ -324,12 +339,12 @@
   }
 
   &__svg-glass-container {
-    // &[data-display='true'] {
-    //   display: initial;
-    // }
-    // &[data-display='false'] {
-    //   display: none;
-    // }
+    &[data-display='true'] {
+      display: initial;
+    }
+    &[data-display='false'] {
+      display: none;
+    }
 
     position: absolute;
     z-index: 3;
