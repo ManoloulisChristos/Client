@@ -1068,7 +1068,11 @@ const Home = () => {
         },
       ],
 
-      options: { duration: 50, iterations: 42, direction: 'alternate' },
+      optionsFn: (num) => ({
+        duration: 50,
+        iterations: num,
+        direction: 'alternate',
+      }),
     },
     cowMouthCloseNeutral: {
       keyframes: [
@@ -1080,6 +1084,18 @@ const Home = () => {
         },
       ],
       options: { duration: 1000, fill: 'forwards' },
+    },
+    cowLevitate: {
+      keyframes: [
+        { transform: 'translateY(0px)' },
+        { transform: 'translateY(10px)' },
+      ],
+      options: {
+        duration: 1000,
+        easing: 'ease-in-out',
+        iterations: ' Infinity',
+        direction: 'alternate',
+      },
     },
   };
 
@@ -1437,11 +1453,11 @@ const Home = () => {
           // Each ear has a different transform-origin defined in CSS based on what side it is.
           cowEarLeftRef.current.animate(
             svgAnimationArgs.cowEarFlap.keyframes,
-            svgAnimationArgs.cowEarFlap.options
+            svgAnimationArgs.cowEarFlap.optionsFn(42)
           );
           const cowEarFlapAnimation = cowEarRightRef.current.animate(
             svgAnimationArgs.cowEarFlap.keyframes,
-            svgAnimationArgs.cowEarFlap.options
+            svgAnimationArgs.cowEarFlap.optionsFn(42)
           );
 
           // Wait for the cow to appear
@@ -1519,10 +1535,13 @@ const Home = () => {
         }
       });
     };
-  }, [aspectRatioOver, protrusionSize, portraitAndWidthOver600]);
-  console.log(toggleGlassClassName);
-  console.log('600', widthBellow600);
-  console.log('1200', widthBellow1200);
+  }, [
+    aspectRatioOver,
+    protrusionSize,
+    portraitAndWidthOver600,
+    widthBellow600,
+    widthBellow1200,
+  ]);
 
   // If i have the star and the cow in the same <svg> either under the <g> tag or under the <svg>
   // (with viewports and width/height = 100% ) changing the opacity of the cow that is inside <g> or <svg>
@@ -1638,13 +1657,27 @@ const Home = () => {
   //   };
   // }, []);
 
-  const playAnimations = async () => {};
+  const playAnimations = async () => {
+    svgCowRef.current.animate(
+      svgAnimationArgs.cowLevitate.keyframes,
+      svgAnimationArgs.cowLevitate.options
+    );
+  };
 
   const cancelAnimations = () => {
     console.log(document.getAnimations());
   };
 
-  const reverseAnimations = async () => {};
+  const reverseAnimations = async () => {
+    cowEarLeftRef.current.animate(
+      svgAnimationArgs.cowEarFlap.keyframes,
+      svgAnimationArgs.cowEarFlap.optionsFn(4)
+    );
+    cowEarRightRef.current.animate(
+      svgAnimationArgs.cowEarFlap.keyframes,
+      svgAnimationArgs.cowEarFlap.optionsFn(4)
+    );
+  };
 
   const hello = async () => {
     // cowRef.current.unpauseAnimations();
