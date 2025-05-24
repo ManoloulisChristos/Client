@@ -2,62 +2,184 @@
   position: relative;
   min-height: calc(100vh - 70px);
   width: 100%;
-  display: grid;
-  gap: 2vw;
-  justify-items: center;
-  align-items: center;
 
-  &__box {
-    // display: none;
-    top: 0;
+  &__bubble-container {
     position: absolute;
-    width: 50px;
-    height: 80vh;
-    z-index: -2;
-    filter: blur(30px);
+    inset: 0;
+    display: grid;
+    grid: [stack-row] 1fr / [stack-column] 1fr;
+    justify-items: center;
+    align-items: end;
+  }
+
+  // &__bubble {
+  //   // display: none;
+  //   // position: absolute;
+  //   z-index: 1;
+  //   width: 300px;
+  //   height: 300px;
+  //   background: radial-gradient(
+  //     circle,
+  //     hsl(186 85.9% 100%),
+  //     hsl(186 85.9% 95%),
+  //     hsl(186 85.9% 85%),
+  //     hsl(186 65.9% 65.1%)
+  //   );
+  //   grid-area: stack-row / stack-column;
+  //   border-radius: 50%;
+  //   transform: scale(1);
+  // }
+  // &__bubble-blur {
+  //   display: none;
+  //   position: absolute;
+  //   z-index: -1;
+  //   width: 20vw;
+  //   height: 20vw;
+  //   background-color: aquamarine;
+  //   grid-area: stack-row / stack-column;
+  //   border-radius: 50%;
+  //   transform: scale(1);
+  //   filter: blur(50px);
+  // }
+
+  &__svg-clip {
+    position: absolute;
+  }
+
+  &__beam-wrapper {
+    // display: none;
+    position: absolute;
+    z-index: -3;
+    width: 20px;
+    height: 50vh;
+    transition: transform 0.5s linear;
+    &--2 {
+      transform: rotate(20deg) scale(1, 1);
+      transform-origin: bottom center;
+    }
+    &--3 {
+      transform: rotate(60deg);
+      transform-origin: bottom center;
+    }
+    &--4 {
+      transform: rotate(-30deg);
+      transform-origin: bottom center;
+    }
+    &--5 {
+      transform: rotate(-60deg);
+      transform-origin: bottom center;
+    }
+  }
+
+  &__blur {
+    position: absolute;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(
       90deg,
       hsl(186 65.9% 60.1%),
       hsl(186 75.9% 90%),
       hsl(186 65.9% 60.1%)
     );
+    filter: blur(15px);
+    // clip-path: url('#test-blur-clip');
   }
-  &__path {
-  }
-  &__svg {
-    // display: none;
-    top: 0;
+
+  &__beam {
     position: absolute;
-    z-index: -1;
     width: 100%;
     height: 100%;
-    // background: radial-gradient(
-    //   45% 100%,
-    //   hsl(186 85.9% 100%),
-    //   hsl(186 85.9% 95%),
-    //   hsl(186 85.9% 85%),
-    //   hsl(186 65.9% 65.1%)
-    // );
-  }
-  &__small-box1 {
-    display: none;
-    top: 0;
-    position: absolute;
-    width: 50px;
-    height: 80vh;
+    clip-path: url('#test-beam-clip');
+
     background: radial-gradient(
-      45% 100%,
+      ellipse 45% 100%,
       hsl(186 85.9% 100%),
       hsl(186 85.9% 95%),
       hsl(186 85.9% 85%),
       hsl(186 65.9% 65.1%)
     );
-    // filter: blur(1px);
   }
-  &__small-box2 {
-    display: none;
-    width: 200px;
-    height: 200px;
-    background: hsl(186 75.9% 95.1% / 1);
+
+  &__abs-container {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid: [stack-row] 1fr / [stack-column] 1fr;
+    justify-items: center;
+    align-items: end;
+  }
+
+  &__bubble-container {
+    position: relative;
+    width: 20vmax;
+    height: 20vmax;
+    transition: transform 0.7s linear;
+    transform: scale(1);
+    transform-origin: bottom center;
+    grid-area: stack-row / stack-column;
+  }
+
+  &__svg-circle-clip {
+    position: absolute;
+    z-index: 5;
+  }
+
+  &__bubble {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+      circle at 50% 80%,
+      hsl(186 85.9% 100%),
+      hsl(186 85.9% 95%),
+      hsl(186 85.9% 85%),
+      hsl(186 65.9% 65.1%)
+    );
+    clip-path: url('#test-bubble-clip');
+  }
+  &__bubble-blur-wrapper {
+    filter: blur(10px);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: -1;
+  }
+  &__bubble-blur {
+    // display: none;
+
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+      circle,
+      hsl(186 85.9% 95%),
+      hsl(186 85.9% 80%),
+      hsl(186 65.9% 65.1%)
+    );
+    // filter: blur(50px);
+    clip-path: url('#test-bubble-blur-clip');
+  }
+
+  // &__circle {
+  //   transition: r 0.5s linear;
+  //   r: 0.2;
+  // }
+
+  &__clip-ellipse {
+    transition: transform 0.5s linear;
+    // transform: rotate(-30deg) scale(1, 1);
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+  &__clip-ellipse--rotate {
+    transition: transform 0.5s linear;
+    transform: rotate(13deg) scale(1, 1);
+    transform-origin: bottom center;
+    transform-box: fill-box;
+  }
+
+  &__clip-path-path {
+    transform-origin: center;
+    transform-box: fill-box;
   }
 }

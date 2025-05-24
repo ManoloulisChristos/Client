@@ -31,35 +31,189 @@ const GlobalTest = () => {
 
   return (
     <div className='test'>
-      <div className='test__box'></div>
-      <div className='test__small-box1'></div>
-      <div className='test__small-box2'></div>
-      <svg className='test__svg' width='100%' viewBox='0 0 100 100'>
-        <defs>
-          <radialGradient
-            id='myRadialGradient'
-            cx='55%'
-            cy='50%'
-            r='50%'
-            fx='45%'
-            fy='50%'
-            gradientUnits='objectBoundingBox'>
-            <stop offset='0%' stopColor='hsl(186 85.9% 100%)' />
-            <stop offset='33.33%' stopColor='hsl(186 85.9% 95%)' />
-            <stop offset='66.67%' stopColor='hsl(186 85.9% 85%)' />
-            <stop offset='100%' stopColor='hsl(186 65.9% 65.1%)' />
-          </radialGradient>
-        </defs>
-        <rect x='0' y='0' width='100%' height='100%'></rect>
-        <path
-          className='test__path'
-          fill='url(#myRadialGradient)'
-          // stroke='gray'
-          d='M 50 80 L 40 0 L 60 0 L 50 80'></path>
-      </svg>
-      <button onClick={() => console.log(testRef.current)}>RREFF</button>
-      <button onClick={() => setTestState((n) => !n)}>State</button>
-      <p>hello paragraph</p>
+      {/* <div className='test__bubble-container'>
+        <div className='test__bubble'></div>
+        <div className='test__bubble-blur'></div>
+        <div className='test__beam-wrapper test__beam-wrapper--1'>
+          <div className='test__beam test__beam--1'>
+            <svg
+              version='1.1'
+              className='test__svg-clip'
+              width='100%'
+              height='100%'>
+              <defs>
+                <clipPath id='test-beam-clip' clipPathUnits='objectBoundingBox'>
+                  <rect x='0' y='0' width='1' height='1' rx='1'></rect>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+          <div className='test__blur test__blur--1'>
+            <svg
+              version='1.1'
+              className='test__svg-clip'
+              width='100%'
+              height='100%'>
+              <defs>
+                <clipPath id='test-blur-clip' clipPathUnits='objectBoundingBox'>
+                  <rect x='-5' y='-5' width='10' height='10'></rect>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <div className='test__beam-wrapper test__beam-wrapper--2'>
+          <div className='test__beam test__beam--2'></div>
+          <div className='test__blur test__blur--2'></div>
+        </div>
+        <div className='test__beam-wrapper test__beam-wrapper--3'>
+          <div className='test__beam test__beam--3'></div>
+          <div className='test__blur test__blur--3'></div>
+        </div>
+        <div className='test__beam-wrapper test__beam-wrapper--4'>
+          <div className='test__beam test__beam--4'></div>
+          <div className='test__blur test__blur--4'></div>
+        </div>
+        <div className='test__beam-wrapper test__beam-wrapper--5'>
+          <div className='test__beam test__beam--5'></div>
+          <div className='test__blur test__blur--5'></div>
+        </div>
+      </div> */}
+      <button
+        id='test_btn_start'
+        style={{ position: 'absolute', zIndex: '10' }}>
+        {' '}
+        heelo
+      </button>
+
+      <div className='test__abs-container'>
+        <div className='test__bubble-container'>
+          <svg
+            version='1.1'
+            width='100%'
+            height='100%'
+            viewBox='0 0 1 1'
+            style={{ position: 'relative', zIndex: '5' }}>
+            <path
+              d='M .52 .20 Q .57 .45 .7 .50 L .52 .6 Z'
+              stroke='purple'
+              fill='none'
+              strokeWidth='.01'></path>
+            <path
+              style={{ transformOrigin: 'center', transformBox: 'view-box' }}
+              transform='translate(0 -.35)'
+              d='M .74 .25 L .62 .6 H .3 Q .65 .46 .74 .25'
+              stroke='purple'
+              fill='none'
+              strokeWidth='.01'></path>
+          </svg>
+          <svg
+            version='1.1'
+            width='100%'
+            height='100%'
+            className='test__svg-circle-clip'>
+            <defs>
+              <clipPath id='test-bubble-clip' clipPathUnits='objectBoundingBox'>
+                <circle
+                  className='test__circle'
+                  cx='.5'
+                  cy='0.7'
+                  r='.3'></circle>
+                <path
+                  d='M .52 .20 Q .57 .45 .7 .50 L .52 .6 Z'
+                  stroke='purple'
+                  fill='none'
+                  strokeWidth='.01'></path>
+                <path
+                  transform='translate(0 -.12)'
+                  d='M .74 .25 L .62 .6 H .3 Q .65 .46 .74 .25'
+                  stroke='purple'
+                  fill='none'
+                  strokeWidth='.01'></path>
+              </clipPath>
+              <clipPath
+                id='test-bubble-blur-clip'
+                clipPathUnits='objectBoundingBox'>
+                <circle
+                  className='test__circle'
+                  cx='.5'
+                  cy='0.7'
+                  r='.32'></circle>
+
+                <ellipse
+                  className='test__clip-ellipse'
+                  cx='.5'
+                  cy='.3'
+                  rx='0'
+                  ry='.25'
+                  fill='lightblue'
+                  opacity='1'></ellipse>
+              </clipPath>
+            </defs>
+          </svg>
+          <div className='test__bubble'></div>
+          <div className='test__bubble-blur-wrapper'>
+            <div className='test__bubble-blur'></div>
+          </div>
+        </div>
+
+        <div className='test__beam-wrapper test__beam-wrapper--1'>
+          <div className='test__beam test__beam--1'>
+            <svg
+              version='1.1'
+              className='test__svg-clip'
+              width='100%'
+              height='100%'>
+              <defs>
+                <clipPath id='test-beam-clip' clipPathUnits='objectBoundingBox'>
+                  <rect x='0' y='0' width='1' height='1' rx='1'></rect>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+          <div className='test__blur test__blur--1'>
+            <svg
+              version='1.1'
+              className='test__svg-clip'
+              width='100%'
+              height='100%'>
+              <defs>
+                <clipPath id='test-blur-clip' clipPathUnits='objectBoundingBox'>
+                  <rect x='-5' y='-5' width='10' height='10'></rect>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <div className='test__beam-wrapper test__beam-wrapper--2'>
+          <div className='test__beam test__beam--2'>
+            <svg
+              version='1.1'
+              className='test__svg-clip'
+              width='100%'
+              height='100%'>
+              <defs>
+                <clipPath id='test-beam-clip' clipPathUnits='objectBoundingBox'>
+                  <rect x='0' y='0' width='1' height='1' rx='1'></rect>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+          <div className='test__blur test__blur--2'>
+            <svg
+              version='1.1'
+              className='test__svg-clip'
+              width='100%'
+              height='100%'>
+              <defs>
+                <clipPath id='test-blur-clip' clipPathUnits='objectBoundingBox'>
+                  <rect x='-5' y='-5' width='10' height='10'></rect>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
