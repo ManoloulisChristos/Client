@@ -50,25 +50,13 @@
     // display: none;
     position: absolute;
     z-index: -3;
-    width: 20px;
-    height: 50vh;
-    transition: transform 0.5s linear;
-    &--2 {
-      transform: rotate(20deg) scale(1, 1);
-      transform-origin: bottom center;
-    }
-    &--3 {
-      transform: rotate(60deg);
-      transform-origin: bottom center;
-    }
-    &--4 {
-      transform: rotate(-30deg);
-      transform-origin: bottom center;
-    }
-    &--5 {
-      transform: rotate(-60deg);
-      transform-origin: bottom center;
-    }
+    width: 30px;
+    height: calc(100vh - 100px);
+    transition: transform 0.4s cubic-bezier(0.57, 0.31, 1, 0.75);
+    // transition: transform 0.4s linear;
+    transform: scale(1, 1);
+    // transform: scale(1, 0);
+    transform-origin: bottom center;
   }
 
   &__blur {
@@ -83,7 +71,6 @@
       hsl(186 65.9% 60.1%)
     );
     filter: blur(15px);
-    // clip-path: url('#test-blur-clip');
   }
 
   &__beam {
@@ -114,8 +101,7 @@
     position: relative;
     width: 20vmax;
     height: 20vmax;
-    transition: transform 0.7s linear;
-    transform: scale(1);
+    transform: scale(0);
     transform-origin: bottom center;
     grid-area: stack-row / stack-column;
   }
@@ -129,12 +115,16 @@
     position: absolute;
     width: 100%;
     height: 100%;
+    // background: radial-gradient(
+    //   circle at 50% 70%,
+    //   hsl(186 85.9% 100%),
+    //   hsl(186 65.9% 70%)
+    // );
     background: radial-gradient(
-      circle at 50% 80%,
-      hsl(186 85.9% 100%),
-      hsl(186 85.9% 95%),
-      hsl(186 85.9% 85%),
-      hsl(186 65.9% 65.1%)
+      circle at 50% 65%,
+      hsl(186 85.9% 92%),
+      hsl(186 85.9% 84%),
+      hsl(186 65.9% 60.1%)
     );
     clip-path: url('#test-bubble-clip');
   }
@@ -147,7 +137,6 @@
   }
   &__bubble-blur {
     // display: none;
-
     width: 100%;
     height: 100%;
     background: radial-gradient(
@@ -157,7 +146,7 @@
       hsl(186 65.9% 65.1%)
     );
     // filter: blur(50px);
-    clip-path: url('#test-bubble-blur-clip');
+    clip-path: url('#test-bubble-clip');
   }
 
   // &__circle {
