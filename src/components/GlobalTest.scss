@@ -1,3 +1,8 @@
+@property --gradient-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
 .test {
   position: relative;
   min-height: calc(100vh - 70px);
@@ -47,7 +52,7 @@
   }
 
   &__beam-wrapper {
-    // display: none;
+    display: none;
     position: absolute;
     z-index: -3;
     width: 30px;
@@ -122,8 +127,8 @@
     // );
     background: radial-gradient(
       circle at 50% 65%,
-      hsl(186 85.9% 92%),
-      hsl(186 85.9% 84%),
+      hsl(186 85.9% 95%),
+      hsl(186 85.9% 86%),
       hsl(186 65.9% 60.1%)
     );
     clip-path: url('#test-bubble-clip');
@@ -170,5 +175,88 @@
   &__clip-path-path {
     transform-origin: center;
     transform-box: fill-box;
+  }
+
+  &__conic-gradient {
+    position: absolute;
+    inset: 0;
+    width: 200%;
+    height: calc(200vh - 80px);
+    // background-image: conic-gradient(
+    //   at center bottom,
+    //   #fa8072 90deg,
+    //   transparent 0
+    // );
+    background-image: repeating-conic-gradient(
+      at center center,
+      white 0deg 5deg,
+      black 5deg 10deg
+    );
+    transform: translate(-25%, -25%);
+
+    // animation: anim-gradient 1s linear infinite alternate;
+    @keyframes anim-gradient {
+      100% {
+        transform: translate(-25%, -25%) rotate(30deg);
+      }
+    }
+  }
+  &__conic-gradient-counter {
+    position: absolute;
+    inset: 0;
+    // animation: anim-gradient 1s linear forwards;
+    background-image: conic-gradient(
+      at center bottom,
+      #fa8072 30deg,
+      transparent 0
+    );
+  }
+  // &__conic-gradient-counter {
+  //   position: absolute;
+  //   inset: 0;
+  //   // animation: anim-gradient 1s linear forwards;
+  //   background-image: conic-gradient(
+  //     at center bottom,
+  //     #fa8072 var(--gradient-angle, 20deg),
+  //     transparent 0
+  //   );
+  //   transform: scale(-1, 1);
+  // }
+  &__conic-gradient-wrapper {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: calc(100vh - 80px);
+    overflow: hidden;
+  }
+
+  &__back-container {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid: [front-row] 1fr / [front-column] 1fr;
+    justify-items: center;
+    align-items: end;
+  }
+  &__back-ray {
+    position: absolute;
+    width: 200px;
+    height: 80vh;
+    background-color: gray;
+    grid-area: front-row / front-column;
+    transform-origin: bottom center;
+    &--1 {
+      transform: rotate(0deg);
+      z-index: 2;
+    }
+    &--2 {
+      transform: rotate(20deg);
+    }
+    &--3 {
+      transform: rotate(-20deg);
+    }
+    &--4 {
+      transform: rotate(-50deg);
+    }
   }
 }

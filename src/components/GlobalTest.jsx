@@ -53,7 +53,18 @@ const GlobalTest = () => {
         heelo
       </button>
 
-      <div className='test__abs-container'>
+      <div className='test__back-container'>
+        <div className='test__back-ray test__back-ray--1'></div>
+        <div className='test__back-ray test__back-ray--2'></div>
+        <div className='test__back-ray test__back-ray--3'></div>
+        <div className='test__back-ray test__back-ray--4'></div>
+      </div>
+      {/* <div className='test__conic-gradient-wrapper'>
+        <div className='test__conic-gradient'> </div>
+        <div className='test__conic-gradient-counter'> </div>
+      </div> */}
+
+      {/* <div className='test__abs-container'>
         <div ref={bubbleRef} className='test__bubble-container'>
           <svg
             version='1.1'
@@ -162,7 +173,7 @@ z'
             </svg>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
