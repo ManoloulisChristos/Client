@@ -316,6 +316,7 @@ const homeGlassKeyframe3dValuesObj = {
 };
 
 const Home = () => {
+  const testRef = useRef(null);
   // Letter relative states based on different viewports
   const [protrusionSize, setProtrusionSize] = useState(initialProtrusion); // Front + Back + Middle letters sum of pixels in depth
   const [letterTextStrokeWidth, setLetterTextStrokeWidth] = useState(
@@ -370,7 +371,7 @@ const Home = () => {
   // SVG elements
   const svgStarRef = useRef(null);
   const svgCowRef = useRef(null);
-  const svgTubulenceRef = useRef(null);
+  const svgShadowRef = useRef(null);
 
   // Cow Parts
   const cowEarLeftRef = useRef(null);
@@ -390,11 +391,23 @@ const Home = () => {
   const glassPathsRef = useRef(null);
   const glassPathsAnimRef = useRef(null);
 
+  // Background & Intro
+  const conicWrapperRef = useRef(null);
+  const conicInsideRef = useRef(null);
+  const conicBackDarkRef = useRef(null);
+  const svgBubbleRef = useRef(null);
+  const beamRef = useRef(null);
+  const svgBubbleClipAnimateRef = useRef(null);
+
   // Animate SVG Elements that control the state of all animated svg elements
   const globalEndAnimateRef = useRef(null);
   const animateGlobalResetRef = useRef(null);
   const animateGlobalReverseRef = useRef(null);
   const animateGlobalReverseResetRef = useRef(null);
+
+  //////////////////
+  const turblulenceDisplaceAnimRef = useRef(null);
+  /////////////
 
   // Map getter helper function
   const getMap = (ref) => {
@@ -801,7 +814,6 @@ const Home = () => {
           offsetPath: 'ellipse(55vmin 35vmin at center 49vmin)',
           transform: 'rotate(0turn) scale(0.4)',
           offsetDistance: '56%',
-          opacity: 1,
           offset: 0,
         },
         {
@@ -829,7 +841,6 @@ const Home = () => {
           offsetPath: 'ray(1080deg sides)',
           offsetDistance: '0vmin',
           transform: 'rotate(7turn) scale(1)',
-          opacity: 1,
           offset: 1,
         },
       ],
@@ -847,7 +858,6 @@ const Home = () => {
           offsetPath: `ellipse(41vmin 28vmin at center 40vmax)`,
           transform: 'rotate(0turn) scale(0.4)',
           offsetDistance: '54%',
-          opacity: 1,
           offset: 0,
         },
         {
@@ -879,7 +889,6 @@ const Home = () => {
           offsetPath: 'ray(1080deg sides)',
           offsetDistance: '0vmin',
           transform: 'rotate(7turn) scale(1)',
-          opacity: 1,
           offset: 1,
         },
       ],
@@ -893,7 +902,6 @@ const Home = () => {
           offsetPath: `ellipse(41vmin 33vmin at center 36.5vmax)`,
           transform: 'rotate(0turn) scale(0.4)',
           offsetDistance: '56%',
-          opacity: 1,
           offset: 0,
         },
         {
@@ -930,7 +938,6 @@ const Home = () => {
           offsetPath: 'ray(1080deg sides)',
           offsetDistance: '0vmin',
           transform: 'rotate(7turn) scale(1)',
-          opacity: 1,
           offset: 1,
         },
       ],
@@ -939,7 +946,7 @@ const Home = () => {
       },
     },
     // Used in combination with the break3dGlass animation
-    turbulenceBreakGlass: {
+    shadowBreakGlass: {
       keyframes: [
         {
           transform: 'perspective(500px) translateZ(0px) rotateX(0deg)',
@@ -974,7 +981,7 @@ const Home = () => {
       },
     },
     // Used with different playbackRate values animating one after the other
-    turbulenceShake: {
+    shadowShake: {
       keyframes: [
         {
           transform:
@@ -1127,6 +1134,65 @@ const Home = () => {
     },
   };
 
+  const backgroundAnimationArgs = {
+    bubble: {
+      keyframes: [
+        {
+          transform: 'scale(0)',
+          offset: 0,
+        },
+        {
+          transform: 'scale(2)',
+          offset: 0.2,
+        },
+        {
+          transform: 'scale(2)',
+          offset: 0.7,
+        },
+        {
+          transform: 'scale(0)',
+          offset: 1,
+        },
+      ],
+      options: { duration: 800 },
+    },
+    beam: {
+      keyframes: [
+        {
+          transform: 'scale(1, 0)',
+        },
+        { transform: 'scale(1, 1)' },
+      ],
+      options: {
+        duration: 500,
+        delay: 500,
+        easing: 'cubic-bezier(0.47, 0.35, 1, 0.8)',
+      },
+    },
+    conicBackDarkRef: {
+      keyframes: [
+        {
+          '--home-conic-color-lightness': '100%',
+        },
+        {
+          '--home-conic-color-lightness': '5%',
+        },
+      ],
+      options: { duration: 600, fill: 'forwards' },
+    },
+    conicMaskAngle: {
+      keyframes: [
+        {
+          '--home-conic-color-lightness': '100%',
+        },
+        {
+          '--home-conic-color-lightness': '5%',
+        },
+      ],
+      options: { duration: 600, fill: 'forwards' },
+    },
+  };
+
   useLayoutEffect(() => {
     // REVERSE ANIMATION
     //Starting state
@@ -1164,14 +1230,17 @@ const Home = () => {
 
     // Reset SVG container timmers and set all relative animations into their starting states
     glassContainerRef.current.dataset.display = 'true';
+    mainSvgContainerRef.current.style.opacity = '0';
+    svgShadowRef.current.dataset.display = 'true';
     setToggleGlassClassName(glass3dAnimationArgs.strokeState.empty);
     const svgStar = svgStarRef.current;
-    const svgTurbulence = svgTubulenceRef.current;
+    const svgShadow = svgShadowRef.current;
     const starCurrTime = svgStar.getCurrentTime();
-    const turblulenceCurrTime = svgTurbulence.getCurrentTime();
+    const turblulenceCurrTime = svgShadow.getCurrentTime();
     svgStar.setCurrentTime(starCurrTime + 60);
-    svgTurbulence.setCurrentTime(turblulenceCurrTime + 60);
+    svgShadow.setCurrentTime(turblulenceCurrTime + 60);
     animateGlobalResetRef.current.beginElement();
+
     ////////////////////////////////////////////////////////////////////////////
     // Animates all letters and returns the letter "S" animation
     const letterEntranceAnimations = () => {
@@ -1286,12 +1355,6 @@ const Home = () => {
       //     commitStyles(boxAnimation);
       //   }
 
-      const commitStyles = async (animation) => {
-        await animation.finished;
-        animation.commitStyles();
-        animation.cancel();
-      };
-
       if (countIteretions === 0) {
         initialFrameTime = time;
       }
@@ -1308,7 +1371,6 @@ const Home = () => {
           );
         boxAnimation.currentTime = -computedDelay;
 
-        // commitStyles(boxAnimation);
         countIteretions++;
         requestAnimationFrame(letterEndingAnimations);
       } else {
@@ -1320,7 +1382,6 @@ const Home = () => {
           );
 
         boxAnimation.currentTime = -computedDelay;
-        // commitStyles(boxAnimation);
       }
     };
 
@@ -1340,6 +1401,7 @@ const Home = () => {
           options = svgAnimationArgs.containerPhone.options;
         }
       }
+      mainSvgContainerRef.current.style.opacity = '1';
       const animation = mainSvgContainerRef.current.animate(keyframes, options);
       return animation;
     };
@@ -1348,10 +1410,12 @@ const Home = () => {
     // if the variables holds a value.
     let path10TransitionEndCallback = null;
     let path4TransitionEndCallback = null;
+    let shadowDissapearEndEventCallback = null;
     // All elements that listeners attach to
     const path10 = getMap(glassPathsRef).get(10);
     const path4 = getMap(glassPathsRef).get(4);
-    const turbulenceEyeAngryAnimate = turblulenceEyeAngryAnimateRef.current;
+    const shadowEyeAngryAnimate = turblulenceEyeAngryAnimateRef.current;
+    const shadowDissapear = turblulenceDisplaceAnimRef.current;
 
     //// 3 eventListeners nested one after the other ///
 
@@ -1361,159 +1425,220 @@ const Home = () => {
 
     // The two nested listeners have the flag once:'true' because they cant distinguish the half point
     // and the full point of the transition so if they are normally attached they retrigger when both transitions end.
-    const turbulenceAngryEyeListenerCallback = () => {
-      // After the eyes get angry begin the strokedash-offset transition to half
-      setToggleGlassClassName(
-        'home__svg-glass-transition-half home__svg-glass-transition-half--'
-      );
-
-      //  Path 10 is the last one transitioning
-      //  Wait for the transition to end (half-point)
-      path10TransitionEndCallback = () => {
-        // Begin the full strokedash-offset transition
-        setToggleGlassClassName(
-          'home__svg-glass-transition-full home__svg-glass-transition-full--'
-        );
-
-        // Wait for the transition of path 4 to end this is almost midway of all the paths
-        // that are transitioning
-        path4TransitionEndCallback = async () => {
-          //  Move the turbulence backwards in the Z-axis, rotate in the Y-axis
-          // then move fast towards the screen and remove the blur when the glass is broken
-          const turbulenceBreakGlassAnim = svgTubulenceRef.current.animate(
-            svgAnimationArgs.turbulenceBreakGlass.keyframes,
-            svgAnimationArgs.turbulenceBreakGlass.options
-          );
-
-          // Glass 3d animation
-          for (let i = 0; i <= 43; i++) {
-            const path = getMap(glassPathsRef).get(i);
-
-            // Move the different paths of the glass svg in the Z-axis and rotate them differently on the X & Y axes
-            // based on their position around the center of the glass with 2500 delay (half of the turbulence breaking the glass)
-            const animation = path.animate(
-              glass3dAnimationArgs.keyframesFn(homeGlassKeyframe3dValuesObj[i]),
-              glass3dAnimationArgs.options
-            );
-
-            // 42 is the one that hits the center of the screen
-            // when it finishes the animation remove the glass display entirely
-            if (i === 42) {
-              animation.onfinish = () => {
-                glassContainerRef.current.dataset.display = 'false';
-              };
-            }
-          }
-
-          // Wait for the glass animation and then start the shaking
-          await turbulenceBreakGlassAnim.finished;
-
-          // Move the svg turbulence on the X and the Y axis with multiple iterations
-          const turbulenceShakeAnimation = svgTubulenceRef.current.animate(
-            svgAnimationArgs.turbulenceShake.keyframes,
-            svgAnimationArgs.turbulenceShake.options
-          );
-
-          // Shaking steps and increased playback rate with each step
-          await turbulenceShakeAnimation.finished;
-
-          turbulenceShakeAnimation.playbackRate = 1.5;
-          turbulenceShakeAnimation.currentTime = 0;
-          turbulenceShakeAnimation.play();
-          await turbulenceShakeAnimation.finished;
-          turbulenceShakeAnimation.playbackRate = 2;
-          turbulenceShakeAnimation.currentTime = 0;
-          turbulenceShakeAnimation.play();
-          await turbulenceShakeAnimation.finished;
-          turbulenceShakeAnimation.playbackRate = 2.5;
-          turbulenceShakeAnimation.currentTime = 0;
-          turbulenceShakeAnimation.play();
-          await turbulenceShakeAnimation.finished;
-
-          // Wait for the shake to end and then make the turbulence disappear
-          // Animate the clip path defined in the svg
-          turbulenceClipAnimateRef.current.beginElement();
-          // Move the turbulence svg back in the Z axis and try to target the cow's mouth by moving it down in Y axis
-          // It creates a bit of overflow when it hits the max point of the animation but its miniscule
-          const turbulenceDissapearAnimation = svgTubulenceRef.current.animate(
-            svgAnimationArgs.turbulenceDisappear.keyframesFn(
-              widthBellow600,
-              widthBellow1200
-            ),
-            svgAnimationArgs.turbulenceDisappear.options
-          );
-
-          // Change the opacity, scale and move the whole svg cow from negative Z-axis to original position
-          const cowAppearAnimation = svgCowRef.current.animate(
-            svgAnimationArgs.cowAppear.keyframes,
-            svgAnimationArgs.cowAppear.options
-          );
-
-          // Animate the ears by rotating them fast in the Y axis with multiple alternate iterations
-          // Each ear has a different transform-origin defined in CSS based on what side it is.
-          cowEarLeftRef.current.animate(
-            svgAnimationArgs.cowEarFlap.keyframes,
-            svgAnimationArgs.cowEarFlap.optionsFn(42)
-          );
-          const cowEarFlapAnimation = cowEarRightRef.current.animate(
-            svgAnimationArgs.cowEarFlap.keyframes,
-            svgAnimationArgs.cowEarFlap.optionsFn(42)
-          );
-
-          // Wait for the cow to appear
-          await cowAppearAnimation.finished;
-
-          // Move the mouth on the neutral position in the Y-axis
-          cowMouthBottomRef.current.animate(
-            svgAnimationArgs.cowMouthCloseNeutral.keyframes,
-            svgAnimationArgs.cowMouthCloseNeutral.options
-          );
-          // Cow's ear flap is the last animation playing in general
-          await cowEarFlapAnimation.finished;
-          // After all the animations have finished the ones that have the fill:'forwards' flag are persisting.
-          // So the animations need to get canceled and the styles must be commited for better performance.
-          document.getAnimations().forEach((animation) => {
-            animation.commitStyles();
-            animation.cancel();
-          });
-          console.log(document.getAnimations());
-        };
-
-        // 2nd level of depth
-        path4.addEventListener('transitionend', path4TransitionEndCallback, {
-          once: 'true',
-        });
-      };
-      // 1rst level of depth
-      path10.addEventListener('transitionend', path10TransitionEndCallback, {
-        once: 'true',
-      });
+    const shadowAngryEyeListenerCallback = () => {
+      // // After the eyes get angry begin the strokedash-offset transition to half
+      // setToggleGlassClassName(
+      //   'home__svg-glass-transition-half home__svg-glass-transition-half--'
+      // );
+      // //  Path 10 is the last one transitioning
+      // //  Wait for the transition to end (half-point)
+      // path10TransitionEndCallback = () => {
+      //   // Begin the full strokedash-offset transition
+      //   setToggleGlassClassName(
+      //     'home__svg-glass-transition-full home__svg-glass-transition-full--'
+      //   );
+      //   // Wait for the transition of path 4 to end this is almost midway of all the paths
+      //   // that are transitioning
+      //   path4TransitionEndCallback = async () => {
+      //     //  Move the turbulence backwards in the Z-axis, rotate in the Y-axis
+      //     // then move fast towards the screen and remove the blur when the glass is broken
+      //     const shadowBreakGlassAnim = svgShadowRef.current.animate(
+      //       svgAnimationArgs.shadowBreakGlass.keyframes,
+      //       svgAnimationArgs.shadowBreakGlass.options
+      //     );
+      //     // Glass 3d animation
+      //     for (let i = 0; i <= 43; i++) {
+      //       const path = getMap(glassPathsRef).get(i);
+      //       // Move the different paths of the glass svg in the Z-axis and rotate them differently on the X & Y axes
+      //       // based on their position around the center of the glass with 2500 delay (half of the turbulence breaking the glass)
+      //       const animation = path.animate(
+      //         glass3dAnimationArgs.keyframesFn(homeGlassKeyframe3dValuesObj[i]),
+      //         glass3dAnimationArgs.options
+      //       );
+      //       // 42 is the one that hits the center of the screen
+      //       // when it finishes the animation remove the glass display entirely
+      //       if (i === 42) {
+      //         animation.onfinish = () => {
+      //           glassContainerRef.current.dataset.display = 'false';
+      //         };
+      //       }
+      //     }
+      //     // Wait for the glass animation and then start the shaking
+      //     await shadowBreakGlassAnim.finished;
+      //     // Move the svg turbulence on the X and the Y axis with multiple iterations
+      //     const shadowShakeAnimation = svgShadowRef.current.animate(
+      //       svgAnimationArgs.shadowShake.keyframes,
+      //       svgAnimationArgs.shadowShake.options
+      //     );
+      //     // Shaking steps and increased playback rate with each step
+      //     // await shadowShakeAnimation.finished;
+      //     shadowShakeAnimation.playbackRate = 1.5;
+      //     shadowShakeAnimation.currentTime = 0;
+      //     shadowShakeAnimation.play();
+      //     await shadowShakeAnimation.finished;
+      //     shadowShakeAnimation.playbackRate = 2;
+      //     shadowShakeAnimation.currentTime = 0;
+      //     shadowShakeAnimation.play();
+      //     await shadowShakeAnimation.finished;
+      //     shadowShakeAnimation.playbackRate = 2.5;
+      //     shadowShakeAnimation.currentTime = 0;
+      //     shadowShakeAnimation.play();
+      //     await shadowShakeAnimation.finished;
+      //     ////////////
+      //     turblulenceDisplaceAnimRef.current.beginElement();
+      //     shadowDissapearEndEventCallback = async () => {
+      //       svgShadowRef.current.dataset.display = 'false';
+      //       const cowOpacity = svgCowRef.current.animate(
+      //         [
+      //           {
+      //             opacity: '0',
+      //           },
+      //           {
+      //             opacity: '1',
+      //           },
+      //         ],
+      //         { duration: 500, fill: 'forwards' }
+      //       );
+      //       testRef.current.beginElement();
+      //       await cowOpacity.finished;
+      //       // setTimeout(() => {
+      //       //   document.getAnimations().forEach((animation) => {
+      //       //     const animationFill = animation.effect.getTiming().fill;
+      //       //     const localAnimation = homeRef.current.contains(
+      //       //       animation.effect.target
+      //       //     );
+      //       //     console.log(animationFill, localAnimation);
+      //       //     console.log(animation);
+      //       //     // Check if the animation is inside the component and if it has forwards fill
+      //       //     if (localAnimation && animationFill === 'forwards') {
+      //       //       animation.commitStyles();
+      //       //       animation.cancel();
+      //       //     }
+      //       //   });
+      //       // }, 2000);
+      //       console.log(document.getAnimations());
+      //     };
+      //     shadowDissapear.addEventListener(
+      //       'endEvent',
+      //       shadowDissapearEndEventCallback
+      //     );
+      //     // After all the animations have finished the ones that have the fill:'forwards' flag are persisting.
+      //     // So the animations need to get canceled and the styles must be commited for better performance.
+      //     // document.getAnimations().forEach((animation) => {
+      //     //   const animationFill = animation.effect.getTiming().fill;
+      //     //   const localAnimation = homeRef.current.contains(
+      //     //     animation.effect.target
+      //     //   );
+      //     //   console.log(animationFill, localAnimation);
+      //     //   console.dir(animation);
+      //     //   // Check if the animation is inside the component and if it has forwards fill
+      //     //   if (localAnimation && animationFill === 'forwards') {
+      //     //     animation.commitStyles();
+      //     //     animation.cancel();
+      //     //   }
+      //     // });
+      //     // console.log(document.getAnimations());
+      //   };
+      //   // 2nd level of depth
+      //   path4.addEventListener('transitionend', path4TransitionEndCallback, {
+      //     once: 'true',
+      //   });
+      // };
+      // // 1rst level of depth
+      // path10.addEventListener('transitionend', path10TransitionEndCallback, {
+      //   once: 'true',
+      // });
     };
 
-    // Event listener for the end event of the animate elemnt that "makes the eyes angry"
-    turbulenceEyeAngryAnimate.addEventListener(
+    // Event listener for the end event of the animate element that "makes the eyes angry"
+    shadowEyeAngryAnimate.addEventListener(
       'endEvent',
-      turbulenceAngryEyeListenerCallback
+      shadowAngryEyeListenerCallback
     );
-
+    const backgroundAnimation = async () => {
+      svgBubbleClipAnimateRef.current.beginElement();
+      const bubble = svgBubbleRef.current.animate(
+        [
+          {
+            transform: 'scale(0)',
+            offset: 0,
+          },
+          {
+            transform: 'scale(2)',
+            offset: 0.2,
+          },
+          {
+            transform: 'scale(2)',
+            offset: 0.7,
+          },
+          {
+            transform: 'scale(0)',
+            offset: 1,
+          },
+        ],
+        { duration: 800 }
+      );
+      const beam = beamRef.current.animate(
+        [
+          {
+            transform: 'scale(1, 0)',
+          },
+          { transform: 'scale(1, 1)' },
+        ],
+        {
+          duration: 500,
+          delay: 500,
+          easing: 'cubic-bezier(0.47, 0.35, 1, 0.8)',
+        }
+      );
+      await beam.finished;
+      conicBackDarkRef.current.animate(
+        [
+          {
+            '--home-conic-color-lightness': '100%',
+          },
+          {
+            '--home-conic-color-lightness': '5%',
+          },
+        ],
+        { duration: 600, fill: 'forwards' }
+      );
+      const conicWrapperAnimation = conicWrapperRef.current.animate(
+        [
+          {
+            '--home-mask-gradient-angle': '90deg',
+          },
+          {
+            '--home-mask-gradient-angle': '180deg',
+          },
+        ],
+        { duration: 1000, fill: 'forwards' }
+      );
+      return conicWrapperAnimation;
+    };
     const playAllAnimations = async () => {
+      // const conicWrapperAnim = await backgroundAnimation();
+      // await conicWrapperAnim.finished;
       const starAnimation = mainSvgAnimation();
       const letter_S_animation = letterEntranceAnimations();
       // Wait for the S to finish the spin and then animate() the ending
       await letter_S_animation.finished;
       requestAnimationFrame(letterEndingAnimations);
       await starAnimation.finished;
-      starMorphShapeAnimateRef.current.beginElement();
+      // starMorphShapeAnimateRef.current.beginElement();
     };
 
     playAllAnimations();
     const homeArticle = homeRef.current;
 
     return () => {
-      turbulenceEyeAngryAnimate.removeEventListener(
+      console.log('clean-up');
+
+      shadowEyeAngryAnimate.removeEventListener(
         'endEvent',
-        turbulenceAngryEyeListenerCallback
+        shadowAngryEyeListenerCallback
       );
+
       if (path10TransitionEndCallback) {
         path10.removeEventListener(
           'transitionend',
@@ -1528,11 +1653,23 @@ const Home = () => {
           once: 'true',
         });
       }
-
+      if (shadowDissapearEndEventCallback) {
+        shadowDissapear.removeEventListener(
+          'endEvent',
+          shadowDissapearEndEventCallback
+        );
+      }
+      // Cancel Animations that are running and are inside the home component
+      // whenever one of the dependancies changes.
       document.getAnimations().forEach((animation) => {
-        if (homeArticle.contains(animation.effect.target)) {
-          animation.cancel();
-        }
+        console.log(animation.effect.target);
+        animation.cancel();
+        // const localAnimation = homeArticle.contains(animation.effect.target);
+        // const hasConicClassName =
+        //   animation.effect.target.classList.contains('home__conic');
+        // if (localAnimation && !hasConicClassName) {
+        //   animation.cancel();
+        // }
       });
     };
   }, [
@@ -1658,29 +1795,144 @@ const Home = () => {
   // }, []);
 
   const playAnimations = async () => {
-    svgCowRef.current.animate(
-      svgAnimationArgs.cowLevitate.keyframes,
-      svgAnimationArgs.cowLevitate.options
-    );
+    for (let i = 0; i <= 6; i++) {
+      getMap(containersRef)
+        .get(i)
+        .animate({ opacity: '0' }, { duration: 300, fill: 'forwards' });
+    }
+    // svgBubbleClipAnimateRef.current.beginElement();
+    // const bubble = svgBubbleRef.current.animate(
+    //   [
+    //     {
+    //       transform: 'scale(0)',
+    //       offset: 0,
+    //     },
+    //     {
+    //       transform: 'scale(2)',
+    //       offset: 0.2,
+    //     },
+    //     {
+    //       transform: 'scale(2)',
+    //       offset: 0.7,
+    //     },
+    //     {
+    //       transform: 'scale(0)',
+    //       offset: 1,
+    //     },
+    //   ],
+    //   { duration: 800 }
+    // );
+    // const beam = beamRef.current.animate(
+    //   [
+    //     {
+    //       transform: 'scale(1, 0)',
+    //     },
+    //     { transform: 'scale(1, 1)' },
+    //   ],
+    //   {
+    //     duration: 500,
+    //     delay: 500,
+    //     easing: 'cubic-bezier(0.47, 0.35, 1, 0.8)',
+    //   }
+    // );
+    // beam.onfinish = () => {
+    //   conicBackDarkRef.current.animate(
+    //     [
+    //       {
+    //         '--home-conic-color-lightness': '100%',
+    //       },
+    //       {
+    //         '--home-conic-color-lightness': '5%',
+    //       },
+    //     ],
+    //     { duration: 600, fill: 'forwards' }
+    //   );
+    //   conicWrapperRef.current.animate(
+    //     [
+    //       {
+    //         '--home-mask-gradient-angle': '90deg',
+    //       },
+    //       {
+    //         '--home-mask-gradient-angle': '180deg',
+    //       },
+    //     ],
+    //     { duration: 1000, fill: 'forwards' }
+    //   );
+    // };
   };
 
-  const cancelAnimations = () => {
-    console.log(document.getAnimations());
+  const cancelAnimations = async () => {
+    const backgroundAnimation = async () => {
+      svgBubbleClipAnimateRef.current.beginElement();
+      const bubble = svgBubbleRef.current.animate(
+        [
+          {
+            transform: 'scale(0)',
+            offset: 0,
+          },
+          {
+            transform: 'scale(2)',
+            offset: 0.2,
+          },
+          {
+            transform: 'scale(2)',
+            offset: 0.7,
+          },
+          {
+            transform: 'scale(0)',
+            offset: 1,
+          },
+        ],
+        { duration: 800 }
+      );
+      const beam = beamRef.current.animate(
+        [
+          {
+            transform: 'scale(1, 0)',
+          },
+          { transform: 'scale(1, 1)' },
+        ],
+        {
+          duration: 500,
+          delay: 500,
+          easing: 'cubic-bezier(0.47, 0.35, 1, 0.8)',
+        }
+      );
+      await beam.finished;
+      conicBackDarkRef.current.animate(
+        [
+          {
+            '--home-conic-color-lightness': '100%',
+          },
+          {
+            '--home-conic-color-lightness': '5%',
+          },
+        ],
+        { duration: 600, fill: 'forwards' }
+      );
+      const conicWrapperAnimation = conicWrapperRef.current.animate(
+        [
+          {
+            '--home-mask-gradient-angle': '90deg',
+          },
+          {
+            '--home-mask-gradient-angle': '180deg',
+          },
+        ],
+        { duration: 1000, fill: 'forwards' }
+      );
+      return conicWrapperAnimation;
+    };
   };
 
   const reverseAnimations = async () => {
-    cowEarLeftRef.current.animate(
-      svgAnimationArgs.cowEarFlap.keyframes,
-      svgAnimationArgs.cowEarFlap.optionsFn(4)
-    );
-    cowEarRightRef.current.animate(
-      svgAnimationArgs.cowEarFlap.keyframes,
-      svgAnimationArgs.cowEarFlap.optionsFn(4)
-    );
+    document.getAnimations().forEach((anim) => {
+      anim.cancel();
+    });
   };
 
   const hello = async () => {
-    // cowRef.current.unpauseAnimations();
+    console.log(document.getAnimations());
   };
 
   ////// Arc //////
@@ -1732,6 +1984,7 @@ const Home = () => {
   return (
     <article ref={homeRef} className='home'>
       <button
+        id='test_button_3'
         style={{ position: 'absolute', left: '200px', zIndex: '10' }}
         onClick={hello}>
         hello
@@ -1742,11 +1995,13 @@ const Home = () => {
         play
       </button>
       <button
+        id='test_button_2'
         style={{ position: 'absolute', left: '80px', zIndex: '10' }}
         onClick={cancelAnimations}>
         cancel
       </button>
       <button
+        id='test_button_4'
         style={{ position: 'absolute', left: '160px', zIndex: '10' }}
         onClick={reverseAnimations}>
         reverse
@@ -1853,9 +2108,16 @@ const Home = () => {
           xmlSpace='preserve'
           xmlns='http://www.w3.org/2000/svg'
           preserveAspectRatio='xMidYMid meet'>
+          <defs>
+            <radialGradient id='home_star_gradient_fill'>
+              <stop offset='0%' stopColor='hsl(165, 90.30%, 48.40%)' />
+              <stop offset='50%' stopColor='hsl(165, 77.70%, 50.80%)' />
+              <stop offset='100%' stopColor='hsl(164, 100.00%, 58.00%)' />
+            </radialGradient>
+          </defs>
           <path
             opacity='1'
-            fill='lightsalmon'
+            fill='hsl(175, 82%, 65%)'
             stroke='none'
             strokeWidth='2'
             d='M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7-8.65-44.37-15.07-89.13-21.59-133.86-6.43-44.13-19.16-116.61-17.27-132.69 1.87-15.83 65.5-72.27 99.03-107.68 30.06-31.75 62.3-61.43 91.56-93.94 22.48-22.78 20.12-40.5-12.8-47.96-47.55-9.24-95.72-14.94-143.52-22.79-44.13-7.24-101.2-11.63-132.25-22.43-5.13-1.78-42.19-87.16-64.5-130.13-21.5-41.37-43.4-82.83-66.8-122.86-15.94-26.68-30.35-13.49-42.82 6.92-11.63 19.03-44.73 78.4-66.2 118.1-22.88 42.33-29.7 53.17-66.69 128.02-1.86 3.75-88.5 15.13-132.81 22.38-47.8 7.83-95.97 13.4-143.53 22.8-32.22 5.92-33.5 25.48-14.68 46.07 53.3 58.34 66.1 65.13 97.67 99.1 32.31 34.77 89.76 82.01 93.85 107.11 3.09 18.98-10.12 86.76-16.32 129.98-6.4 44.74-15.6 89.44-21.58 133.86-5.45 33.25 1.15 47.82 35.3 35.7 34.15-12.12 90.76-44.92 136.37-66.9 39.52-19.04 99.23-57.03 118.95-56.3 18.94.71 82 36.82 118.96 56.3z'>
@@ -1925,8 +2187,8 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               values='M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7-8.65-44.37-15.07-89.13-21.59-133.86-6.43-44.13-19.16-116.61-17.27-132.69 1.87-15.83 65.5-72.27 99.03-107.68 30.06-31.75 62.3-61.43 91.56-93.94 22.48-22.78 20.12-40.5-12.8-47.96-47.55-9.24-95.72-14.94-143.52-22.79-44.13-7.24-101.2-11.63-132.25-22.43-5.13-1.78-42.19-87.16-64.5-130.13-21.5-41.37-43.4-82.83-66.8-122.86-15.94-26.68-30.35-13.49-42.82 6.92-11.63 19.03-44.73 78.4-66.2 118.1-22.88 42.33-29.7 53.17-66.69 128.02-1.86 3.75-88.5 15.13-132.81 22.38-47.8 7.83-95.97 13.4-143.53 22.8-32.22 5.92-33.5 25.48-14.68 46.07 53.3 58.34 66.1 65.13 97.67 99.1 32.31 34.77 89.76 82.01 93.85 107.11 3.09 18.98-10.12 86.76-16.32 129.98-6.4 44.74-15.6 89.44-21.58 133.86-5.45 33.25 1.15 47.82 35.3 35.7 34.15-12.12 90.76-44.92 136.37-66.9 39.52-19.04 99.23-57.03 118.95-56.3 18.94.71 82 36.82 118.96 56.3z;'></animate>
           </path>
           <path
-            stroke='white'
-            fill='lightsalmon'
+            stroke='none'
+            fill='hsl(175, 82%, 65%)'
             strokeWidth='.5'
             strokeLinejoin='round'>
             <animate
@@ -1955,7 +2217,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               id='home_svg_star_arc_moprh_out'
               attributeType='XML'
               attributeName='d'
-              dur='3.5s'
+              dur='2.5s'
               begin='home_svg_star_arc_line_extend_anim.end'
               values={memoArcValues}></animate>
             {/* Global Reset Starting State */}
@@ -1977,6 +2239,64 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
           xmlns='http://www.w3.org/2000/svg'
           xmlSpace='preserve'
           viewBox='0 0 1600 900'>
+          <defs>
+            <filter
+              id='home-svg-turblulence-cow-filter'
+              width='160%'
+              height='160%'>
+              <feTurbulence
+                type='turbulence'
+                baseFrequency='0.03 0.02'
+                numOctaves='5'
+                result='f_turb'
+                seed='2'>
+                <animate
+                  attributeType='XML'
+                  attributeName='baseFrequency'
+                  begin='home_svg_star_arc_moprh_out.begin'
+                  dur='45s'
+                  values='0.04 0.04;0.1 0.1; 0.04 0.04'
+                  repeatCount='indefinite'></animate>
+              </feTurbulence>
+              <feTurbulence
+                type='turbulence'
+                baseFrequency='0.01 0.03'
+                numOctaves='5'
+                result='f_turb2'
+                seed='4'>
+                <animate
+                  attributeType='XML'
+                  attributeName='baseFrequency'
+                  begin='home_svg_star_arc_moprh_out.begin'
+                  dur='45s'
+                  values=' 0.1 0.1;0.04 0.04; 0.1 0.1'
+                  repeatCount='indefinite'></animate>
+              </feTurbulence>
+              <feBlend
+                in='f_turb'
+                in2='f_turb2'
+                mode='multiply'
+                result='BLEND'></feBlend>
+
+              <feDisplacementMap
+                in='SourceGraphic'
+                in2='BLEND'
+                scale='3000'
+                xChannelSelector='G'
+                yChannelSelector='R'
+                result='displace'>
+                <animate
+                  ref={testRef}
+                  attributeType='XML'
+                  attributeName='scale'
+                  // begin='home_svg_turbulence_displace_anim.begin'
+                  begin='indefinite'
+                  dur='1s'
+                  fill='freeze'
+                  values='3000; 0'></animate>
+              </feDisplacementMap>
+            </filter>
+          </defs>
           <g>
             <g inkscape:label='scalp'>
               <path
@@ -2474,7 +2794,8 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
         </svg>
 
         <svg
-          ref={svgTubulenceRef}
+          ref={svgShadowRef}
+          data-display='true'
           data-blur='true'
           className='home__svg-turbulance'
           viewBox='0 0 100 100'
@@ -2596,7 +2917,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                   attributeType='XML'
                   attributeName='baseFrequency'
                   begin='home_svg_star_arc_moprh_out.begin'
-                  dur='25s'
+                  dur='45s'
                   values='0.04 0.04;0.1 0.1; 0.04 0.04'
                   repeatCount='indefinite'></animate>
               </feTurbulence>
@@ -2610,7 +2931,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                   attributeType='XML'
                   attributeName='baseFrequency'
                   begin='home_svg_star_arc_moprh_out.begin'
-                  dur='25s'
+                  dur='45s'
                   values=' 0.1 0.1;0.04 0.04; 0.1 0.1'
                   repeatCount='indefinite'></animate>
               </feTurbulence>
@@ -2626,43 +2947,70 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                 scale='50'
                 xChannelSelector='G'
                 yChannelSelector='R'
-                result='displace'></feDisplacementMap>
+                result='displace'>
+                <animate
+                  ref={turblulenceDisplaceAnimRef}
+                  id='home_svg_turbulence_displace_anim'
+                  attributeType='XML'
+                  attributeName='scale'
+                  begin='indefinite'
+                  dur='1s'
+                  fill='freeze'
+                  values='50; 2000'></animate>
+                {/* Global Reset Starting State */}
+                <animate
+                  attributeType='XML'
+                  attributeName='scale'
+                  begin='home_animate_global_reset.begin'
+                  dur='0.001s'
+                  fill='freeze'
+                  values='50'></animate>
+              </feDisplacementMap>
             </filter>
           </defs>
-          <g clipPath='url(#home-svg-turbulence-clip)'>
-            <circle
-              cx='40'
-              cy='40'
-              r='40'
-              filter='url(#home-svg-turblulence-filter)'
-              opacity='0'>
-              <animate
-                id='home_svg_turbulence_circle_opacity'
-                attributeType='CSS'
-                attributeName='opacity'
-                dur='2.5s'
-                from='0'
-                to='1'
-                fill='freeze'
-                begin='home_svg_star_arc_moprh_out.begin'></animate>
-              {/* Global Reset Starting State */}
-              <animate
-                attributeType='CSS'
-                attributeName='opacity'
-                dur='0.001s'
-                from='0'
-                to='0'
-                fill='freeze'
-                begin='home_animate_global_reset.begin'></animate>
-            </circle>
+
+          <circle
+            cx='40'
+            cy='40'
+            r='40'
+            filter='url(#home-svg-turblulence-filter)'
+            opacity='0'>
+            <animate
+              id='home_svg_turbulence_circle_opacity'
+              attributeType='CSS'
+              attributeName='opacity'
+              dur='2s'
+              from='0'
+              to='1'
+              fill='freeze'
+              begin='home_svg_star_arc_moprh_out.begin'></animate>
+            {/* Global Reset Starting State */}
+            <animate
+              attributeType='CSS'
+              attributeName='opacity'
+              dur='0.001s'
+              from='0'
+              to='0'
+              fill='freeze'
+              begin='home_animate_global_reset.begin'></animate>
+          </circle>
+          <g>
+            {/* Group the eyes & mouth and keep the opacity at 0 for 2s
+               when the animate on displace begins for the circle */}
+            <animate
+              attributeType='CSS'
+              attributeName='opacity'
+              dur='2s'
+              values='0'
+              begin='home_svg_turbulence_displace_anim.begin'></animate>
             <g filter='url(#home-svg-turblulence-filter-eyes)'>
               <path fill='red'>
                 <animate
                   id='home_svg_turbulence_left_eye_open'
                   attributeType='XML'
                   attributeName='d'
-                  dur='3s'
-                  begin='home_svg_turbulence_circle_opacity.end+1.5s'
+                  dur='2.5s'
+                  begin='home_svg_turbulence_circle_opacity.end+0.5s'
                   fill='freeze'
                   values='
               m 43,40
@@ -2680,7 +3028,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                   attributeType='XML'
                   attributeName='d'
                   dur='.7s'
-                  begin='home_svg_turbulence_left_eye_open.end+2s'
+                  begin='home_svg_turbulence_left_eye_open.end+1.5s'
                   calcMode='spline'
                   keySplines='0.16, 1, 0.3, 1'
                   keyTimes='0; 1'
@@ -2716,8 +3064,8 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                   id='home_svg_turbulence_right_eye_open'
                   attributeType='XML'
                   attributeName='d'
-                  dur='3s'
-                  begin='home_svg_turbulence_circle_opacity.end+1.5s'
+                  dur='2.5s'
+                  begin='home_svg_turbulence_circle_opacity.end+0.5s'
                   fill='freeze'
                   values='m 64,40
             c 0,0.04 -1.77,0.13 -3.98,0.13
@@ -2734,7 +3082,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                   attributeType='XML'
                   attributeName='d'
                   dur='.7s'
-                  begin='home_svg_turbulence_right_eye_open.end+2s'
+                  begin='home_svg_turbulence_right_eye_open.end+1.5s'
                   calcMode='spline'
                   keySplines='0.16, 1, 0.3, 1'
                   keyTimes='0; 1'
@@ -2780,7 +3128,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               <animate
                 attributeType='CSS'
                 attributeName='opacity'
-                dur='4s'
+                dur='2s'
                 begin='home_svg_turbulence_left_eye_open.begin'
                 from='0'
                 to='1'
@@ -2809,6 +3157,13 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
           height='100%'
           viewBox='0 0 100 100'
           xmlns='http://www.w3.org/2000/svg'>
+          <defs>
+            <linearGradient id='glassGradient1' gradientTransform='rotate(45)'>
+              <stop offset='0%' stopColor='hsla(175, 100.00%, 89%, 0.30)' />
+              <stop offset='100%' stopColor='hsla(175, 100.00%, 19%, 0.20)' />
+            </linearGradient>
+          </defs>
+
           <g
             fill='none'
             stroke='white'
@@ -2819,6 +3174,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
             {homeSvgGlassPathsArray.map((d, index) => (
               <path
                 className={`${toggleGlassClassName}${index}`}
+                // className='home__svg-glass-full'
                 key={index}
                 ref={(node) =>
                   node
@@ -2831,7 +3187,8 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                 strokeDashoffset='0'></path>
             ))}
           </g>
-          {/* Glass Index Numbers */}
+          {/* Glass Index Numbers 
+          (used for development)*/}
           {/* <g stroke='darkorange' strokeWidth='.2' fontSize='1'>
             <text x='45.03' y='36.33'>
               0
@@ -2968,6 +3325,118 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
           </g> */}
         </svg>
       </div>
+      <div ref={conicWrapperRef} className='home__conic-wrapper'>
+        <div ref={conicInsideRef} className='home__conic-inside'>
+          <div className='home__conic home__conic--1'></div>
+          <div className='home__conic home__conic--2'></div>
+          <div className='home__conic home__conic--3'></div>
+          <div
+            ref={conicBackDarkRef}
+            className='home__conic home__conic--4'></div>
+        </div>
+      </div>
+
+      <div className='home__beam-bubble-container'>
+        <div ref={svgBubbleRef} className='home__bubble-container'>
+          <svg version='1.1' width='100%' height='100%'>
+            <defs>
+              <clipPath id='home-bubble-clip' clipPathUnits='objectBoundingBox'>
+                <path
+                  className='home__path-animate'
+                  stroke='purple'
+                  fill='none'
+                  strokeWidth='.01'>
+                  <animate
+                    ref={svgBubbleClipAnimateRef}
+                    attributeType='XML'
+                    attributeName='d'
+                    dur='.6s'
+                    keyTimes='0; 0.2; 1'
+                    fill='freeze'
+                    begin='indefinite'
+                    values='
+                    m 0.47,0.784 -0.05,-0.169 0.014,0.173
+c 0.002,0.019 0.003,0.053 -0.007,0.057 -0.012,0.005 -0.032,-0.003 -0.043,-0.016
+l -0.085,-0.083 0.056,0.099
+c 0.008,0.014 0.016,0.033 0.008,0.045 -0.008,0.014 -0.03,0.014 -0.044,0.008
+l -0.148,-0.041 0.142,0.072
+c 0.01,0.005 0.017,0.018 0.017,0.029 -0.001,0.013 -0.024,0.032 -0.024,0.032
+L 0.709,0.994 0.831,0.935 0.708,0.959
+c -0.006,0.001 -0.014,-0.005 -0.016,-0.011 -0.003,-0.008 0.002,-0.018 0.008,-0.024
+l 0.052,-0.044 -0.072,0.019
+c -0.012,0.003 -0.027,0.016 -0.036,0.007 -0.01,-0.01 0.002,-0.029 0.01,-0.041
+L 0.718,0.739 0.599,0.841
+c -0.012,0.011 -0.038,0.03 -0.054,0.026 -0.015,-0.003 -0.023,-0.02 -0.019,-0.035
+l 0.033,-0.127 -0.059,0.1
+c -0.003,0.006 -0.005,0.016 -0.012,0.017 -0.016,0.002 -0.016,-0.023 -0.019,-0.039
+z;
+                    M 0.47,0.784 0.378,0.181 0.434,0.788
+c 0.002,0.019 0.003,0.053 -0.007,0.057 -0.012,0.005 -0.032,-0.003 -0.043,-0.016
+l -0.085,-0.083 0.056,0.099
+c 0.008,0.014 0.016,0.033 0.008,0.045 -0.008,0.014 -0.03,0.014 -0.044,0.008
+L 0.002,0.782 0.313,0.931
+c 0.01,0.005 0.017,0.018 0.017,0.029 -0.001,0.013 -0.024,0.032 -0.024,0.032
+L 0.709,0.994 0.892,0.904 0.708,0.959
+C 0.702,0.961 0.695,0.955 0.693,0.949 0.69,0.941 0.695,0.93 0.701,0.925
+L 0.781,0.856 0.681,0.9
+c -0.011,0.005 -0.027,0.016 -0.036,0.007 -0.01,-0.01 0.002,-0.029 0.01,-0.041
+L 0.856,0.55 0.599,0.841
+c -0.011,0.012 -0.038,0.03 -0.054,0.026 -0.015,-0.003 -0.023,-0.02 -0.019,-0.035
+l 0.066,-0.224 -0.091,0.197
+c -0.003,0.006 -0.005,0.016 -0.012,0.017 -0.016,0.002 -0.016,-0.023 -0.019,-0.039
+z;
+m 0.463,0.778 -0.023,-0.096 0.007,0.107
+c 0.001,0.019 -0.011,0.052 -0.02,0.056 -0.012,0.005 -0.032,-0.003 -0.043,-0.016
+L 0.115,0.489 0.317,0.813
+c 0.01,0.015 0.014,0.022 0.02,0.036 0.012,0.027 0.006,0.06 -0.008,0.056
+L 0.206,0.867 0.313,0.931
+c 0.01,0.006 0.017,0.018 0.017,0.029 -0.001,0.013 -0.024,0.032 -0.024,0.032
+L 0.709,0.994 0.806,0.939 0.733,0.954
+C 0.72,0.957 0.713,0.945 0.714,0.931 0.714,0.915 0.738,0.9 0.756,0.886
+L 0.984,0.704 0.707,0.867
+c -0.011,0.006 -0.058,0.037 -0.073,0.027 -0.012,-0.008 -0.01,-0.023 -0.001,-0.034
+l 0.073,-0.107 -0.1,0.082
+c -0.015,0.012 -0.042,0.024 -0.055,0.004 -0.006,-0.009 0.003,-0.047 0.004,-0.052
+L 0.67,0.44 0.518,0.746
+c -0.003,0.006 -0.018,0.043 -0.029,0.053 -0.012,0.011 -0.022,-0.005 -0.026,-0.021
+z'
+                  />
+                </path>
+              </clipPath>
+            </defs>
+          </svg>
+          {/* Two blurs are stacked to create a more vibrant effect */}
+          <div className='home__bubble-blur-wrapper'>
+            <div className='home__bubble-blur'></div>
+          </div>
+          <div className='home__bubble-blur-wrapper'>
+            <div className='home__bubble-blur'></div>
+          </div>
+          <div className='home__bubble'></div>
+        </div>
+
+        <div ref={beamRef} className='home__beam-wrapper'>
+          <div className='home__beam'>
+            <svg version='1.1' width='100%' height='100%'>
+              <defs>
+                <clipPath id='home-beam-clip' clipPathUnits='objectBoundingBox'>
+                  <rect x='0' y='0' width='1' height='1' rx='.25'></rect>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+          <div className='home__beam-blur'>
+            <svg version='1.1' width='100%' height='100%'>
+              <defs>
+                <clipPath id='home-blur-clip' clipPathUnits='objectBoundingBox'>
+                  <rect x='-5' y='-5' width='10' height='10'></rect>
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+        </div>
+      </div>
+
       {/* <svg
         version='1.1'
         width='500'

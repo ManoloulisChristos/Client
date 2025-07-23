@@ -15,11 +15,15 @@ import { Link, useLocation, useSearchParams } from 'react-router';
 
 const GlobalTest = () => {
   const bubbleRef = useRef(null);
+  const beamRef = useRef(null);
+  const wrapperRef = useRef(null);
+  const insideRef = useRef(null);
+  const backgroundRef = useRef(null);
   const animateRef = useRef(null);
   const [testState, setTestState] = useState(false);
 
   const btnClick = () => {
-    bubbleRef.current.animate(
+    const bubble = bubbleRef.current.animate(
       [
         {
           transform: 'scale(0)',
@@ -40,41 +44,74 @@ const GlobalTest = () => {
       ],
       { duration: 800 }
     );
-    console.log('hekko');
+    const beam = beamRef.current.animate(
+      [
+        {
+          transform: 'scale(1,0)',
+        },
+        { transform: 'scale(1, 1)' },
+      ],
+      {
+        duration: 500,
+        delay: 500,
+        easing: 'cubic-bezier(0.47, 0.35, 1, 0.8)',
+      }
+    );
+    beam.onfinish = () => {
+      backgroundRef.current.animate(
+        [
+          {
+            '--conic-0': '100%',
+          },
+          {
+            '--conic-0': '5%',
+          },
+        ],
+        { duration: 600, fill: 'forwards' }
+      );
+      wrapperRef.current.animate(
+        [
+          {
+            '--gradient-angle': '90deg',
+          },
+          {
+            '--gradient-angle': '180deg',
+          },
+        ],
+        { duration: 1000 }
+      );
+      insideRef.current.animate(
+        [
+          {
+            '--gradient-angle': '90deg',
+          },
+          {
+            '--gradient-angle': '180deg',
+          },
+        ],
+        { duration: 1000 }
+      );
+    };
   };
 
   return (
     <div className='test'>
-      <button
-        id='test_btn_start'
-        style={{ position: 'absolute', zIndex: '10' }}
-        onClick={btnClick}>
-        {' '}
-        heelo
-      </button>
-
-      <div className='test__back-container'>
-        <div className='test__back-ray test__back-ray--1'></div>
-        <div className='test__back-ray test__back-ray--2'></div>
-        <div className='test__back-ray test__back-ray--3'></div>
-        <div className='test__back-ray test__back-ray--4'></div>
+      <div ref={wrapperRef} className='home__conic-wrapper'>
+        <div ref={insideRef} className='home__conic-inside'>
+          <div className='home__conic home__conic--1'></div>
+          <div className='home__conic home__conic--2'></div>
+          <div ref={backgroundRef} className='home__conic home__conic--3'></div>
+          <div className='home__conic home__conic--4'></div>
+        </div>
       </div>
-      {/* <div className='test__conic-gradient-wrapper'>
-        <div className='test__conic-gradient'> </div>
-        <div className='test__conic-gradient-counter'> </div>
-      </div> */}
 
-      {/* <div className='test__abs-container'>
-        <div ref={bubbleRef} className='test__bubble-container'>
-          <svg
-            version='1.1'
-            width='100%'
-            height='100%'
-            className='test__svg-circle-clip'>
+      <div className='home__abs-container'>
+        <div ref={bubbleRef} className='home__bubble-container'>
+          <svg version='1.1' width='100%' height='100%'>
             <defs>
-              <clipPath id='test-bubble-clip' clipPathUnits='objectBoundingBox'>
+              <clipPath id='home-bubble-clip' clipPathUnits='objectBoundingBox'>
                 <path
-                  className='test__path-animate'
+                  className='home__path-animate'
                   stroke='purple'
                   fill='none'
                   strokeWidth='.01'>
@@ -84,7 +121,7 @@ const GlobalTest = () => {
                     dur='.6s'
                     keyTimes='0; 0.2; 1'
                     fill='freeze'
-                    begin='test_btn_start.click'
+                    begin='home_btn_start.click'
                     values='
                     m 0.47,0.784 -0.05,-0.169 0.014,0.173
 c 0.002,0.019 0.003,0.053 -0.007,0.057 -0.012,0.005 -0.032,-0.003 -0.043,-0.016
@@ -136,44 +173,36 @@ z'
               </clipPath>
             </defs>
           </svg>
-          <div className='test__bubble-blur-wrapper'>
-            <div className='test__bubble-blur'></div>
+          <div className='home__bubble-blur-wrapper'>
+            <div className='home__bubble-blur'></div>
           </div>
-          <div className='test__bubble-blur-wrapper'>
-            <div className='test__bubble-blur'></div>
+          <div className='home__bubble-blur-wrapper'>
+            <div className='home__bubble-blur'></div>
           </div>
-          <div className='test__bubble'></div>
+          <div className='home__bubble'></div>
         </div>
 
-        <div className='test__beam-wrapper test__beam-wrapper--1'>
-          <div className='test__beam test__beam--1'>
-            <svg
-              version='1.1'
-              className='test__svg-clip'
-              width='100%'
-              height='100%'>
+        <div ref={beamRef} className='home__beam-wrapper home__beam-wrapper--1'>
+          <div className='home__beam home__beam--1'>
+            <svg version='1.1' width='100%' height='100%'>
               <defs>
-                <clipPath id='test-beam-clip' clipPathUnits='objectBoundingBox'>
-                  <rect x='0' y='0' width='1' height='1' rx='.2'></rect>
+                <clipPath id='home-beam-clip' clipPathUnits='objectBoundingBox'>
+                  <rect x='0' y='0' width='1' height='1' rx='.25'></rect>
                 </clipPath>
               </defs>
             </svg>
           </div>
-          <div className='test__blur test__blur--1'>
-            <svg
-              version='1.1'
-              className='test__svg-clip'
-              width='100%'
-              height='100%'>
+          <div className='home__blur home__blur--1'>
+            <svg version='1.1' width='100%' height='100%'>
               <defs>
-                <clipPath id='test-blur-clip' clipPathUnits='objectBoundingBox'>
+                <clipPath id='home-blur-clip' clipPathUnits='objectBoundingBox'>
                   <rect x='-5' y='-5' width='10' height='10'></rect>
                 </clipPath>
               </defs>
             </svg>
           </div>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };

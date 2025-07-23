@@ -1,6 +1,30 @@
-// @import url('https://fonts.googleapis.com/css?family=Racing+Sans+One');
-// @import url('https://fonts.googleapis.com/css?family=Oleo+Script:400,700');
-// @import url('https://fonts.googleapis.com/css?family=Sancreek');
+@property --home-mask-gradient-angle {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --home-conic-color-lightness {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 100%;
+}
+
+@property --home-conic-blend-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: hsl(180, 51%, 20%);
+}
+@property --home-drop-shadow-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: hsl(180, 30%, 30%);
+}
+
+@property --home-letter-text-stroke-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: hsl(180, 35%, 45%);
+}
 
 #bottom-lip {
   // transform: scale(0.95) translate(0, -23px);
@@ -62,11 +86,13 @@
     }
   }
 
+  // Opacity filters and everything else for the letters that creates a stacking context must be defined here
+  // otherwise the 3d breaks appart.
   &__curved-3d {
     display: inline-block;
     perspective: 500px;
     opacity: 0;
-
+    filter: drop-shadow(var(--home-drop-shadow-color) 3px 3px 5px);
     offset-path: ellipse(55vmin 35vmin at center 45vmin);
 
     // In portrait mode change the position to vmax(height)
@@ -142,8 +168,10 @@
   }
 
   &__letter {
+    color: hsl(180, 10%, 95%);
     position: absolute;
-    -webkit-text-stroke: calc(var(--_letterTextStrokeWidth) * 1px) purple;
+    -webkit-text-stroke: calc(var(--_letterTextStrokeWidth) * 1px)
+      var(--home-letter-text-stroke-color);
 
     &--front {
       transform: translateZ(calc(((var(--_protrusionSize) - 1) / 2) * 1px));
@@ -159,7 +187,7 @@
     &--left {
       left: 0;
       opacity: 0;
-      color: purple;
+      color: var(--home-letter-text-stroke-color);
       transform: translateX(-50%) rotateY(90deg);
 
       // On the letters "O O V" the "I" must be smaller due to curvature
@@ -175,7 +203,7 @@
     }
 
     &--right {
-      color: purple;
+      color: var(--home-letter-text-stroke-color);
       right: 0;
       opacity: 0;
       transform: translateX(50%) rotateY(270deg);
@@ -197,7 +225,7 @@
     display: grid;
     grid: [stack-row] 1fr / [stack-column] 1fr;
     position: relative;
-    opacity: 1;
+    opacity: 0;
     z-index: 2;
     offset-rotate: 0deg;
 
@@ -275,6 +303,9 @@
   }
   &__svg-cow {
     // display: none;
+    // filter: drop-shadow(hsl(180, 30%, 30%) 5px 5px 5px);
+    filter: url('#home-svg-turblulence-cow-filter')
+      drop-shadow(hsl(180 30% 10%) 5px 5px 5px);
     z-index: -2;
     grid-area: stack-row / stack-column;
     align-self: center;
@@ -282,7 +313,6 @@
     width: 25vmax;
     position: absolute;
     opacity: 0;
-
     // 1300px
     @media only screen and (max-width: 81.25em) {
       width: 35vmax;
@@ -317,6 +347,13 @@
       display: none;
     }
 
+    &[data-blur='true'] {
+      filter: blur(6px);
+    }
+    &[data-blur='false'] {
+      filter: none;
+    }
+
     grid-area: stack-row / stack-column;
     align-self: center;
     justify-self: center;
@@ -330,12 +367,6 @@
     // 600px
     @media only screen and (max-width: 37.5em) {
       width: 80%;
-    }
-    &[data-blur='true'] {
-      filter: blur(6px);
-    }
-    &[data-blur='false'] {
-      filter: none;
     }
   }
 
@@ -653,6 +684,223 @@
     }
     &--10 {
       transition-delay: calc(var(--_delay) * 38s);
+    }
+  }
+
+  &__bubble-container {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid: [stack-row] 1fr / [stack-column] 1fr;
+    justify-items: center;
+    align-items: end;
+  }
+
+  &__beam-wrapper {
+    position: absolute;
+    z-index: -3;
+    width: 30px;
+    height: calc(100vh - 80px);
+    // transition: transform 0.4s cubic-bezier(0.77, 0.35, 1, 0.8);
+    transform: scale(1, 0);
+    transform-origin: bottom center;
+  }
+
+  &__beam-blur {
+    position: absolute;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      hsl(186 65.9% 60.1%),
+      hsl(186 75.9% 90%),
+      hsl(186 65.9% 60.1%)
+    );
+    filter: blur(15px);
+  }
+
+  &__beam {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    clip-path: url('#home-beam-clip');
+
+    background: radial-gradient(
+      ellipse 45% 100%,
+      hsl(186 85.9% 100%),
+      hsl(186 85.9% 95%),
+      hsl(186 85.9% 85%),
+      hsl(186 65.9% 65.1%)
+    );
+  }
+
+  &__beam-bubble-container {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid: [stack-row] 1fr / [stack-column] 1fr;
+    justify-items: center;
+    align-items: end;
+  }
+
+  &__bubble-container {
+    position: relative;
+    width: 20vmax;
+    height: 20vmax;
+    transform: scale(0);
+    transform-origin: bottom center;
+    grid-area: stack-row / stack-column;
+  }
+
+  &__bubble {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+      circle at 50% 65%,
+      hsl(186 85.9% 95%),
+      hsl(186 85.9% 86%),
+      hsl(186 65.9% 60.1%)
+    );
+    clip-path: url('#home-bubble-clip');
+  }
+  &__bubble-blur-wrapper {
+    filter: blur(10px);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: -1;
+  }
+  &__bubble-blur {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+      circle,
+      hsl(186 85.9% 95%),
+      hsl(186 85.9% 80%),
+      hsl(186 65.9% 65.1%)
+    );
+    clip-path: url('#home-bubble-clip');
+  }
+
+  // Wrapper and inside class are used to mask the background, one from the left side and one from the right side.
+  // The inside is the same as the outside but reversed on the X-axis.
+  // The purpose is to open up like a fan and reveal the background.
+  &__conic-wrapper {
+    z-index: -1;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: calc(100vh - 80px);
+    isolation: isolate;
+    filter: blur(2px);
+    mask-image: conic-gradient(
+      from -90deg at center bottom,
+      white 0deg var(--home-mask-gradient-angle),
+      transparent 0
+    );
+    overflow: hidden;
+    // --home-conic-blend-color: hsl(180, 51%, 20%);
+  }
+  &__conic-inside {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    mask-image: conic-gradient(
+      from -90deg at center bottom,
+      white 0deg var(--home-mask-gradient-angle),
+      transparent 0
+    );
+    transform: scale(-1, 1);
+  }
+  // 4 conic gradients with blending and a size of 400% of the viewport in order to position the center at
+  // the bottom and have it rotate around the center
+  &__conic {
+    // --test-color: hsl(180, 51%, 20%);
+    // --color-test-light: hsl(180, 51%, 20%);
+    // --color-test: hsl(2, 51%, 10%);
+    // --color-test-light: #2c0b0a;
+    // --home-conic-blend-color: hsl(180, 51%, 20%);
+    position: absolute;
+    inset: 0;
+    width: 400%;
+    height: 400%;
+    mix-blend-mode: screen;
+    &--1 {
+      // display: none;
+      background: repeating-conic-gradient(
+        from -10deg,
+        hsl(195 53% 10%) 0deg 20deg,
+        transparent 20deg 30deg
+      );
+      background: repeating-conic-gradient(
+        from -10deg,
+        var(--home-conic-blend-color) 0deg 20deg,
+        transparent 20deg 30deg
+      );
+      animation: home-background-conic-1 300s linear infinite;
+      @keyframes home-background-conic-1 {
+        from {
+          transform: translate(-37.5%, -25%) rotate(0turn);
+        }
+        to {
+          transform: translate(-37.5%, -25%) rotate(1turn);
+        }
+      }
+    }
+    &--2 {
+      // display: none;
+      background: repeating-conic-gradient(
+        from 0deg,
+        hsl(195 53% 10%) 0deg 20deg,
+        transparent 20deg 30deg
+      );
+      background: repeating-conic-gradient(
+        from 0deg,
+        var(--home-conic-blend-color) 0deg 20deg,
+        transparent 20deg 30deg
+      );
+      animation: home-background-conic-2 300s linear infinite;
+      @keyframes home-background-conic-2 {
+        from {
+          transform: translate(-37.5%, -25%) rotate(0turn);
+        }
+        to {
+          transform: translate(-37.5%, -25%) rotate(1turn);
+        }
+      }
+    }
+
+    &--3 {
+      // display: none;
+      background: repeating-conic-gradient(
+        from 0deg,
+        hsl(195 53% 10%) 0deg 20deg,
+        transparent 20deg 30deg
+      );
+      background: repeating-conic-gradient(
+        from 0deg,
+        var(--home-conic-blend-color) 0deg 20deg,
+        transparent 20deg 30deg
+      );
+      animation: home-background-conic-3 300s linear infinite;
+
+      @keyframes home-background-conic-3 {
+        from {
+          transform: translate(-37.5%, -25%) rotate(0turn);
+        }
+        to {
+          transform: translate(-37.5%, -25%) rotate(-1turn);
+        }
+      }
+    }
+    // Keeps the blending at a lighter shade (5% black) & also makes the the intro
+    // with animating the custom property from 100% > 5%
+    &--4 {
+      display: none;
+      background: conic-gradient(black 0, hsl(180 100% 5%) 0);
     }
   }
 }

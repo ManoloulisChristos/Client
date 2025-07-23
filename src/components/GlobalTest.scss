@@ -1,262 +1,200 @@
-@property --gradient-angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
 .test {
-  position: relative;
+  position: absolute;
   min-height: calc(100vh - 70px);
   width: 100%;
+  inset: 70px 0 0 0;
+  .home {
+    &__bubble-container {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid: [stack-row] 1fr / [stack-column] 1fr;
+      justify-items: center;
+      align-items: end;
+    }
 
-  &__bubble-container {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid: [stack-row] 1fr / [stack-column] 1fr;
-    justify-items: center;
-    align-items: end;
-  }
+    &__beam-wrapper {
+      position: absolute;
+      z-index: -3;
+      width: 30px;
+      height: calc(100vh - 80px);
+      // transition: transform 0.4s cubic-bezier(0.77, 0.35, 1, 0.8);
+      transform: scale(1, 0);
+      transform-origin: bottom center;
+    }
 
-  // &__bubble {
-  //   // display: none;
-  //   // position: absolute;
-  //   z-index: 1;
-  //   width: 300px;
-  //   height: 300px;
-  //   background: radial-gradient(
-  //     circle,
-  //     hsl(186 85.9% 100%),
-  //     hsl(186 85.9% 95%),
-  //     hsl(186 85.9% 85%),
-  //     hsl(186 65.9% 65.1%)
-  //   );
-  //   grid-area: stack-row / stack-column;
-  //   border-radius: 50%;
-  //   transform: scale(1);
-  // }
-  // &__bubble-blur {
-  //   display: none;
-  //   position: absolute;
-  //   z-index: -1;
-  //   width: 20vw;
-  //   height: 20vw;
-  //   background-color: aquamarine;
-  //   grid-area: stack-row / stack-column;
-  //   border-radius: 50%;
-  //   transform: scale(1);
-  //   filter: blur(50px);
-  // }
+    &__blur {
+      position: absolute;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        hsl(186 65.9% 60.1%),
+        hsl(186 75.9% 90%),
+        hsl(186 65.9% 60.1%)
+      );
+      filter: blur(15px);
+    }
 
-  &__svg-clip {
-    position: absolute;
-  }
+    &__beam {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      clip-path: url('#home-beam-clip');
 
-  &__beam-wrapper {
-    display: none;
-    position: absolute;
-    z-index: -3;
-    width: 30px;
-    height: calc(100vh - 100px);
-    transition: transform 0.4s cubic-bezier(0.57, 0.31, 1, 0.75);
-    // transition: transform 0.4s linear;
-    transform: scale(1, 1);
-    // transform: scale(1, 0);
-    transform-origin: bottom center;
-  }
+      background: radial-gradient(
+        ellipse 45% 100%,
+        hsl(186 85.9% 100%),
+        hsl(186 85.9% 95%),
+        hsl(186 85.9% 85%),
+        hsl(186 65.9% 65.1%)
+      );
+    }
 
-  &__blur {
-    position: absolute;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      hsl(186 65.9% 60.1%),
-      hsl(186 75.9% 90%),
-      hsl(186 65.9% 60.1%)
-    );
-    filter: blur(15px);
-  }
+    &__abs-container {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid: [stack-row] 1fr / [stack-column] 1fr;
+      justify-items: center;
+      align-items: end;
+    }
 
-  &__beam {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    clip-path: url('#test-beam-clip');
+    &__bubble-container {
+      position: relative;
+      width: 20vmax;
+      height: 20vmax;
+      transform: scale(0);
+      transform-origin: bottom center;
+      grid-area: stack-row / stack-column;
+    }
 
-    background: radial-gradient(
-      ellipse 45% 100%,
-      hsl(186 85.9% 100%),
-      hsl(186 85.9% 95%),
-      hsl(186 85.9% 85%),
-      hsl(186 65.9% 65.1%)
-    );
-  }
+    &__bubble {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        circle at 50% 65%,
+        hsl(186 85.9% 95%),
+        hsl(186 85.9% 86%),
+        hsl(186 65.9% 60.1%)
+      );
+      clip-path: url('#home-bubble-clip');
+    }
+    &__bubble-blur-wrapper {
+      filter: blur(10px);
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      z-index: -1;
+    }
+    &__bubble-blur {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        circle,
+        hsl(186 85.9% 95%),
+        hsl(186 85.9% 80%),
+        hsl(186 65.9% 65.1%)
+      );
+      clip-path: url('#home-bubble-clip');
+    }
 
-  &__abs-container {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid: [stack-row] 1fr / [stack-column] 1fr;
-    justify-items: center;
-    align-items: end;
-  }
-
-  &__bubble-container {
-    position: relative;
-    width: 20vmax;
-    height: 20vmax;
-    transform: scale(0);
-    transform-origin: bottom center;
-    grid-area: stack-row / stack-column;
-  }
-
-  &__svg-circle-clip {
-    position: absolute;
-    z-index: 5;
-  }
-
-  &__bubble {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    // background: radial-gradient(
-    //   circle at 50% 70%,
-    //   hsl(186 85.9% 100%),
-    //   hsl(186 65.9% 70%)
-    // );
-    background: radial-gradient(
-      circle at 50% 65%,
-      hsl(186 85.9% 95%),
-      hsl(186 85.9% 86%),
-      hsl(186 65.9% 60.1%)
-    );
-    clip-path: url('#test-bubble-clip');
-  }
-  &__bubble-blur-wrapper {
-    filter: blur(10px);
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    z-index: -1;
-  }
-  &__bubble-blur {
-    // display: none;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(
-      circle,
-      hsl(186 85.9% 95%),
-      hsl(186 85.9% 80%),
-      hsl(186 65.9% 65.1%)
-    );
-    // filter: blur(50px);
-    clip-path: url('#test-bubble-clip');
-  }
-
-  // &__circle {
-  //   transition: r 0.5s linear;
-  //   r: 0.2;
-  // }
-
-  &__clip-ellipse {
-    transition: transform 0.5s linear;
-    // transform: rotate(-30deg) scale(1, 1);
-    transform-origin: center;
-    transform-box: fill-box;
-  }
-  &__clip-ellipse--rotate {
-    transition: transform 0.5s linear;
-    transform: rotate(13deg) scale(1, 1);
-    transform-origin: bottom center;
-    transform-box: fill-box;
-  }
-
-  &__clip-path-path {
-    transform-origin: center;
-    transform-box: fill-box;
-  }
-
-  &__conic-gradient {
-    position: absolute;
-    inset: 0;
-    width: 200%;
-    height: calc(200vh - 80px);
-    // background-image: conic-gradient(
-    //   at center bottom,
-    //   #fa8072 90deg,
-    //   transparent 0
-    // );
-    background-image: repeating-conic-gradient(
-      at center center,
-      white 0deg 5deg,
-      black 5deg 10deg
-    );
-    transform: translate(-25%, -25%);
-
-    // animation: anim-gradient 1s linear infinite alternate;
-    @keyframes anim-gradient {
-      100% {
-        transform: translate(-25%, -25%) rotate(30deg);
+    &__conic-wrapper {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: calc(100vh - 80px);
+      isolation: isolate;
+      filter: blur(2px);
+      mask-image: conic-gradient(
+        from -90deg at center bottom,
+        white 0deg var(--gradient-angle),
+        transparent 0
+      );
+    }
+    &__conic-inside {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      mask-image: conic-gradient(
+        from -90deg at center bottom,
+        white 0deg var(--gradient-angle),
+        transparent 0
+      );
+      transform: scale(-1, 1);
+    }
+    &__conic {
+      position: absolute;
+      inset: 0;
+      width: 400%;
+      height: 400%;
+      mix-blend-mode: screen;
+      transform: translate(-37.5%, -25%) rotate(0.5turn);
+      &--1 {
+        background: repeating-conic-gradient(
+          from -10deg,
+          hsl(195 53% 10%) 0deg 20deg,
+          transparent 20deg 30deg
+        );
+        animation: conic-1 300s linear;
+        @keyframes conic-1 {
+          from {
+            transform: translate(-37.5%, -25%) rotate(0turn);
+          }
+          to {
+            transform: translate(-37.5%, -25%) rotate(1turn);
+          }
+        }
       }
-    }
-  }
-  &__conic-gradient-counter {
-    position: absolute;
-    inset: 0;
-    // animation: anim-gradient 1s linear forwards;
-    background-image: conic-gradient(
-      at center bottom,
-      #fa8072 30deg,
-      transparent 0
-    );
-  }
-  // &__conic-gradient-counter {
-  //   position: absolute;
-  //   inset: 0;
-  //   // animation: anim-gradient 1s linear forwards;
-  //   background-image: conic-gradient(
-  //     at center bottom,
-  //     #fa8072 var(--gradient-angle, 20deg),
-  //     transparent 0
-  //   );
-  //   transform: scale(-1, 1);
-  // }
-  &__conic-gradient-wrapper {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: calc(100vh - 80px);
-    overflow: hidden;
-  }
+      &--2 {
+        background: repeating-conic-gradient(
+          from 0deg,
+          hsl(195 53% 10%) 0deg 20deg,
+          transparent 20deg 30deg
+        );
+        animation: conic-2 300s linear;
+        @keyframes conic-2 {
+          from {
+            transform: translate(-37.5%, -25%) rotate(0turn);
+          }
+          to {
+            transform: translate(-37.5%, -25%) rotate(1turn);
+          }
+        }
+      }
 
-  &__back-container {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid: [front-row] 1fr / [front-column] 1fr;
-    justify-items: center;
-    align-items: end;
-  }
-  &__back-ray {
-    position: absolute;
-    width: 200px;
-    height: 80vh;
-    background-color: gray;
-    grid-area: front-row / front-column;
-    transform-origin: bottom center;
-    &--1 {
-      transform: rotate(0deg);
-      z-index: 2;
-    }
-    &--2 {
-      transform: rotate(20deg);
-    }
-    &--3 {
-      transform: rotate(-20deg);
-    }
-    &--4 {
-      transform: rotate(-50deg);
+      &--3 {
+        background: conic-gradient(black 0, hsl(180 100% var(--conic-0)) 0);
+
+        @keyframes conic-3 {
+          from {
+            transform: translate(-37.5%, -25%) rotate(0turn);
+          }
+          to {
+            transform: translate(-37.5%, -25%) rotate(1turn);
+          }
+        }
+      }
+      &--4 {
+        background: repeating-conic-gradient(
+          from 0deg,
+          hsl(195 53% 10%) 0deg 20deg,
+          transparent 20deg 30deg
+        );
+        animation: conic-4 300s linear;
+
+        @keyframes conic-4 {
+          from {
+            transform: translate(-37.5%, -25%) rotate(0turn);
+          }
+          to {
+            transform: translate(-37.5%, -25%) rotate(-1turn);
+          }
+        }
+      }
     }
   }
 }
