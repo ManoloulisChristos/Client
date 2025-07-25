@@ -94,6 +94,7 @@ const GlobalTest = () => {
     };
   };
 
+  console.log(testState);
   return (
     <div className='test'>
       <div ref={wrapperRef} className='home__conic-wrapper'>
