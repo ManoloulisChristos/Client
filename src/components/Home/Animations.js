@@ -498,12 +498,12 @@ export const backgroundAnimationArgs = {
   conicMaskAngle: {
     keyframes: [
       {
-        '--home-conic-color-lightness': '100%',
+        '--home-mask-gradient-angle': '90deg',
       },
       {
-        '--home-conic-color-lightness': '5%',
+        '--home-mask-gradient-angle': '180deg',
       },
     ],
-    options: { duration: 600, fill: 'forwards' },
+    options: { duration: 1000, fill: 'forwards' },
   },
 };

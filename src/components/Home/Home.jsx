@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import '../../styles/Home.scss';
 import {
   letterAnimationArgs,
@@ -322,6 +329,8 @@ const homeGlassKeyframe3dValuesObj = {
 };
 
 const Home = () => {
+  const [onoff, setOnoff] = useState(false);
+  const btnRef = useRef(null);
   // Letter relative states based on different viewports
   const [protrusionSize, setProtrusionSize] = useState(initialProtrusion); // Front + Back + Middle letters sum of pixels in depth
   const [letterTextStrokeWidth, setLetterTextStrokeWidth] = useState(
@@ -355,7 +364,8 @@ const Home = () => {
   const leftEarRef = useRef(null);
   const cowRef = useRef(null);
   const homeRef = useRef(null);
-
+  const resizeObserverRef = useRef(null);
+  const observerRAF_ID = useRef(null);
   // Letter elements
   const containersRef = useRef(null);
   const boxesRef = useRef(null);
@@ -363,11 +373,7 @@ const Home = () => {
   const leftNodesRef = useRef(null);
   const rightNodesRef = useRef(null);
   // Letter animations
-  const containerAnimRef = useRef(null);
-  const leftSideAnimRef = useRef(null);
-  const rightSideAnimRef = useRef(null);
-  const boxEnteranceAnimRef = useRef(null);
-  const boxEndingAnimRef = useRef(null);
+  const forwardsAnimRef = useRef([]);
 
   // div wrapper around the main svg (contains cow + star)
   const mainSvgContainerRef = useRef(null);
@@ -496,66 +502,87 @@ const Home = () => {
 
     // Solution is to add a direct reference between letters and the containers and ONLY when i am missing an entry then i will
     // measure the letter that is missing in a rAF to avoid a synchronous layout measurment.
-    const observer = new ResizeObserver((entries) => {
-      // Populate Map with letter / container references
-      const lettersAndContainersMap = new Map();
-      console.log('resize');
-      frontNodesRef.current.forEach((val, key) =>
-        lettersAndContainersMap.set(val, containersRef.current.get(key))
-      );
 
-      // Set container dimensions based on entries
-      for (const entry of entries) {
-        const container = lettersAndContainersMap.get(entry.target);
-        container.style.width = `${Math.ceil(
-          entry.contentBoxSize[0].inlineSize
-        )}px`;
-        container.style.height = `${Math.ceil(
-          entry.contentBoxSize[0].blockSize
-        )}px`;
+    ///////// Another BUG on animations with fill:'forwards' option ///////////
+    // For some reason all works well and i can cancel the animations via the docoment.getAnimations() as expected
+    // when the component rerenders or in any other case normally.
+    // BUT when i get a resize with the observer on some animations with fill:'forwards' have their end state
+    // peristed vissually but their animation object is lost and i cant cancel them.
+    // ALSO and this is important in the devTools i get computed styles of their ending animation state but their
+    // normal styles are not crossed over with the classic line implementing that this style is overridden,
+    // nor do i get another block of style showing me the styles that are comming from the animation itself.
+    // It's like the animation never existed but its ending state persisted.
+    // It's also like using the commitStyles() and then cancel() methods but instead of getting an inline style
+    // showing the end state of the animation i have nothing. But the computed styles are the the actual
+    // end state values of the animation!
 
-        // Delete from the map all nodes that were configured
-        lettersAndContainersMap.delete(entry.target);
+    resizeObserverRef.current = new ResizeObserver((entries) => {
+      const rafID = observerRAF_ID.current;
+      if (rafID) {
+        cancelAnimationFrame(rafID);
       }
 
-      // If any entry is missing catch it here measure it and update the container
-      // Important!!! Seperate reads from writes to avoid layout thrashing
-      if (lettersAndContainersMap.size) {
-        requestAnimationFrame(() => {
-          const dimensions = {};
-          let accumulatorKey = 0;
-          // Reads
-          lettersAndContainersMap.forEach((container, letter) => {
-            dimensions[accumulatorKey] = {
-              width: letter.clientWidth,
-              height: letter.clientHeight,
-            };
-            accumulatorKey++;
-          });
-
-          // Reset key
-          accumulatorKey = 0;
-          // Writes
-          lettersAndContainersMap.forEach((container, letter) => {
-            container.style.width = `${dimensions[accumulatorKey].width}px`;
-            container.style.height = `${dimensions[accumulatorKey].height}px`;
-            accumulatorKey++;
-          });
+      const updateContainerSize = (entries) => {
+        // Populate Map with letter / container references
+        const lettersAndContainersMap = new Map();
+        const frontNodesSizesMap = new Map();
+        const frontNodesPlaceholderSet = new Set();
+        console.log('resize');
+        frontNodesRef.current.forEach((val, key) => {
+          lettersAndContainersMap.set(val, containersRef.current.get(key));
+          // frontNodesSizesMap.set(val, { width: null, height: null });
+          frontNodesPlaceholderSet.add(val);
         });
-      }
+
+        for (const entry of entries) {
+          frontNodesSizesMap.set(entry.target, {
+            width: `${Math.ceil(entry.contentBoxSize[0].inlineSize)}px`,
+            height: `${Math.ceil(entry.contentBoxSize[0].blockSize)}px`,
+          });
+          frontNodesPlaceholderSet.delete(entry.target);
+        }
+
+        if (frontNodesPlaceholderSet.size) {
+          frontNodesPlaceholderSet.forEach((key) =>
+            frontNodesSizesMap.set(key, {
+              width: key.clientWidth,
+              height: key.clientHeight,
+            })
+          );
+        }
+
+        lettersAndContainersMap.forEach((container, letter) => {
+          const sizeObj = frontNodesSizesMap.get(letter);
+          container.style.width = sizeObj.width;
+          container.style.height = sizeObj.height;
+        });
+      };
+
+      observerRAF_ID.current = requestAnimationFrame(() => {
+        updateContainerSize(entries);
+        observerRAF_ID.current = null;
+      });
     });
 
-    frontNodesRef.current.forEach((val, index) => {
-      observer.observe(val);
+    // This is done once on mount because the observer gets initialized after the nodes have been attached
+    // to the refs and i cant use the observe when there is no observer, inside the ref callback on first render.
+    frontNodesRef.current.forEach((node, key) => {
+      resizeObserverRef.current.observe(node);
     });
-
-    return () => observer.disconnect();
+    return () => {
+      resizeObserverRef.current.disconnect();
+      resizeObserverRef.current = null;
+    };
   }, []);
 
   ////// Set the Media Query List //////
   // At the top of the component a check is done with all of the MQLs to set the initial values of each state.
   // The mqls are responsible for changing the depth (protrusion based on how many copies of the same letter are rendered)
   //  of the letters, the width text-stroke and the svg container offset-path animation.
+
+  // There is also the option to just include the MQLs inside the resize observer and check upon each resize event
+  // but i dont know which one is more performant (check all the MQLs on every resize VS attaching eventListeners).
+
   useEffect(() => {
     // [0 - 600]
     const vw600 = window.matchMedia('(max-width: 37.5em)');
@@ -580,27 +607,16 @@ const Home = () => {
 
     // One Callback for all the viewport MQLs
     const mqlViewportCallback = () => {
-      console.log('--- mqlViewportCallback triggered ---');
-      console.log('MQL');
-      console.log('vw600 matches:', vw600.matches);
-      console.log('vw1200 matches:', vw1200.matches);
-      console.log('vw1920 matches:', vw1920.matches);
-      console.log('vw2560 matches:', vw2560.matches);
-      console.log('allElse matches:', allElse.matches);
       if (vw600.matches) {
-        console.log('600');
         setProtrusionSize(9);
         setLetterTextStrokeWidth(2);
       } else if (vw1200.matches) {
-        console.log('1200');
         setProtrusionSize(13);
         setLetterTextStrokeWidth(2);
       } else if (vw1920.matches) {
-        console.log('1920');
         setProtrusionSize(17);
         setLetterTextStrokeWidth(4);
       } else if (vw2560.matches) {
-        console.log('2560');
         setProtrusionSize(21);
         setLetterTextStrokeWidth(4);
       } else if (allElse.matches) {
@@ -634,7 +650,7 @@ const Home = () => {
       }
     };
 
-    // Add all the listeners ONCE
+    // Attach the listeners
     vw600.addEventListener('change', mqlViewportCallback);
     vw1200.addEventListener('change', mqlViewportCallback);
     vw1920.addEventListener('change', mqlViewportCallback);
@@ -730,7 +746,9 @@ const Home = () => {
   // So i cannot set the opacity on the letter-box element. It's either the scene or each letter independetly.
   // https://css-tricks.com/things-watch-working-css-3d/
 
-  useLayoutEffect(() => {
+  // Whatever creates a stacking context breaks the 3d, opacity less that 1 creates a stacking context.
+
+  useEffect(() => {
     // REVERSE ANIMATION
     //Starting state
     //Ending state
@@ -766,7 +784,6 @@ const Home = () => {
     //  in order to replace the frozen animation and be ready to replay them.
 
     // Reset SVG container timmers and set all relative animations into their starting states
-    console.log('LLL-Effect');
 
     glassContainerRef.current.dataset.display = 'true';
     mainSvgContainerRef.current.style.opacity = '0';
@@ -853,6 +870,7 @@ const Home = () => {
         containerAnimation.effect.updateTiming({
           delay: delayConstant * (i + 1),
         });
+        forwardsAnimRef.current.push(containerAnimation);
       }
 
       return letter_S_animation;
@@ -909,8 +927,9 @@ const Home = () => {
             letterAnimationArgs.boxEnding.options
           );
         boxAnimation.currentTime = -computedDelay;
-
         countIteretions++;
+        //
+        forwardsAnimRef.current.push(boxAnimation);
         requestAnimationFrame(letterEndingAnimations);
       } else {
         const boxAnimation = getMap(boxesRef)
@@ -921,6 +940,8 @@ const Home = () => {
           );
 
         boxAnimation.currentTime = -computedDelay;
+        //
+        forwardsAnimRef.current.push(boxAnimation);
       }
     };
 
@@ -960,133 +981,118 @@ const Home = () => {
 
     // wait for the eyes to "to get angry"
     // wait for last path(10) of the glass cracking to end
-    // wait for middlepoint path(4) to end the cracking and begin animating the turbulence backwards
+    // wait for middlepoint path(4) to end the cracking and begin animating the shadow backwards
 
     // The two nested listeners have the flag once:'true' because they cant distinguish the half point
     // and the full point of the transition so if they are normally attached they retrigger when both transitions end.
     const shadowAngryEyeListenerCallback = () => {
-      // // After the eyes get angry begin the strokedash-offset transition to half
-      // setToggleGlassClassName(
-      //   'home__svg-glass-transition-half home__svg-glass-transition-half--'
-      // );
-      // //  Path 10 is the last one transitioning
-      // //  Wait for the transition to end (half-point)
-      // path10TransitionEndCallback = () => {
-      //   // Begin the full strokedash-offset transition
-      //   setToggleGlassClassName(
-      //     'home__svg-glass-transition-full home__svg-glass-transition-full--'
-      //   );
-      //   // Wait for the transition of path 4 to end this is almost midway of all the paths
-      //   // that are transitioning
-      //   path4TransitionEndCallback = async () => {
-      //     //  Move the turbulence backwards in the Z-axis, rotate in the Y-axis
-      //     // then move fast towards the screen and remove the blur when the glass is broken
-      //     const shadowBreakGlassAnim = svgShadowRef.current.animate(
-      //       svgAnimationArgs.shadowBreakGlass.keyframes,
-      //       svgAnimationArgs.shadowBreakGlass.options
-      //     );
-      //     // Glass 3d animation
-      //     for (let i = 0; i <= 43; i++) {
-      //       const path = getMap(glassPathsRef).get(i);
-      //       // Move the different paths of the glass svg in the Z-axis and rotate them differently on the X & Y axes
-      //       // based on their position around the center of the glass with 2500 delay (half of the turbulence breaking the glass)
-      //       const animation = path.animate(
-      //         glass3dAnimationArgs.keyframesFn(homeGlassKeyframe3dValuesObj[i]),
-      //         glass3dAnimationArgs.options
-      //       );
-      //       // 42 is the one that hits the center of the screen
-      //       // when it finishes the animation remove the glass display entirely
-      //       if (i === 42) {
-      //         animation.onfinish = () => {
-      //           glassContainerRef.current.dataset.display = 'false';
-      //         };
-      //       }
-      //     }
-      //     // Wait for the glass animation and then start the shaking
-      //     await shadowBreakGlassAnim.finished;
-      //     // Move the svg turbulence on the X and the Y axis with multiple iterations
-      //     const shadowShakeAnimation = svgShadowRef.current.animate(
-      //       svgAnimationArgs.shadowShake.keyframes,
-      //       svgAnimationArgs.shadowShake.options
-      //     );
-      //     // Shaking steps and increased playback rate with each step
-      //     // await shadowShakeAnimation.finished;
-      //     shadowShakeAnimation.playbackRate = 1.5;
-      //     shadowShakeAnimation.currentTime = 0;
-      //     shadowShakeAnimation.play();
-      //     await shadowShakeAnimation.finished;
-      //     shadowShakeAnimation.playbackRate = 2;
-      //     shadowShakeAnimation.currentTime = 0;
-      //     shadowShakeAnimation.play();
-      //     await shadowShakeAnimation.finished;
-      //     shadowShakeAnimation.playbackRate = 2.5;
-      //     shadowShakeAnimation.currentTime = 0;
-      //     shadowShakeAnimation.play();
-      //     await shadowShakeAnimation.finished;
-      //     ////////////
-      //     turblulenceDisplaceAnimRef.current.beginElement();
-      //     shadowDissapearEndEventCallback = async () => {
-      //       svgShadowRef.current.dataset.display = 'false';
-      //       const cowOpacity = svgCowRef.current.animate(
-      //         [
-      //           {
-      //             opacity: '0',
-      //           },
-      //           {
-      //             opacity: '1',
-      //           },
-      //         ],
-      //         { duration: 500, fill: 'forwards' }
-      //       );
-      //       cowDisplaceAnimateRef.current.beginElement();
-      //       await cowOpacity.finished;
-      //       // setTimeout(() => {
-      //       //   document.getAnimations().forEach((animation) => {
-      //       //     const animationFill = animation.effect.getTiming().fill;
-      //       //     const localAnimation = homeRef.current.contains(
-      //       //       animation.effect.target
-      //       //     );
-      //       //     console.log(animationFill, localAnimation);
-      //       //     console.log(animation);
-      //       //     // Check if the animation is inside the component and if it has forwards fill
-      //       //     if (localAnimation && animationFill === 'forwards') {
-      //       //       animation.commitStyles();
-      //       //       animation.cancel();
-      //       //     }
-      //       //   });
-      //       // }, 2000);
-      //       console.log(document.getAnimations());
-      //     };
-      //     shadowDissapear.addEventListener(
-      //       'endEvent',
-      //       shadowDissapearEndEventCallback
-      //     );
-      //     // After all the animations have finished the ones that have the fill:'forwards' flag are persisting.
-      //     // So the animations need to get canceled and the styles must be commited for better performance.
-      //     // document.getAnimations().forEach((animation) => {
-      //     //   const animationFill = animation.effect.getTiming().fill;
-      //     //   const localAnimation = homeRef.current.contains(
-      //     //     animation.effect.target
-      //     //   );
-      //     //   console.log(animationFill, localAnimation);
-      //     //   console.dir(animation);
-      //     //   // Check if the animation is inside the component and if it has forwards fill
-      //     //   if (localAnimation && animationFill === 'forwards') {
-      //     //     animation.commitStyles();
-      //     //     animation.cancel();
-      //     //   }
-      //     // });
-      //     // console.log(document.getAnimations());
-      //   };
-      //   // 2nd level of depth
-      //   path4.addEventListener('transitionend', path4TransitionEndCallback, {
-      //     once: 'true',
-      //   });
-      // };
-      // // 1rst level of depth
-      // path10.addEventListener('transitionend', path10TransitionEndCallback, {
-      //   once: 'true',
-      // });
+      // After the eyes get angry begin the strokedash-offset transition to half
+      setToggleGlassClassName(
+        'home__svg-glass-transition-half home__svg-glass-transition-half--'
+      );
+      //  Path 10 is the last one transitioning
+      //  Wait for the transition to end (half-point)
+      path10TransitionEndCallback = () => {
+        // Begin the full strokedash-offset transition
+        setToggleGlassClassName(
+          'home__svg-glass-transition-full home__svg-glass-transition-full--'
+        );
+        // Wait for the transition of path 4 to end this is almost midway of all the paths
+        // that are transitioning
+        path4TransitionEndCallback = async () => {
+          //  Move the turbulence backwards in the Z-axis, rotate in the Y-axis
+          // then move fast towards the screen and remove the blur when the glass is broken
+          const shadowBreakGlassAnim = svgShadowRef.current.animate(
+            svgAnimationArgs.shadowBreakGlass.keyframes,
+            svgAnimationArgs.shadowBreakGlass.options
+          );
+          // Glass 3d animation
+          for (let i = 0; i <= 43; i++) {
+            const path = getMap(glassPathsRef).get(i);
+            // Move the different paths of the glass svg in the Z-axis and rotate them differently on the X & Y axes
+            // based on their position around the center of the glass with 2500 delay (half of the turbulence breaking the glass)
+            const animation = path.animate(
+              glass3dAnimationArgs.keyframesFn(homeGlassKeyframe3dValuesObj[i]),
+              glass3dAnimationArgs.options
+            );
+            // 42 is the one that hits the center of the screen
+            // when it finishes the animation remove the glass display entirely
+            if (i === 42) {
+              animation.onfinish = () => {
+                glassContainerRef.current.dataset.display = 'false';
+              };
+            }
+          }
+          // Wait for the glass animation and then start the shaking
+          await shadowBreakGlassAnim.finished;
+          // Move the svg turbulence on the X and the Y axis with multiple iterations
+          const shadowShakeAnimation = svgShadowRef.current.animate(
+            svgAnimationArgs.shadowShake.keyframes,
+            svgAnimationArgs.shadowShake.options
+          );
+          // Shaking steps and increased playback rate with each step
+          // await shadowShakeAnimation.finished;
+          shadowShakeAnimation.playbackRate = 1.5;
+          shadowShakeAnimation.currentTime = 0;
+          shadowShakeAnimation.play();
+          await shadowShakeAnimation.finished;
+          shadowShakeAnimation.playbackRate = 2;
+          shadowShakeAnimation.currentTime = 0;
+          shadowShakeAnimation.play();
+          await shadowShakeAnimation.finished;
+          shadowShakeAnimation.playbackRate = 2.5;
+          shadowShakeAnimation.currentTime = 0;
+          shadowShakeAnimation.play();
+          await shadowShakeAnimation.finished;
+          ////////////
+          turblulenceDisplaceAnimRef.current.beginElement();
+          shadowDissapearEndEventCallback = async () => {
+            svgShadowRef.current.dataset.display = 'false';
+            const cowOpacity = svgCowRef.current.animate(
+              [
+                {
+                  opacity: '0',
+                },
+                {
+                  opacity: '1',
+                },
+              ],
+              { duration: 500, fill: 'forwards' }
+            );
+            cowDisplaceAnimateRef.current.beginElement();
+            await cowOpacity.finished;
+            console.log(document.getAnimations());
+          };
+          shadowDissapear.addEventListener(
+            'endEvent',
+            shadowDissapearEndEventCallback
+          );
+          // After all the animations have finished the ones that have the fill:'forwards' flag are persisting.
+          // So the animations need to get canceled and the styles must be commited for better performance.
+          // document.getAnimations().forEach((animation) => {
+          //   const animationFill = animation.effect.getTiming().fill;
+          //   const localAnimation = homeRef.current.contains(
+          //     animation.effect.target
+          //   );
+          //   console.log(animationFill, localAnimation);
+          //   console.dir(animation);
+          //   // Check if the animation is inside the component and if it has forwards fill
+          //   if (localAnimation && animationFill === 'forwards') {
+          //     animation.commitStyles();
+          //     animation.cancel();
+          //   }
+          // });
+          // console.log(document.getAnimations());
+        };
+        // 2nd level of depth
+        path4.addEventListener('transitionend', path4TransitionEndCallback, {
+          once: 'true',
+        });
+      };
+      // 1rst level of depth
+      path10.addEventListener('transitionend', path10TransitionEndCallback, {
+        once: 'true',
+      });
     };
 
     // Event listener for the end event of the animate element that "makes the eyes angry"
@@ -1095,84 +1101,50 @@ const Home = () => {
       shadowAngryEyeListenerCallback
     );
     const backgroundAnimation = async () => {
+      // Animate the clip along with the animation
       svgBubbleClipAnimateRef.current.beginElement();
+      // Scales up and down the bubble
       const bubble = svgBubbleRef.current.animate(
-        [
-          {
-            transform: 'scale(0)',
-            offset: 0,
-          },
-          {
-            transform: 'scale(2)',
-            offset: 0.2,
-          },
-          {
-            transform: 'scale(2)',
-            offset: 0.7,
-          },
-          {
-            transform: 'scale(0)',
-            offset: 1,
-          },
-        ],
-        { duration: 800 }
+        backgroundAnimationArgs.bubble.keyframes,
+        backgroundAnimationArgs.bubble.options
       );
+      // Scales the beam only in the Y-axis
       const beam = beamRef.current.animate(
-        [
-          {
-            transform: 'scale(1, 0)',
-          },
-          { transform: 'scale(1, 1)' },
-        ],
-        {
-          duration: 500,
-          delay: 500,
-          easing: 'cubic-bezier(0.47, 0.35, 1, 0.8)',
-        }
+        backgroundAnimationArgs.beam.keyframes,
+        backgroundAnimationArgs.beam.options
       );
       await beam.finished;
+      // Animates a custom property to change the (hsl)lightness of the color
       conicBackDarkRef.current.animate(
-        [
-          {
-            '--home-conic-color-lightness': '100%',
-          },
-          {
-            '--home-conic-color-lightness': '5%',
-          },
-        ],
-        { duration: 600, fill: 'forwards' }
+        backgroundAnimationArgs.conicBackDarkRef.keyframes,
+        backgroundAnimationArgs.conicBackDarkRef.options
       );
+      // Animates a custom property to change the angle of the conic gradient used as a mask image to reveal
+      // the gradient.
+      // The custom property is also inherited by the sibling in order to make the effect from left and right angles.
       const conicWrapperAnimation = conicWrapperRef.current.animate(
-        [
-          {
-            '--home-mask-gradient-angle': '90deg',
-          },
-          {
-            '--home-mask-gradient-angle': '180deg',
-          },
-        ],
-        { duration: 1000, fill: 'forwards' }
+        backgroundAnimationArgs.conicMaskAngle.keyframes,
+        backgroundAnimationArgs.conicMaskAngle.options
       );
       return conicWrapperAnimation;
     };
     const playAllAnimations = async () => {
-      // const conicWrapperAnim = await backgroundAnimation();
-      // await conicWrapperAnim.finished;
+      const conicWrapperAnim = await backgroundAnimation();
+      await conicWrapperAnim.finished;
       const starAnimation = mainSvgAnimation();
       const letter_S_animation = letterEntranceAnimations();
       // Wait for the S to finish the spin and then animate() the ending
       await letter_S_animation.finished;
       requestAnimationFrame(letterEndingAnimations);
+
       await starAnimation.finished;
-      // starMorphShapeAnimateRef.current.beginElement();
+      starMorphShapeAnimateRef.current.beginElement();
     };
 
     playAllAnimations();
     const homeArticle = homeRef.current;
 
     return () => {
-      console.log('clean-up');
-
       shadowEyeAngryAnimate.removeEventListener(
         'endEvent',
         shadowAngryEyeListenerCallback
@@ -1198,17 +1170,17 @@ const Home = () => {
           shadowDissapearEndEventCallback
         );
       }
+      forwardsAnimRef.current.forEach((anim) => anim.cancel());
+      forwardsAnimRef.current = [];
       // Cancel Animations that are running and are inside the home component
       // whenever one of the dependancies changes.
       document.getAnimations().forEach((animation) => {
-        console.log(animation.effect.target);
-        animation.cancel();
-        // const localAnimation = homeArticle.contains(animation.effect.target);
-        // const hasConicClassName =
-        //   animation.effect.target.classList.contains('home__conic');
-        // if (localAnimation && !hasConicClassName) {
-        //   animation.cancel();
-        // }
+        const localAnimation = homeArticle.contains(animation.effect.target);
+        const hasConicClassName =
+          animation.effect.target.classList.contains('home__conic');
+        if (localAnimation && !hasConicClassName) {
+          animation.cancel();
+        }
       });
     };
   }, [
@@ -1217,6 +1189,7 @@ const Home = () => {
     portraitAndWidthOver600,
     widthBellow600,
     widthBellow1200,
+    onoff,
   ]);
 
   // If i have the star and the cow in the same <svg> either under the <g> tag or under the <svg>
@@ -1334,9 +1307,7 @@ const Home = () => {
   // }, []);
 
   const playAnimations = async () => {
-    for (let i = 0; i <= 6; i++) {
-      console.log(getComputedStyle(getMap(containersRef).get(i)).opacity);
-    }
+    setOnoff((n) => !n);
     // svgBubbleClipAnimateRef.current.beginElement();
     // const bubble = svgBubbleRef.current.animate(
     //   [
@@ -1399,12 +1370,14 @@ const Home = () => {
   };
 
   const cancelAnimations = async () => {
-    document.getAnimations().forEach((anim) => {
-      anim.cancel();
-    });
+    // frontNodesRef.current.forEach((val, key) => console.log(key, val));
+    // containersRef.current.forEach((val, key) => console.log(key, val));
+    forwardsAnimRef.current.forEach((anim) => anim.cancel());
   };
 
-  const reverseAnimations = async () => {};
+  const reverseAnimations = async () => {
+    console.log(forwardsAnimRef.current);
+  };
 
   const hello = async () => {
     console.log(document.getAnimations());
@@ -1455,7 +1428,47 @@ const Home = () => {
     return calcArcValues(1, 0.2, 360);
   }, []);
 
+  // Create a stable memoized function for the ref callback
+  // In React 19+ if you include the cleanup with the return keyword, then you always get a node reference
+  // even in the cleanup (its the deleted node at this point from the previous render).
+  // Also the ref does not give a null value for the node as it cycles between re-renders.
+
+  const frontNodesStableRef = useCallback((node) => {
+    const observer = resizeObserverRef.current;
+    if (observer) {
+      // On the first render the observer has not been initialized yet because
+      // the effect runs after the nodes have been attached to the ref.
+      // So the observe method is ran in the effect once upon mount for this case
+      // Since the ref is stable i do not need this but its good to have for edge cases
+      observer.observe(node);
+    }
+    const map = getMap(frontNodesRef);
+    const index = Number(node.dataset.index);
+    map.set(index, node);
+    return () => {
+      if (observer) {
+        // Here the observer has been initialized but a check is done for edge cases
+        // Also the observer disconnects when the component unmounts and the ref is stable so this portion
+        // only runs once when the component unmounts and on strict mode once.
+        observer.unobserve(node);
+      }
+      const index = Number(node.dataset.index);
+      map.delete(index);
+    };
+  }, []);
+  const letterContainerStableRef = useCallback((node) => {
+    const map = getMap(containersRef);
+    const index = Number(node.dataset.index);
+    map.set(index, node);
+
+    return () => {
+      const index = Number(node.dataset.index);
+      map.delete(index);
+    };
+  }, []);
+
   const moovies = ['M', 'O', 'O', 'V', 'I', 'E', 'S'];
+
   return (
     <article ref={homeRef} className='home'>
       <button
@@ -1476,6 +1489,7 @@ const Home = () => {
         cancel
       </button>
       <button
+        ref={btnRef}
         id='test_button_4'
         style={{ position: 'absolute', left: '160px', zIndex: '10' }}
         onClick={reverseAnimations}>
@@ -1494,12 +1508,9 @@ const Home = () => {
       <h1 className='home__title'>
         {moovies.map((letter, index) => (
           <span
+            ref={letterContainerStableRef}
             key={index}
-            ref={(node) =>
-              node
-                ? getMap(containersRef).set(index, node)
-                : getMap(containersRef).delete(index)
-            }
+            data-index={index}
             className={`home__curved-3d home__curved-3d--${index + 1}`}>
             <span
               style={{
@@ -1563,11 +1574,8 @@ const Home = () => {
                 I
               </span>
               <span
-                ref={(node) =>
-                  node
-                    ? getMap(frontNodesRef).set(index, node)
-                    : getMap(frontNodesRef).delete(index)
-                }
+                ref={frontNodesStableRef}
+                data-index={index}
                 className='home__letter home__letter--front'>
                 {letter}
               </span>

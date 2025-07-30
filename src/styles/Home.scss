@@ -170,6 +170,7 @@
   &__letter {
     color: hsl(180, 10%, 95%);
     position: absolute;
+
     -webkit-text-stroke: calc(var(--_letterTextStrokeWidth) * 1px)
       var(--home-letter-text-stroke-color);
 
