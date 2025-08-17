@@ -1,4 +1,5 @@
 import {
+  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -41,8 +42,6 @@ let initialProtrusion = 21;
 let initialAspectRatioOver = true;
 let initialPortraitAndWidthOver600 = true;
 let initialLetterTextStrokeWidth = 4;
-let initialWidthBellow600 = false;
-let initialWidthBellow1200 = false;
 
 if (typeof window !== 'undefined') {
   const vw600 = window.matchMedia('(max-width: 37.5em)').matches;
@@ -58,11 +57,9 @@ if (typeof window !== 'undefined') {
   if (vw600) {
     initialProtrusion = 9;
     initialLetterTextStrokeWidth = 2;
-    initialWidthBellow600 = true;
   } else if (vw1200) {
     initialProtrusion = 13;
     initialLetterTextStrokeWidth = 2;
-    initialWidthBellow1200 = true;
   } else if (vw1920) {
     initialProtrusion = 17;
   } else if (vw2560) {
@@ -328,9 +325,18 @@ const homeGlassKeyframe3dValuesObj = {
   },
 };
 
+let initialAnimationsState = 'initial';
+if (window !== undefined) {
+  const storage = localStorage.getItem('home_first_time_ever');
+  if (storage && storage === 'true') {
+    initialAnimationsState = 'iddle';
+  }
+}
+
 const Home = () => {
-  const [onoff, setOnoff] = useState(false);
   const btnRef = useRef(null);
+  const testAnimateRef = useRef(null);
+  const [animationsPlayState, setAnimationsPlayState] = useState('iddle');
   // Letter relative states based on different viewports
   const [protrusionSize, setProtrusionSize] = useState(initialProtrusion); // Front + Back + Middle letters sum of pixels in depth
   const [letterTextStrokeWidth, setLetterTextStrokeWidth] = useState(
@@ -346,23 +352,12 @@ const Home = () => {
     initialPortraitAndWidthOver600
   );
 
-  // Viewport flags for the turbulence dissapear animation
-  const [widthBellow600, setWidthBellow600] = useState(initialWidthBellow600);
-  const [widthBellow1200, setWidthBellow1200] = useState(
-    initialWidthBellow1200
-  );
-
   // Glass3d offset-path class
   const [toggleGlassClassName, setToggleGlassClassName] = useState(
     'home__svg-glass-empty home__svg-glass-empty--'
   );
+  const animationsStateRef = useRef('initial'); // initial / iddle / running / finished / reverse
 
-  const effectRanRef = useRef(false);
-  const [canPlayAnimations, setCanPlayAnimations] = useState(false);
-  const leftEyeRef = useRef(null);
-  const rightEyeRef = useRef(null);
-  const leftEarRef = useRef(null);
-  const cowRef = useRef(null);
   const homeRef = useRef(null);
   const resizeObserverRef = useRef(null);
   const observerRAF_ID = useRef(null);
@@ -377,7 +372,6 @@ const Home = () => {
 
   // div wrapper around the main svg (contains cow + star)
   const mainSvgContainerRef = useRef(null);
-  const mainSvgAnimRef = useRef(null);
 
   // SVG elements
   const svgStarRef = useRef(null);
@@ -401,12 +395,12 @@ const Home = () => {
   // All glass paths
   const glassContainerRef = useRef(null);
   const glassPathsRef = useRef(null);
-  const glassPathsAnimRef = useRef(null);
 
   // Background & Intro
   const conicWrapperRef = useRef(null);
   const conicInsideRef = useRef(null);
   const conicBackDarkRef = useRef(null);
+  const beamAndBubbleContainerRef = useRef(null);
   const svgBubbleRef = useRef(null);
   const beamRef = useRef(null);
   const svgBubbleClipAnimateRef = useRef(null);
@@ -419,6 +413,7 @@ const Home = () => {
 
   //////////////////
   const turblulenceDisplaceAnimRef = useRef(null);
+  const arcAnimateReverseRef = useRef(null);
   /////////////
 
   // Map getter helper function
@@ -783,21 +778,64 @@ const Home = () => {
     // have finished their animation duration. Afterwards it is safe to reset the state of all elements into a starting position
     //  in order to replace the frozen animation and be ready to replay them.
 
-    // Reset SVG container timmers and set all relative animations into their starting states
+    // Running / Finished
+    // if (animationsStateRef.current === 'running') {
+    //   glassContainerRef.current.dataset.display = 'true';
+    //   svgShadowRef.current.dataset.display = 'true';
+    //   mainSvgContainerRef.current.style.opacity = '0';
+    //   setToggleGlassClassName(glass3dAnimationArgs.strokeState.empty);
+    //   // Reset SVG container timmers.
+    //   const svgStar = svgStarRef.current;
+    //   const svgShadow = svgShadowRef.current;
+    //   const starCurrTime = svgStar.getCurrentTime();
+    //   const turblulenceCurrTime = svgShadow.getCurrentTime();
+    //   svgStar.setCurrentTime(starCurrTime + 60);
+    //   svgShadow.setCurrentTime(turblulenceCurrTime + 60);
+    //   // Trigger all relative SVG animations with fill into their starting states.
+    //   animateGlobalResetRef.current.beginElement();
+    // }
 
-    glassContainerRef.current.dataset.display = 'true';
-    mainSvgContainerRef.current.style.opacity = '0';
-    svgShadowRef.current.dataset.display = 'true';
-    setToggleGlassClassName(glass3dAnimationArgs.strokeState.empty);
-    const svgStar = svgStarRef.current;
-    const svgShadow = svgShadowRef.current;
-    const starCurrTime = svgStar.getCurrentTime();
-    const turblulenceCurrTime = svgShadow.getCurrentTime();
-    svgStar.setCurrentTime(starCurrTime + 60);
-    svgShadow.setCurrentTime(turblulenceCurrTime + 60);
-    animateGlobalResetRef.current.beginElement();
+    // // Only if the animations have finished, then remove all commited styles.
+    // if (animationsStateRef.current === 'finished') {
+    //   getMap(boxesRef).forEach((val) => val.style.removeProperty('transform'));
+    //   getMap(containersRef).forEach((val) => {
+    //     val.style.removeProperty('transform');
+    //     val.style.removeProperty('opacity');
+    //   });
+    //   svgCowRef.current.style.removeProperty('opacity');
+    // }
 
     ////////////////////////////////////////////////////////////////////////////
+
+    const backgroundAnimation = async () => {
+      // Animate the clip along with the animation
+      svgBubbleClipAnimateRef.current.beginElement();
+      // Scales up and down the bubble
+      const bubble = svgBubbleRef.current.animate(
+        backgroundAnimationArgs.bubble.keyframes,
+        backgroundAnimationArgs.bubble.options
+      );
+      // Scales the beam only in the Y-axis
+      const beam = beamRef.current.animate(
+        backgroundAnimationArgs.beam.keyframes,
+        backgroundAnimationArgs.beam.options
+      );
+      await beam.finished;
+      // Animates a custom property to change the (hsl)lightness of the color
+      conicBackDarkRef.current.animate(
+        backgroundAnimationArgs.conicBackDarkRef.keyframes,
+        backgroundAnimationArgs.conicBackDarkRef.options
+      );
+      // Animates a custom property to change the angle of the conic gradient used as a mask image to reveal
+      // the gradient.
+      // The custom property is also inherited by the sibling in order to make the effect from left and right angles.
+      const conicWrapperAnimation = conicWrapperRef.current.animate(
+        backgroundAnimationArgs.conicMaskAngle.keyframes,
+        backgroundAnimationArgs.conicMaskAngle.options
+      );
+      return conicWrapperAnimation;
+    };
+
     // Animates all letters and returns the letter "S" animation
     const letterEntranceAnimations = () => {
       // star is running through the letters from 0% to 35% in its animation and the total duration is 6500ms
@@ -1059,30 +1097,44 @@ const Home = () => {
               ],
               { duration: 500, fill: 'forwards' }
             );
+            forwardsAnimRef.current.push(cowOpacity);
             cowDisplaceAnimateRef.current.beginElement();
             await cowOpacity.finished;
             console.log(document.getAnimations());
+            // After all the animations have finished the ones that have the fill:'forwards' flag are persisting.
+            // So the animations need to get canceled and the styles must be commited for better performance.
+            document.getAnimations().forEach((animation) => {
+              const animationFill = animation.effect.getTiming().fill;
+              const localAnimation = homeRef.current.contains(
+                animation.effect.target
+              );
+
+              const hasConicClassName =
+                animation.effect.target.classList.contains('home__conic');
+              // Check if the animation is inside the component and if it has forwards fill and is not conic gradient
+              if (
+                localAnimation &&
+                animationFill === 'forwards' &&
+                !hasConicClassName
+              ) {
+                console.log(animation);
+                animation.commitStyles();
+                animation.cancel();
+              }
+            });
+            // All animations have finished + canceled and the styles have been commited.
+            // Empty the array
+            forwardsAnimRef.current = [];
+            // Update the state ref
+            animationsStateRef.current = 'finished';
+            console.log(document.getAnimations());
           };
+
+          // DEPTH
           shadowDissapear.addEventListener(
             'endEvent',
             shadowDissapearEndEventCallback
           );
-          // After all the animations have finished the ones that have the fill:'forwards' flag are persisting.
-          // So the animations need to get canceled and the styles must be commited for better performance.
-          // document.getAnimations().forEach((animation) => {
-          //   const animationFill = animation.effect.getTiming().fill;
-          //   const localAnimation = homeRef.current.contains(
-          //     animation.effect.target
-          //   );
-          //   console.log(animationFill, localAnimation);
-          //   console.dir(animation);
-          //   // Check if the animation is inside the component and if it has forwards fill
-          //   if (localAnimation && animationFill === 'forwards') {
-          //     animation.commitStyles();
-          //     animation.cancel();
-          //   }
-          // });
-          // console.log(document.getAnimations());
         };
         // 2nd level of depth
         path4.addEventListener('transitionend', path4TransitionEndCallback, {
@@ -1100,35 +1152,9 @@ const Home = () => {
       'endEvent',
       shadowAngryEyeListenerCallback
     );
-    const backgroundAnimation = async () => {
-      // Animate the clip along with the animation
-      svgBubbleClipAnimateRef.current.beginElement();
-      // Scales up and down the bubble
-      const bubble = svgBubbleRef.current.animate(
-        backgroundAnimationArgs.bubble.keyframes,
-        backgroundAnimationArgs.bubble.options
-      );
-      // Scales the beam only in the Y-axis
-      const beam = beamRef.current.animate(
-        backgroundAnimationArgs.beam.keyframes,
-        backgroundAnimationArgs.beam.options
-      );
-      await beam.finished;
-      // Animates a custom property to change the (hsl)lightness of the color
-      conicBackDarkRef.current.animate(
-        backgroundAnimationArgs.conicBackDarkRef.keyframes,
-        backgroundAnimationArgs.conicBackDarkRef.options
-      );
-      // Animates a custom property to change the angle of the conic gradient used as a mask image to reveal
-      // the gradient.
-      // The custom property is also inherited by the sibling in order to make the effect from left and right angles.
-      const conicWrapperAnimation = conicWrapperRef.current.animate(
-        backgroundAnimationArgs.conicMaskAngle.keyframes,
-        backgroundAnimationArgs.conicMaskAngle.options
-      );
-      return conicWrapperAnimation;
-    };
+
     const playAllAnimations = async () => {
+      animationsStateRef.current = 'running';
       const conicWrapperAnim = await backgroundAnimation();
       await conicWrapperAnim.finished;
       const starAnimation = mainSvgAnimation();
@@ -1141,56 +1167,102 @@ const Home = () => {
       starMorphShapeAnimateRef.current.beginElement();
     };
 
-    playAllAnimations();
+    // playAllAnimations();
     const homeArticle = homeRef.current;
 
     return () => {
-      shadowEyeAngryAnimate.removeEventListener(
-        'endEvent',
-        shadowAngryEyeListenerCallback
-      );
-
-      if (path10TransitionEndCallback) {
-        path10.removeEventListener(
-          'transitionend',
-          path10TransitionEndCallback,
-          {
-            once: 'true',
-          }
-        );
-      }
-      if (path4TransitionEndCallback) {
-        path4.removeEventListener('transitionend', path4TransitionEndCallback, {
-          once: 'true',
-        });
-      }
-      if (shadowDissapearEndEventCallback) {
-        shadowDissapear.removeEventListener(
-          'endEvent',
-          shadowDissapearEndEventCallback
-        );
-      }
-      forwardsAnimRef.current.forEach((anim) => anim.cancel());
-      forwardsAnimRef.current = [];
-      // Cancel Animations that are running and are inside the home component
-      // whenever one of the dependancies changes.
-      document.getAnimations().forEach((animation) => {
-        const localAnimation = homeArticle.contains(animation.effect.target);
-        const hasConicClassName =
-          animation.effect.target.classList.contains('home__conic');
-        if (localAnimation && !hasConicClassName) {
-          animation.cancel();
-        }
-      });
+      // shadowEyeAngryAnimate.removeEventListener(
+      //   'endEvent',
+      //   shadowAngryEyeListenerCallback
+      // );
+      // if (path10TransitionEndCallback) {
+      //   path10.removeEventListener(
+      //     'transitionend',
+      //     path10TransitionEndCallback,
+      //     {
+      //       once: 'true',
+      //     }
+      //   );
+      // }
+      // if (path4TransitionEndCallback) {
+      //   path4.removeEventListener('transitionend', path4TransitionEndCallback, {
+      //     once: 'true',
+      //   });
+      // }
+      // if (shadowDissapearEndEventCallback) {
+      //   shadowDissapear.removeEventListener(
+      //     'endEvent',
+      //     shadowDissapearEndEventCallback
+      //   );
+      // }
+      // // Cancel all fill='forwards' animations independetly based on reference on the animation object itself,
+      // // because otherwise their reference is lost and they dont show up in the getAnimations() array.
+      // forwardsAnimRef.current.forEach((anim) => anim.cancel());
+      // forwardsAnimRef.current = [];
+      // // Cancel Animations that are running and are inside the home component
+      // // whenever one of the dependancies changes.
+      // document.getAnimations().forEach((animation) => {
+      //   const localAnimation = homeArticle.contains(animation.effect.target);
+      //   const hasConicClassName =
+      //     animation.effect.target.classList.contains('home__conic');
+      //   const hasConicWrapperClassName =
+      //     animation.effect.target.classList.contains('home__conic-wrapper');
+      //   if (localAnimation && !hasConicClassName && !hasConicWrapperClassName) {
+      //     animation.cancel();
+      //   }
+      // });
     };
+  }, [aspectRatioOver, protrusionSize, portraitAndWidthOver600]);
+
+  useEffect(() => {
+    if (animationsPlayState === 'iddle') {
+      // if initial do these
+      glassContainerRef.current.dataset.display = 'false';
+      svgShadowRef.current.dataset.display = 'false';
+      beamAndBubbleContainerRef.current.dataset.display = 'false';
+
+      conicWrapperRef.current.style.setProperty(
+        '--home-mask-gradient-angle',
+        '180deg'
+      );
+      conicBackDarkRef.current.style.setProperty(
+        '--home-conic-color-lightness',
+        '5%'
+      );
+      getMap(containersRef).forEach((val) => (val.style.opacity = '1'));
+      const zAxisOriginal = -((protrusionSize - 1) / 2);
+      getMap(boxesRef).forEach((val) => {
+        val.style.opacity = '1';
+        val.style.transform = `translateZ(${zAxisOriginal}px) translateY(-20px) rotateX(20deg)`;
+      });
+      mainSvgContainerRef.current.style.opacity = '1';
+      svgCowRef.current.style.opacity = '1';
+      svgStarRef.current.style.opacity = '0';
+    }
+  }, [protrusionSize, animationsPlayState]);
+
+  useEffect(() => {
+    if (animationsPlayState === 'reverse') {
+      svgCowRef.current.animate(
+        [
+          {
+            opacity: 1,
+          },
+          { opacity: 0 },
+        ],
+        { duration: 1000 }
+      );
+      svgStarRef.current.style.opacity = '1';
+      arcAnimateReverseRef.current.beginElement();
+    }
   }, [
     aspectRatioOver,
     protrusionSize,
     portraitAndWidthOver600,
-    widthBellow600,
-    widthBellow1200,
-    onoff,
+    animationsPlayState,
   ]);
+
+  const handleReverseAnimationsClick = () => {};
 
   // If i have the star and the cow in the same <svg> either under the <g> tag or under the <svg>
   // (with viewports and width/height = 100% ) changing the opacity of the cow that is inside <g> or <svg>
@@ -1307,80 +1379,19 @@ const Home = () => {
   // }, []);
 
   const playAnimations = async () => {
-    setOnoff((n) => !n);
-    // svgBubbleClipAnimateRef.current.beginElement();
-    // const bubble = svgBubbleRef.current.animate(
-    //   [
-    //     {
-    //       transform: 'scale(0)',
-    //       offset: 0,
-    //     },
-    //     {
-    //       transform: 'scale(2)',
-    //       offset: 0.2,
-    //     },
-    //     {
-    //       transform: 'scale(2)',
-    //       offset: 0.7,
-    //     },
-    //     {
-    //       transform: 'scale(0)',
-    //       offset: 1,
-    //     },
-    //   ],
-    //   { duration: 800 }
-    // );
-    // const beam = beamRef.current.animate(
-    //   [
-    //     {
-    //       transform: 'scale(1, 0)',
-    //     },
-    //     { transform: 'scale(1, 1)' },
-    //   ],
-    //   {
-    //     duration: 500,
-    //     delay: 500,
-    //     easing: 'cubic-bezier(0.47, 0.35, 1, 0.8)',
-    //   }
-    // );
-    // beam.onfinish = () => {
-    //   conicBackDarkRef.current.animate(
-    //     [
-    //       {
-    //         '--home-conic-color-lightness': '100%',
-    //       },
-    //       {
-    //         '--home-conic-color-lightness': '5%',
-    //       },
-    //     ],
-    //     { duration: 600, fill: 'forwards' }
-    //   );
-    //   conicWrapperRef.current.animate(
-    //     [
-    //       {
-    //         '--home-mask-gradient-angle': '90deg',
-    //       },
-    //       {
-    //         '--home-mask-gradient-angle': '180deg',
-    //       },
-    //     ],
-    //     { duration: 1000, fill: 'forwards' }
-    //   );
-    // };
+    setAnimationsPlayState('iddle');
   };
 
   const cancelAnimations = async () => {
-    // frontNodesRef.current.forEach((val, key) => console.log(key, val));
-    // containersRef.current.forEach((val, key) => console.log(key, val));
-    forwardsAnimRef.current.forEach((anim) => anim.cancel());
+    setAnimationsPlayState('running');
   };
 
   const reverseAnimations = async () => {
-    console.log(forwardsAnimRef.current);
+    setAnimationsPlayState('reverse');
   };
 
   const hello = async () => {
-    console.log(document.getAnimations());
+    testAnimateRef.current.beginElement();
   };
 
   ////// Arc //////
@@ -1403,7 +1414,7 @@ const Home = () => {
       // be handled smoothly in order for the browser to interpolate the values correctly.
       // That means adding one by one the degrees from that point until the next step in the loop
       // based on the precision provided and also creating custom keyTimes to maintain the linear animation
-      // because the values would have added extra steps inside the values attribute.
+      // because the values would have added extra steps inside the "values" attribute.
       let deg = minAngle;
 
       // Builds up as the loop progresses
@@ -1427,6 +1438,16 @@ const Home = () => {
     };
     return calcArcValues(1, 0.2, 360);
   }, []);
+
+  const memoReversedArcValues = useMemo(() => {
+    const calcReversedArcValues = memoArcValues
+      .split(';')
+      .slice(0, -1)
+      .reverse()
+      .map((item) => item + ';')
+      .join('');
+    return calcReversedArcValues;
+  }, [memoArcValues]);
 
   // Create a stable memoized function for the ref callback
   // In React 19+ if you include the cleanup with the return keyword, then you always get a node reference
@@ -1502,7 +1523,7 @@ const Home = () => {
           top: '40%',
           zIndex: '10',
         }}
-        onClick={() => setCanPlayAnimations((n) => !n)}>
+        onClick={() => {}}>
         true/false
       </button>
       <h1 className='home__title'>
@@ -1648,7 +1669,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               attributeType='CSS'
               attributeName='opacity'
               dur='.001s'
-              begin='home_svg_star_to_circle_anim.end'
+              begin='home_svg_star_to_circle_anim.end;home_svg_star_arc_morph_in.begin;'
               fill='freeze'
               from='0'
               to='0'></animate>
@@ -1657,7 +1678,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               attributeType='CSS'
               attributeName='opacity'
               dur='.001s'
-              begin='home_animate_global_reset.begin'
+              begin='home_animate_global_reset.begin;home_svg_star_arc_morph_in.end;'
               fill='freeze'
               from='1'
               to='1'></animate>
@@ -1668,7 +1689,23 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               begin='home_animate_global_reset.begin'
               fill='freeze'
               values='M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7-8.65-44.37-15.07-89.13-21.59-133.86-6.43-44.13-19.16-116.61-17.27-132.69 1.87-15.83 65.5-72.27 99.03-107.68 30.06-31.75 62.3-61.43 91.56-93.94 22.48-22.78 20.12-40.5-12.8-47.96-47.55-9.24-95.72-14.94-143.52-22.79-44.13-7.24-101.2-11.63-132.25-22.43-5.13-1.78-42.19-87.16-64.5-130.13-21.5-41.37-43.4-82.83-66.8-122.86-15.94-26.68-30.35-13.49-42.82 6.92-11.63 19.03-44.73 78.4-66.2 118.1-22.88 42.33-29.7 53.17-66.69 128.02-1.86 3.75-88.5 15.13-132.81 22.38-47.8 7.83-95.97 13.4-143.53 22.8-32.22 5.92-33.5 25.48-14.68 46.07 53.3 58.34 66.1 65.13 97.67 99.1 32.31 34.77 89.76 82.01 93.85 107.11 3.09 18.98-10.12 86.76-16.32 129.98-6.4 44.74-15.6 89.44-21.58 133.86-5.45 33.25 1.15 47.82 35.3 35.7 34.15-12.12 90.76-44.92 136.37-66.9 39.52-19.04 99.23-57.03 118.95-56.3 18.94.71 82 36.82 118.96 56.3z;'></animate>
+            <animate
+              ref={testAnimateRef}
+              id='home_svg_circle_to_star'
+              attributeType='XML'
+              attributeName='d'
+              dur='.4s'
+              begin='home_svg_star_arc_morph_in.end;indefinite'
+              calcMode='spline'
+              fill='freeze'
+              keySplines='0.7 0.2 .84 0.2;'
+              keyTimes='0; 1'
+              values='M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-30.95 20.84-12.6 71.3-70.62 88.04-95.3 16.73-24.66 57.7-103.97 67.96-139.6 8.07-27.99 18.87-117.46 20.9-148.21 2.02-30.75-10.98-91.11-14.56-107.62-5.67-26.17-9.66-34.69-17.99-59.92-8.7-26.36-24.93-55.55-45.4-87.07-20.48-31.52-57.74-75.93-98.45-110.77-15.3-13.09-80.89-56.86-128.64-76.61-47.75-19.76-108.64-32.52-149.1-34.83-24.6-1.4-42.09-.65-64.82.23-13.18.51-58.94 7.02-90.6 15.22-31.66 8.2-110.28 38.57-150.94 69.97-17.26 13.34-78.18 55.48-112.83 107.02C77.32 258.29 59.8 287.5 47.6 323.59c-9.45 27.96-13.17 33.47-17.38 50.82-4.3 17.7-17.77 81.83-15.34 128.88 2.43 47.04 12.4 122.57 30.7 164.58 7.67 17.63 41.84 96.62 80.67 141.53 38.83 44.9 31.96 37.5 66.38 66.19 15.53 12.94 28.9 22.1 40.04 30.28 11.15 8.18 84.48 48.02 141.1 62.35 56.63 14.33 97.56 15.51 117.28 16.25 18.93.7 115.23-7.83 165.3-26.4z;
+M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7-8.65-44.37-15.07-89.13-21.59-133.86-6.43-44.13-19.16-116.61-17.27-132.69 1.87-15.83 65.5-72.27 99.03-107.68 30.06-31.75 62.3-61.43 91.56-93.94 22.48-22.78 20.12-40.5-12.8-47.96-47.55-9.24-95.72-14.94-143.52-22.79-44.13-7.24-101.2-11.63-132.25-22.43-5.13-1.78-42.19-87.16-64.5-130.13-21.5-41.37-43.4-82.83-66.8-122.86-15.94-26.68-30.35-13.49-42.82 6.92-11.63 19.03-44.73 78.4-66.2 118.1-22.88 42.33-29.7 53.17-66.69 128.02-1.86 3.75-88.5 15.13-132.81 22.38-47.8 7.83-95.97 13.4-143.53 22.8-32.22 5.92-33.5 25.48-14.68 46.07 53.3 58.34 66.1 65.13 97.67 99.1 32.31 34.77 89.76 82.01 93.85 107.11 3.09 18.98-10.12 86.76-16.32 129.98-6.4 44.74-15.6 89.44-21.58 133.86-5.45 33.25 1.15 47.82 35.3 35.7 34.15-12.12 90.76-44.92 136.37-66.9 39.52-19.04 99.23-57.03 118.95-56.3 18.94.71 82 36.82 118.96 56.3z;
+                '></animate>
           </path>
+          {/* Reverse Animation */}
+
           <path
             stroke='none'
             fill='hsl(175, 82%, 65%)'
@@ -1679,7 +1716,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               attributeType='CSS'
               attributeName='opacity'
               dur='.001s'
-              begin='home_svg_star_to_circle_anim.end'
+              begin='home_svg_star_to_circle_anim.end;home_svg_star_arc_morph_in.begin;'
               fill='freeze'
               from='1'
               to='1'></animate>
@@ -1688,21 +1725,28 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               attributeType='XML'
               attributeName='d'
               dur='.5s'
-              begin='home_svg_star_arc_opacity.end'
+              begin='home_svg_star_to_circle_anim.end;'
               values={`M 988 500 A 488 488 0 1 0 ${arcX(0.2)} ${arcY(
                 0.2
               )} L ${arcX(0.2)} ${arcY(0.2)} Z;
               M 988 500 A 488 488 0 1 0 ${arcX(0.2)} ${arcY(
                 0.2
               )} L 500 500 Z`}></animate>
-
             <animate
               id='home_svg_star_arc_moprh_out'
               attributeType='XML'
               attributeName='d'
               dur='2.5s'
-              begin='home_svg_star_arc_line_extend_anim.end'
+              begin='home_svg_star_arc_line_extend_anim.end;'
               values={memoArcValues}></animate>
+            <animate
+              ref={arcAnimateReverseRef}
+              id='home_svg_star_arc_morph_in'
+              attributeType='XML'
+              attributeName='d'
+              dur='1s'
+              begin='indefinite'
+              values={memoReversedArcValues}></animate>
             {/* Global Reset Starting State */}
             <animate
               attributeType='CSS'
@@ -1739,7 +1783,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                   begin='home_svg_star_arc_moprh_out.begin'
                   dur='45s'
                   values='0.04 0.04;0.1 0.1; 0.04 0.04'
-                  repeatCount='indefinite'></animate>
+                  repeatCount='2'></animate>
               </feTurbulence>
               <feTurbulence
                 type='turbulence'
@@ -1753,7 +1797,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
                   begin='home_svg_star_arc_moprh_out.begin'
                   dur='45s'
                   values=' 0.1 0.1;0.04 0.04; 0.1 0.1'
-                  repeatCount='indefinite'></animate>
+                  repeatCount='2'></animate>
               </feTurbulence>
               <feBlend
                 in='f_turb'
@@ -1764,7 +1808,7 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               <feDisplacementMap
                 in='SourceGraphic'
                 in2='BLEND'
-                scale='3000'
+                scale='0'
                 xChannelSelector='G'
                 yChannelSelector='R'
                 result='displace'>
@@ -2819,7 +2863,10 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
         </div>
       </div>
 
-      <div className='home__beam-bubble-container'>
+      <div
+        ref={beamAndBubbleContainerRef}
+        className='home__beam-bubble-container'
+        data-display='true'>
         <div ref={svgBubbleRef} className='home__bubble-container'>
           <svg version='1.1' width='100%' height='100%'>
             <defs>

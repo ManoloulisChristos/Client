@@ -328,6 +328,7 @@
     transform-origin: center;
     transform-box: fill-box;
     transform: translateY(55px);
+    transition: transform 2s linear;
   }
 
   &__cow-ear {
@@ -688,15 +689,6 @@
     }
   }
 
-  &__bubble-container {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid: [stack-row] 1fr / [stack-column] 1fr;
-    justify-items: center;
-    align-items: end;
-  }
-
   &__beam-wrapper {
     position: absolute;
     z-index: -3;
@@ -743,15 +735,23 @@
     grid: [stack-row] 1fr / [stack-column] 1fr;
     justify-items: center;
     align-items: end;
+
+    &[data-display='false'] {
+      display: none;
+    }
   }
 
   &__bubble-container {
     position: relative;
+    grid-area: stack-row / stack-column;
+    display: grid;
+    grid: [stack-row] 1fr / [stack-column] 1fr;
+    justify-items: center;
+    align-items: end;
     width: 20vmax;
     height: 20vmax;
     transform: scale(0);
     transform-origin: bottom center;
-    grid-area: stack-row / stack-column;
   }
 
   &__bubble {

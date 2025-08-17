@@ -335,51 +335,7 @@ export const svgAnimationArgs = {
       iterations: 5,
     },
   },
-  // Used along with the clipPath animate from turbulence
-  turbulenceDisappear: {
-    keyframesFn: (maxWidth600, maxWidth1200) => {
-      // based on the viewport width i need to provide different values for translateY in px
-      // in order for the shadow to go into the cows mouth
-      // the cow and the shadow change size via CSS based on different viewport sizes
-      let y = 1000;
-      if (maxWidth600) {
-        y = 400;
-      }
-      if (maxWidth1200) {
-        y = 700;
-      }
-      console.log('y', y);
-      return [
-        {
-          transform:
-            'perspective(500px) translateZ(200px) rotateX(-55deg) translateY(0px)',
-        },
-        {
-          transform: `perspective(500px) translateZ(-1000px) rotateX(-55deg) translateY(${y}px) translateX(50px)`,
-        },
-      ];
-    },
-    options: { duration: 1000 },
-  },
-  cowAppear: {
-    keyframes: [
-      {
-        transform:
-          'perspective(500px) scale(0.1) translateZ(-200px) rotateX(25deg)',
-        opacity: '0',
-        offset: 0,
-      },
-      {
-        opacity: '1',
-        offset: 0.2,
-      },
-      {
-        transform: ' perspective(500px) scale(1) translateZ(0px) rotateX(0deg)',
-        opacity: '1',
-      },
-    ],
-    options: { duration: 600, fill: 'forwards' },
-  },
+
   cowEarFlap: {
     keyframes: [
       {
