@@ -367,8 +367,6 @@ const Home = () => {
   const frontNodesRef = useRef(null);
   const leftNodesRef = useRef(null);
   const rightNodesRef = useRef(null);
-  // Letter animations
-  const forwardsAnimRef = useRef([]);
 
   // div wrapper around the main svg (contains cow + star)
   const mainSvgContainerRef = useRef(null);
@@ -411,8 +409,13 @@ const Home = () => {
   const animateGlobalReverseRef = useRef(null);
   const animateGlobalReverseResetRef = useRef(null);
 
+  // Placeholders for filling animations
+  const forwardsAnimRef = useRef([]);
+  const reverseForwardsAnimRef = useRef([]);
+  const animationsCanceledRef = useRef(false);
+  const shouldBackgroundAnimateRef = useRef(true);
   //////////////////
-  const turblulenceDisplaceAnimRef = useRef(null);
+  const shadowTurblulenceDisplaceAnimRef = useRef(null);
   const arcAnimateReverseRef = useRef(null);
   /////////////
 
@@ -778,36 +781,43 @@ const Home = () => {
     // have finished their animation duration. Afterwards it is safe to reset the state of all elements into a starting position
     //  in order to replace the frozen animation and be ready to replay them.
 
-    // Running / Finished
-    // if (animationsStateRef.current === 'running') {
-    //   glassContainerRef.current.dataset.display = 'true';
-    //   svgShadowRef.current.dataset.display = 'true';
-    //   mainSvgContainerRef.current.style.opacity = '0';
-    //   setToggleGlassClassName(glass3dAnimationArgs.strokeState.empty);
-    //   // Reset SVG container timmers.
-    //   const svgStar = svgStarRef.current;
-    //   const svgShadow = svgShadowRef.current;
-    //   const starCurrTime = svgStar.getCurrentTime();
-    //   const turblulenceCurrTime = svgShadow.getCurrentTime();
-    //   svgStar.setCurrentTime(starCurrTime + 60);
-    //   svgShadow.setCurrentTime(turblulenceCurrTime + 60);
-    //   // Trigger all relative SVG animations with fill into their starting states.
-    //   animateGlobalResetRef.current.beginElement();
-    // }
+    if (animationsPlayState !== 'running') {
+      return;
+    }
+    beamAndBubbleContainerRef.current.dataset.display = 'true';
+    glassContainerRef.current.dataset.display = 'true';
+    svgShadowRef.current.dataset.display = 'true';
+    mainSvgContainerRef.current.style.opacity = '0';
+    setToggleGlassClassName(glass3dAnimationArgs.strokeState.empty);
 
-    // // Only if the animations have finished, then remove all commited styles.
-    // if (animationsStateRef.current === 'finished') {
-    //   getMap(boxesRef).forEach((val) => val.style.removeProperty('transform'));
-    //   getMap(containersRef).forEach((val) => {
-    //     val.style.removeProperty('transform');
-    //     val.style.removeProperty('opacity');
-    //   });
-    //   svgCowRef.current.style.removeProperty('opacity');
-    // }
+    // Reset SVG container timmers only if the animations have been canceled.
+    if (animationsCanceledRef.current) {
+      // Get svg timmers and add 60 seconds.
+      const svgStar = svgStarRef.current;
+      const svgShadow = svgShadowRef.current;
+      const starCurrTime = svgStar.getCurrentTime();
+      const turblulenceCurrTime = svgShadow.getCurrentTime();
+      svgStar.setCurrentTime(starCurrTime + 60);
+      svgShadow.setCurrentTime(turblulenceCurrTime + 60);
+
+      // Trigger all relative SVG animations with fill into their starting states.
+      animateGlobalResetRef.current.beginElement();
+
+      // Reset the flag.
+      animationsCanceledRef.current = false;
+    }
+
+    getMap(boxesRef).forEach((val) => val.style.removeProperty('transform'));
+    getMap(containersRef).forEach((val) => {
+      val.style.removeProperty('transform');
+      val.style.removeProperty('opacity');
+    });
+    svgCowRef.current.style.removeProperty('opacity');
 
     ////////////////////////////////////////////////////////////////////////////
 
     const backgroundAnimation = async () => {
+      console.log('backgroundAnim-fucntion');
       // Animate the clip along with the animation
       svgBubbleClipAnimateRef.current.beginElement();
       // Scales up and down the bubble
@@ -821,6 +831,9 @@ const Home = () => {
         backgroundAnimationArgs.beam.options
       );
       await beam.finished;
+
+      beamAndBubbleContainerRef.current.dataset.display = 'false';
+
       // Animates a custom property to change the (hsl)lightness of the color
       conicBackDarkRef.current.animate(
         backgroundAnimationArgs.conicBackDarkRef.keyframes,
@@ -833,6 +846,7 @@ const Home = () => {
         backgroundAnimationArgs.conicMaskAngle.keyframes,
         backgroundAnimationArgs.conicMaskAngle.options
       );
+
       return conicWrapperAnimation;
     };
 
@@ -1013,7 +1027,7 @@ const Home = () => {
     const path10 = getMap(glassPathsRef).get(10);
     const path4 = getMap(glassPathsRef).get(4);
     const shadowEyeAngryAnimate = shadowEyeAngryAnimateRef.current;
-    const shadowDissapear = turblulenceDisplaceAnimRef.current;
+    const shadowDissapear = shadowTurblulenceDisplaceAnimRef.current;
 
     //// 3 eventListeners nested one after the other ///
 
@@ -1083,7 +1097,7 @@ const Home = () => {
           shadowShakeAnimation.play();
           await shadowShakeAnimation.finished;
           ////////////
-          turblulenceDisplaceAnimRef.current.beginElement();
+          shadowTurblulenceDisplaceAnimRef.current.beginElement();
           shadowDissapearEndEventCallback = async () => {
             svgShadowRef.current.dataset.display = 'false';
             const cowOpacity = svgCowRef.current.animate(
@@ -1125,12 +1139,13 @@ const Home = () => {
             // All animations have finished + canceled and the styles have been commited.
             // Empty the array
             forwardsAnimRef.current = [];
-            // Update the state ref
-            animationsStateRef.current = 'finished';
+            // Change the animations play state
+            setAnimationsPlayState('iddle');
+
             console.log(document.getAnimations());
           };
 
-          // DEPTH
+          // 3rd level of depth
           shadowDissapear.addEventListener(
             'endEvent',
             shadowDissapearEndEventCallback
@@ -1154,9 +1169,18 @@ const Home = () => {
     );
 
     const playAllAnimations = async () => {
-      animationsStateRef.current = 'running';
-      const conicWrapperAnim = await backgroundAnimation();
-      await conicWrapperAnim.finished;
+      if (shouldBackgroundAnimateRef.current === true) {
+        const conicWrapperAnim = await backgroundAnimation();
+        await conicWrapperAnim.finished;
+        // Commit the styles here instead of the ending of all animations to prevent the bug of forwards filling animations.
+        // This portion of the code is different and should not animate again if it has finished playing.
+        // So if the animations are canceled this should NOT play again and also prevent it for losing the animaton
+        // reference between re-renders!
+        conicWrapperAnim.commitStyles();
+        conicWrapperAnim.cancel();
+        shouldBackgroundAnimateRef.current = false;
+      }
+
       const starAnimation = mainSvgAnimation();
       const letter_S_animation = letterEntranceAnimations();
       // Wait for the S to finish the spin and then animate() the ending
@@ -1164,63 +1188,109 @@ const Home = () => {
       requestAnimationFrame(letterEndingAnimations);
 
       await starAnimation.finished;
+      // After this all the other animations are triggered sequentially based on what happened to the animation before it
+      // via the listeners that are declared above.
       starMorphShapeAnimateRef.current.beginElement();
     };
 
-    // playAllAnimations();
+    playAllAnimations();
+
     const homeArticle = homeRef.current;
 
+    // Cleanup
     return () => {
-      // shadowEyeAngryAnimate.removeEventListener(
-      //   'endEvent',
-      //   shadowAngryEyeListenerCallback
-      // );
-      // if (path10TransitionEndCallback) {
-      //   path10.removeEventListener(
-      //     'transitionend',
-      //     path10TransitionEndCallback,
-      //     {
-      //       once: 'true',
-      //     }
-      //   );
-      // }
-      // if (path4TransitionEndCallback) {
-      //   path4.removeEventListener('transitionend', path4TransitionEndCallback, {
-      //     once: 'true',
-      //   });
-      // }
-      // if (shadowDissapearEndEventCallback) {
-      //   shadowDissapear.removeEventListener(
-      //     'endEvent',
-      //     shadowDissapearEndEventCallback
-      //   );
-      // }
-      // // Cancel all fill='forwards' animations independetly based on reference on the animation object itself,
-      // // because otherwise their reference is lost and they dont show up in the getAnimations() array.
-      // forwardsAnimRef.current.forEach((anim) => anim.cancel());
-      // forwardsAnimRef.current = [];
-      // // Cancel Animations that are running and are inside the home component
-      // // whenever one of the dependancies changes.
-      // document.getAnimations().forEach((animation) => {
-      //   const localAnimation = homeArticle.contains(animation.effect.target);
-      //   const hasConicClassName =
-      //     animation.effect.target.classList.contains('home__conic');
-      //   const hasConicWrapperClassName =
-      //     animation.effect.target.classList.contains('home__conic-wrapper');
-      //   if (localAnimation && !hasConicClassName && !hasConicWrapperClassName) {
-      //     animation.cancel();
-      //   }
-      // });
+      if (animationsPlayState === 'running') {
+        // Activate the flag that the animations got canceled.
+        animationsCanceledRef.current = true;
+
+        shadowEyeAngryAnimate.removeEventListener(
+          'endEvent',
+          shadowAngryEyeListenerCallback
+        );
+        // Conditionally remove the listener callbacks, because based on the timing of the re-rendering they may have not been
+        // registered yet.
+        if (path10TransitionEndCallback) {
+          path10.removeEventListener(
+            'transitionend',
+            path10TransitionEndCallback,
+            {
+              once: 'true',
+            }
+          );
+        }
+        if (path4TransitionEndCallback) {
+          path4.removeEventListener(
+            'transitionend',
+            path4TransitionEndCallback,
+            {
+              once: 'true',
+            }
+          );
+        }
+        if (shadowDissapearEndEventCallback) {
+          shadowDissapear.removeEventListener(
+            'endEvent',
+            shadowDissapearEndEventCallback
+          );
+        }
+        // Cancel all fill='forwards' animations independetly based on reference of the animation object itself.
+        // Otherwise their reference is lost and they dont show up in the getAnimations() array!
+        forwardsAnimRef.current.forEach((anim) => anim.cancel());
+        forwardsAnimRef.current = [];
+
+        // Cancel Animations that are running and are inside the home component
+        // whenever one of the dependancies changes.
+
+        // Don't cancel all conic specific animations if the background animation has allready been played
+        if (shouldBackgroundAnimateRef.current === false) {
+          document.getAnimations().forEach((animation) => {
+            const localAnimation = homeArticle.contains(
+              animation.effect.target
+            );
+            const hasConicClassName =
+              animation.effect.target.classList.contains('home__conic');
+            const hasConicWrapperClassName =
+              animation.effect.target.classList.contains('home__conic-wrapper');
+
+            if (
+              localAnimation &&
+              !hasConicClassName &&
+              !hasConicWrapperClassName
+            ) {
+              animation.cancel();
+            }
+          });
+        } else {
+          // If the intro to the background is canceled due to resizing, then cancel everything except the conic animations that are
+          // declared in the CSS.
+          document.getAnimations().forEach((animation) => {
+            const localAnimation = homeArticle.contains(
+              animation.effect.target
+            );
+            const hasConicClassName =
+              animation.effect.target.classList.contains('home__conic');
+            if (localAnimation && !hasConicClassName) {
+              animation.cancel();
+            }
+          });
+        }
+      }
     };
-  }, [aspectRatioOver, protrusionSize, portraitAndWidthOver600]);
+  }, [
+    aspectRatioOver,
+    protrusionSize,
+    portraitAndWidthOver600,
+    animationsPlayState,
+  ]);
 
   useEffect(() => {
     if (animationsPlayState === 'iddle') {
-      // if initial do these
+      // Display
       glassContainerRef.current.dataset.display = 'false';
       svgShadowRef.current.dataset.display = 'false';
       beamAndBubbleContainerRef.current.dataset.display = 'false';
-
+      setToggleGlassClassName(glass3dAnimationArgs.strokeState.empty);
+      // Background
       conicWrapperRef.current.style.setProperty(
         '--home-mask-gradient-angle',
         '180deg'
@@ -1229,31 +1299,199 @@ const Home = () => {
         '--home-conic-color-lightness',
         '5%'
       );
+      // Letters
       getMap(containersRef).forEach((val) => (val.style.opacity = '1'));
       const zAxisOriginal = -((protrusionSize - 1) / 2);
       getMap(boxesRef).forEach((val) => {
         val.style.opacity = '1';
         val.style.transform = `translateZ(${zAxisOriginal}px) translateY(-20px) rotateX(20deg)`;
       });
+      // Main SVG styles
       mainSvgContainerRef.current.style.opacity = '1';
       svgCowRef.current.style.opacity = '1';
       svgStarRef.current.style.opacity = '0';
     }
   }, [protrusionSize, animationsPlayState]);
 
+  // This should only trigger from the animationsPlayState changing from 'iddle' to 'reverse' and that happens only if you click the button.
   useEffect(() => {
     if (animationsPlayState === 'reverse') {
-      svgCowRef.current.animate(
-        [
-          {
-            opacity: 1,
-          },
-          { opacity: 0 },
-        ],
-        { duration: 1000 }
-      );
-      svgStarRef.current.style.opacity = '1';
-      arcAnimateReverseRef.current.beginElement();
+      shouldBackgroundAnimateRef.current = true;
+      // Reset SVG container timmers only if the animations have been canceled.
+      // Reset both SVG timmers in order to keep them in sync.
+      if (animationsCanceledRef.current) {
+        // Get SVG timmers and add 60 seconds.
+        const svgStar = svgStarRef.current;
+        const svgShadow = svgShadowRef.current;
+        const starCurrTime = svgStar.getCurrentTime();
+        const turblulenceCurrTime = svgShadow.getCurrentTime();
+        svgStar.setCurrentTime(starCurrTime + 60);
+        svgShadow.setCurrentTime(turblulenceCurrTime + 60);
+
+        // Reset the flag
+        animationsCanceledRef.current = false;
+      }
+      const cowStarArcAnimations = () => {
+        const animation = svgCowRef.current.animate(
+          [
+            {
+              opacity: 1,
+            },
+            { opacity: 0 },
+          ],
+          { duration: 750, fill: 'forwards' }
+        );
+        reverseForwardsAnimRef.current.push(animation);
+        svgStarRef.current.style.opacity = '1';
+        arcAnimateReverseRef.current.beginElement();
+      };
+      const mainSvgContainerReverseAnimation = () => {
+        // Landscape Desktop
+        let keyframes = svgAnimationArgs.containerDesktop.keyframes;
+        let options = svgAnimationArgs.containerDesktop.options;
+        if (!aspectRatioOver) {
+          //  Portrait & Tablet
+          if (portraitAndWidthOver600) {
+            keyframes = svgAnimationArgs.containerPortraitTablet.keyframes;
+            options = svgAnimationArgs.containerPortraitTablet.options;
+          } else {
+            // Phone
+            keyframes = svgAnimationArgs.containerPhone.keyframes;
+            options = svgAnimationArgs.containerPhone.options;
+          }
+        }
+        mainSvgContainerRef.current.style.opacity = '1';
+        const animation = mainSvgContainerRef.current.animate(
+          keyframes,
+          options
+        );
+        animation.currentTime = 8000;
+        animation.playbackRate = -1;
+        return animation;
+      };
+
+      const letterBoxesToInitialPosition = () => {
+        // Letter Box bring them down
+        getMap(boxesRef).forEach((val, key) => {
+          const zAxisOriginal = -((protrusionSize - 1) / 2);
+
+          const animation = val.animate(
+            [
+              {
+                transform: `translateZ(${zAxisOriginal}px) translateY(0px) rotateX(0deg)`,
+                offset: 0,
+              },
+              {
+                transform: `translateZ(${zAxisOriginal}px) translateY(-20px) rotateX(20deg)`,
+                offset: 1,
+              },
+            ],
+            { ...letterAnimationArgs.boxEnding.options, fill: 'backwards' }
+          );
+          animation.currentTime = 1600 + 1200;
+          animation.playbackRate = -1;
+          reverseForwardsAnimRef.current.push(animation);
+        });
+      };
+      const letterContainerDissapear = () => {
+        // Container opacity
+
+        // star is running through the letters from 0% to 35% in its animation and the total duration is 6500ms
+        // 35% of 6500 = 2275ms
+        // 2275 / 7 (letters) = 325ms
+        // the letters are offsetted equally 5% from each other and the star begins its animation 5% away from
+        // the first letter
+
+        // 6500 +1500
+        // Total time of animation 6500 subtract 325ms because of the star starting position from the first letter
+        // Then calculate the dealy in reverse cause the forEach starts from the first letter plus add the delay of the
+        // arc-moprh-in.
+        const delayAcc = 325;
+        let delayTime = 6175 + 1500;
+        getMap(containersRef).forEach((val) => {
+          const animation = val.animate([{ opacity: 1 }, { opacity: 0 }], {
+            duration: 1,
+            delay: delayTime,
+            fill: 'forwards',
+          });
+          delayTime = delayTime - delayAcc;
+          reverseForwardsAnimRef.current.push(animation);
+        });
+      };
+
+      const conicWrapperClose = () => {
+        // ConicWrapper
+        const animation = conicWrapperRef.current.animate(
+          [
+            {
+              '--home-mask-gradient-angle': '180deg',
+            },
+            {
+              '--home-mask-gradient-angle': '88deg',
+            },
+          ],
+          { duration: 1000, fill: 'forwards' }
+        );
+        reverseForwardsAnimRef.current.push(animation);
+        return animation;
+      };
+      const playAllAnimations = async () => {
+        cowStarArcAnimations();
+        const mainSvgContainerAnimation = mainSvgContainerReverseAnimation();
+        letterBoxesToInitialPosition();
+        letterContainerDissapear();
+        await mainSvgContainerAnimation.finished;
+        mainSvgContainerRef.current.style.opacity = '0';
+        const conicWrapperCloseAnimation = conicWrapperClose();
+        await conicWrapperCloseAnimation.finished;
+        // After all the animations have finished the ones that have the fill:'forwards' flag are persisting.
+        // So the animations need to get canceled and the styles must be commited for better performance.
+        document.getAnimations().forEach((animation) => {
+          const animationFill = animation.effect.getTiming().fill;
+          const localAnimation = homeRef.current.contains(
+            animation.effect.target
+          );
+
+          const hasConicClassName =
+            animation.effect.target.classList.contains('home__conic'); // does not include conic-wrapper
+          // Check if the animation is inside the component and if it has forwards fill and is not conic gradient
+          if (
+            localAnimation &&
+            !hasConicClassName &&
+            (animationFill === 'backwards' || animationFill === 'forwards')
+          ) {
+            console.log(animation);
+            animation.commitStyles();
+            animation.cancel();
+          }
+        });
+        // All animations have finished + canceled and the styles have been commited.
+        // Empty the array
+        reverseForwardsAnimRef.current = [];
+        setAnimationsPlayState('running');
+      };
+      playAllAnimations();
+      const homeArticle = homeRef.current;
+      return () => {
+        if (animationsPlayState === 'reverse') {
+          animationsCanceledRef.current = true;
+          // Cancel animation with fill
+          reverseForwardsAnimRef.current.forEach((anim) => anim.cancel());
+          reverseForwardsAnimRef.current = [];
+          // Cancle all other animations that are inside the component except the conic
+          document.getAnimations().forEach((animation) => {
+            const localAnimation = homeArticle.contains(
+              animation.effect.target
+            );
+            const hasConicClassName =
+              animation.effect.target.classList.contains('home__conic');
+
+            if (localAnimation && !hasConicClassName) {
+              animation.cancel();
+            }
+          });
+        }
+      };
     }
   }, [
     aspectRatioOver,
@@ -1689,23 +1927,22 @@ M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-3
               begin='home_animate_global_reset.begin'
               fill='freeze'
               values='M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7-8.65-44.37-15.07-89.13-21.59-133.86-6.43-44.13-19.16-116.61-17.27-132.69 1.87-15.83 65.5-72.27 99.03-107.68 30.06-31.75 62.3-61.43 91.56-93.94 22.48-22.78 20.12-40.5-12.8-47.96-47.55-9.24-95.72-14.94-143.52-22.79-44.13-7.24-101.2-11.63-132.25-22.43-5.13-1.78-42.19-87.16-64.5-130.13-21.5-41.37-43.4-82.83-66.8-122.86-15.94-26.68-30.35-13.49-42.82 6.92-11.63 19.03-44.73 78.4-66.2 118.1-22.88 42.33-29.7 53.17-66.69 128.02-1.86 3.75-88.5 15.13-132.81 22.38-47.8 7.83-95.97 13.4-143.53 22.8-32.22 5.92-33.5 25.48-14.68 46.07 53.3 58.34 66.1 65.13 97.67 99.1 32.31 34.77 89.76 82.01 93.85 107.11 3.09 18.98-10.12 86.76-16.32 129.98-6.4 44.74-15.6 89.44-21.58 133.86-5.45 33.25 1.15 47.82 35.3 35.7 34.15-12.12 90.76-44.92 136.37-66.9 39.52-19.04 99.23-57.03 118.95-56.3 18.94.71 82 36.82 118.96 56.3z;'></animate>
+            {/* Reverse Animation */}
             <animate
-              ref={testAnimateRef}
               id='home_svg_circle_to_star'
               attributeType='XML'
               attributeName='d'
               dur='.4s'
-              begin='home_svg_star_arc_morph_in.end;indefinite'
-              calcMode='spline'
+              begin='home_svg_star_arc_morph_in.end;'
               fill='freeze'
-              keySplines='0.7 0.2 .84 0.2;'
+              calcMode='spline'
+              keySplines='0.7 0.1 .84 0.1;'
               keyTimes='0; 1'
               values='M656.34 958.07c50.07-18.57 89.9-41.07 108.63-52.88 18.73-11.8 35.9-26.41 43.42-30.95 20.84-12.6 71.3-70.62 88.04-95.3 16.73-24.66 57.7-103.97 67.96-139.6 8.07-27.99 18.87-117.46 20.9-148.21 2.02-30.75-10.98-91.11-14.56-107.62-5.67-26.17-9.66-34.69-17.99-59.92-8.7-26.36-24.93-55.55-45.4-87.07-20.48-31.52-57.74-75.93-98.45-110.77-15.3-13.09-80.89-56.86-128.64-76.61-47.75-19.76-108.64-32.52-149.1-34.83-24.6-1.4-42.09-.65-64.82.23-13.18.51-58.94 7.02-90.6 15.22-31.66 8.2-110.28 38.57-150.94 69.97-17.26 13.34-78.18 55.48-112.83 107.02C77.32 258.29 59.8 287.5 47.6 323.59c-9.45 27.96-13.17 33.47-17.38 50.82-4.3 17.7-17.77 81.83-15.34 128.88 2.43 47.04 12.4 122.57 30.7 164.58 7.67 17.63 41.84 96.62 80.67 141.53 38.83 44.9 31.96 37.5 66.38 66.19 15.53 12.94 28.9 22.1 40.04 30.28 11.15 8.18 84.48 48.02 141.1 62.35 56.63 14.33 97.56 15.51 117.28 16.25 18.93.7 115.23-7.83 165.3-26.4z;
 M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7-8.65-44.37-15.07-89.13-21.59-133.86-6.43-44.13-19.16-116.61-17.27-132.69 1.87-15.83 65.5-72.27 99.03-107.68 30.06-31.75 62.3-61.43 91.56-93.94 22.48-22.78 20.12-40.5-12.8-47.96-47.55-9.24-95.72-14.94-143.52-22.79-44.13-7.24-101.2-11.63-132.25-22.43-5.13-1.78-42.19-87.16-64.5-130.13-21.5-41.37-43.4-82.83-66.8-122.86-15.94-26.68-30.35-13.49-42.82 6.92-11.63 19.03-44.73 78.4-66.2 118.1-22.88 42.33-29.7 53.17-66.69 128.02-1.86 3.75-88.5 15.13-132.81 22.38-47.8 7.83-95.97 13.4-143.53 22.8-32.22 5.92-33.5 25.48-14.68 46.07 53.3 58.34 66.1 65.13 97.67 99.1 32.31 34.77 89.76 82.01 93.85 107.11 3.09 18.98-10.12 86.76-16.32 129.98-6.4 44.74-15.6 89.44-21.58 133.86-5.45 33.25 1.15 47.82 35.3 35.7 34.15-12.12 90.76-44.92 136.37-66.9 39.52-19.04 99.23-57.03 118.95-56.3 18.94.71 82 36.82 118.96 56.3z;
                 '></animate>
           </path>
-          {/* Reverse Animation */}
-
+          {/* Arc */}
           <path
             stroke='none'
             fill='hsl(175, 82%, 65%)'
@@ -1720,6 +1957,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
               fill='freeze'
               from='1'
               to='1'></animate>
+            {/* Line-through arc*/}
             <animate
               id='home_svg_star_arc_line_extend_anim'
               attributeType='XML'
@@ -1732,6 +1970,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
               M 988 500 A 488 488 0 1 0 ${arcX(0.2)} ${arcY(
                 0.2
               )} L 500 500 Z`}></animate>
+            {/* Arc clockwise */}
             <animate
               id='home_svg_star_arc_moprh_out'
               attributeType='XML'
@@ -1739,6 +1978,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
               dur='2.5s'
               begin='home_svg_star_arc_line_extend_anim.end;'
               values={memoArcValues}></animate>
+            {/* Counter Clockwise (Reverse) */}
             <animate
               ref={arcAnimateReverseRef}
               id='home_svg_star_arc_morph_in'
@@ -2335,45 +2575,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
               stroke='red'
               strokeWidth='.5'
               fill='none'></path>
-            {/* Clip the whole svg gradually */}
-            <clipPath id='home-svg-turbulence-clip'>
-              <path
-                d='m 0.38,0.5
-                  h 99.75
-                  V 100
-                  H 0.38
-                  Z'>
-                <animate
-                  ref={turbulenceClipAnimateRef}
-                  attributeType='XML'
-                  attributeName='d'
-                  dur='1s'
-                  fill='freeze'
-                  begin='indefinite'
-                  values='
-                          m 0,0.5 99.88,0.62
-                          c 0,0 -0.45,80.54 -0.07,96.28 0.28,21.84 -39,27.8 -50.32,28.06 -11.31,0.25 -49.87,-6.27 -49.61,-27.75
-                          z;
-                          m 0,0.5 99.88,0.62
-                          c 0,0 -0.09,21.5 0.28,37.23 0.28,21.84 -39,27.8 -50.32,28.06 -11.31,0.25 -49.87,-6.27 -49.61,-27.75
-                          z;
-                          m 0,0.5 99.88,0.62
-                          c 0,0 -0.27,-47.27 0.11,-31.53 0.28,21.84 -39,27.8 -50.32,28.06 -11.31,0.25 -49.87,-6.27 -49.61,-27.75
-                          z'></animate>
-                {/* Global Reset Starting State */}
-                <animate
-                  attributeType='XML'
-                  attributeName='d'
-                  dur='0.001s'
-                  fill='freeze'
-                  begin='home_animate_global_reset.begin'
-                  values='
-                          m 0,0.5 99.88,0.62
-                          c 0,0 -0.45,80.54 -0.07,96.28 0.28,21.84 -39,27.8 -50.32,28.06 -11.31,0.25 -49.87,-6.27 -49.61,-27.75
-                          z;
-                         '></animate>
-              </path>
-            </clipPath>
+
             {/* Smooth turbulence for the eyes with fractalNoise */}
             <filter
               id='home-svg-turblulence-filter-eyes'
@@ -2476,7 +2678,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 yChannelSelector='R'
                 result='displace'>
                 <animate
-                  ref={turblulenceDisplaceAnimRef}
+                  ref={shadowTurblulenceDisplaceAnimRef}
                   id='home_svg_turbulence_displace_anim'
                   attributeType='XML'
                   attributeName='scale'
@@ -2673,7 +2875,372 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
           </g>
         </svg>
       </div>
-      <p className='par-test'>search like you never did before</p>
+      <div className='home__bottom-part'>
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          viewBox='0 0 120 40'
+          version='1.1'
+          width='100%'
+          height='100%'>
+          <g stroke='#00f' strokeWidth='.1'>
+            <g>
+              <g fill='#00f'>
+                <path d='M9.87 19.74c0-1.4.39-2.5 1.17-3.27l.98-.7a4.43 4.43 0 0 0-1.17 3.28z' />
+                <path d='M11.04 16.47c.14-.15.3-.28.47-.4l.98-.7c-.17.12-.33.26-.47.4z' />
+                <path d='M11.51 16.07a4.72 4.72 0 0 1 2.8-.77l.97-.7c-1.13 0-2.06.26-2.8.78z' />
+                <path d='M14.3 15.3c1.43 0 2.53.38 3.3 1.15l.99-.7c-.78-.76-1.88-1.15-3.3-1.15z' />
+                <path d='M17.6 16.45a4.33 4.33 0 0 1 1.17 3.22l.98-.7c0-1.37-.4-2.45-1.16-3.21z' />
+                <path d='M18.77 19.67c0 1-.17 1.83-.51 2.47l.98-.69c.34-.64.5-1.47.5-2.47z' />
+                <path d='M18.26 22.14c-.28.52-.65.95-1.12 1.28l.98-.69c.47-.33.84-.76 1.12-1.28z' />
+                <path d='M17.14 23.42c-.11.08-.23.16-.35.22l.98-.69.35-.22z' />
+                <path d='M16.8 23.64c-.65.36-1.44.54-2.4.54l.99-.7c.95 0 1.74-.17 2.38-.53z' />
+                <path d='M14.4 24.18c-.96 0-1.76-.16-2.4-.46l.98-.7c.63.31 1.44.46 2.4.46z' />
+                <path d='M12 23.72c-.63-.31-1.15-.8-1.54-1.47l.98-.7c.4.67.9 1.16 1.54 1.47z' />
+                <path d='M10.46 22.25c-.4-.67-.6-1.5-.6-2.5l.99-.7c0 1 .2 1.84.59 2.5z' />
+                <path d='m9.87 19.74.98-.7z' />
+                <path d='M12.52 19.75c0 .87.16 1.5.48 1.87l.98-.69c-.32-.38-.48-1-.48-1.87z' />
+                <path d='M13 21.62c.32.38.76.57 1.32.57l.98-.7c-.56 0-1-.18-1.32-.56z' />
+                <path d='M14.32 22.2c.41 0 .76-.1 1.04-.3l.98-.7c-.28.2-.63.3-1.04.3z' />
+                <path d='M15.36 21.9c.1-.08.2-.16.28-.26l.98-.7c-.08.1-.18.19-.28.26z' />
+                <path d='M15.64 21.64c.32-.38.47-1.04.47-2l.98-.7c0 .96-.15 1.63-.47 2z' />
+                <path d='M16.11 19.64c0-.81-.16-1.4-.49-1.77l.98-.7c.33.38.5.96.5 1.77z' />
+                <path d='M15.62 17.87a1.66 1.66 0 0 0-1.32-.57l.97-.69c.56 0 1 .19 1.33.56z' />
+                <path d='M14.3 17.3c-.39 0-.72.1-1 .3l.98-.7c.28-.19.6-.29 1-.29z' />
+                <path d='m13.3 17.6-.3.27.99-.69c.09-.1.18-.2.3-.27z' />
+                <path d='M13 17.87c-.32.38-.48 1-.48 1.88l.98-.69c0-.87.16-1.5.49-1.88z' />
+                <path d='m12.52 19.75.98-.69z' />
+              </g>
+              <path
+                fill='red'
+                d='M9.87 19.74q0-2.1 1.17-3.27t3.26-1.17q2.15 0 3.3 1.15 1.17 1.15 1.17 3.22 0 1.5-.51 2.47-.5.97-1.47 1.5-.95.54-2.38.54-1.46 0-2.41-.46-.95-.47-1.54-1.47-.6-1-.6-2.5zm2.65.01q0 1.3.48 1.87.49.57 1.32.57.85 0 1.32-.55.47-.56.47-2 0-1.22-.49-1.77-.49-.56-1.32-.56-.8 0-1.3.56-.48.57-.48 1.88z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M20.04 17.8h2.22l.91-.77h-2.22z' />
+                <path d='M22.26 17.8v1.02l.91-.77v-1.02z' />
+                <path d='M22.26 18.82c.18-.22.36-.41.54-.56l.92-.78c-.19.15-.37.34-.55.57z' />
+                <path d='M22.8 18.26c.15-.14.31-.24.47-.32l.91-.78a2.5 2.5 0 0 0-.46.32z' />
+                <path d='M23.27 17.94c.34-.18.75-.27 1.24-.27l.91-.78c-.48 0-.9.1-1.24.27z' />
+                <path d='M24.5 17.67c.67 0 1.18.2 1.56.59l.91-.78c-.37-.4-.89-.59-1.55-.59z' />
+                <path d='M26.06 18.26c.37.4.56 1 .56 1.82l.91-.78c0-.82-.18-1.43-.56-1.82z' />
+                <path d='M26.62 20.08v3.95l.91-.77V19.3z' />
+                <path d='M26.62 24.03h-2.4l.92-.77h2.4z' />
+                <path d='M24.22 24.03v-3.42l.92-.78v3.43z' />
+                <path d='M24.22 20.61c0-.4-.07-.67-.22-.83l.92-.77c.14.16.22.43.22.82z' />
+                <path d='M24 19.78a.77.77 0 0 0-.6-.24l.91-.78c.26 0 .47.08.61.25z' />
+                <path d='M23.4 19.54a.87.87 0 0 0-.59.2l.92-.78c.16-.13.35-.2.58-.2z' />
+                <path d='M22.81 19.74a.97.97 0 0 0-.12.13l.92-.78a.98.98 0 0 1 .12-.13z' />
+                <path d='M22.7 19.87c-.19.21-.28.6-.28 1.17l.92-.77c0-.57.09-.96.27-1.18z' />
+                <path d='M22.42 21.04v3l.92-.78v-3z' />
+                <path d='M22.42 24.03h-2.38l.91-.77h2.39z' />
+                <path d='M20.04 24.03v-6.22l.91-.78v6.23z' />
+              </g>
+              <path
+                fill='red'
+                d='M20.04 17.8h2.22v1.02q.5-.62 1-.88.52-.27 1.25-.27.99 0 1.55.59t.56 1.82v3.95h-2.4v-3.42q0-.59-.22-.83-.21-.24-.6-.24-.44 0-.7.33-.28.32-.28 1.17v3h-2.38z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M34.95 21.51h-4.78l.76-.92h4.79z' />
+                <path d='M30.17 21.51c.04.38.14.67.3.86l.78-.93a1.54 1.54 0 0 1-.32-.85Z' />
+                <path d='M30.48 22.37c.23.27.53.4.9.4l.77-.92c-.37 0-.67-.14-.9-.4z' />
+                <path d='M31.38 22.77c.24 0 .46-.06.67-.17l.77-.93c-.22.12-.44.18-.67.18z' />
+                <path d='M32.05 22.6c.12-.07.24-.18.37-.34l.77-.93c-.13.16-.26.28-.37.34z' />
+                <path d='m32.42 22.26.05-.06.76-.92-.04.05z' />
+                <path d='m32.47 22.2 2.35.22.76-.92-2.35-.22z' />
+                <path d='M34.81 22.42c-.13.23-.27.43-.42.61l.77-.92c.15-.18.3-.39.42-.61z' />
+                <path d='M34.4 23.03c-.27.32-.56.56-.89.74l.77-.93c.32-.17.62-.41.88-.73z' />
+                <path d='M33.51 23.77c-.5.27-1.23.4-2.18.4l.77-.92c.94 0 1.67-.14 2.18-.4z' />
+                <path d='M31.33 24.17a4.5 4.5 0 0 1-1.95-.34l.77-.93a4.5 4.5 0 0 0 1.95.35z' />
+                <path d='M29.38 23.83a2.9 2.9 0 0 1-1.17-1.11l.76-.92c.31.5.7.87 1.18 1.1z' />
+                <path d='M28.2 22.72c-.3-.5-.46-1.1-.46-1.79l.77-.92c0 .68.15 1.28.46 1.79z' />
+                <path d='M27.74 20.93c0-.84.24-1.55.7-2.11l.77-.93a3.2 3.2 0 0 0-.7 2.12z' />
+                <path d='m28.45 18.82.22-.25.77-.92a3.1 3.1 0 0 0-.23.24z' />
+                <path d='M28.67 18.57c.63-.6 1.5-.9 2.59-.9l.76-.93c-1.1 0-1.95.3-2.58.9z' />
+                <path d='M31.26 17.67c.89 0 1.6.13 2.1.4l.77-.92a4.6 4.6 0 0 0-2.1-.4Z' />
+                <path d='M33.37 18.07c.51.27.9.66 1.18 1.17l.76-.92c-.27-.51-.66-.9-1.18-1.17z' />
+                <path d='M34.55 19.24c.26.52.4 1.18.4 2l.77-.92c0-.82-.14-1.49-.4-2z' />
+                <path d='M34.95 21.24v.27l.77-.92v-.27z' />
+                <path d='M32.52 20.37c-.04-.46-.17-.8-.37-1l.77-.91c.2.2.32.53.37.99z' />
+                <path d='M32.15 19.38c-.2-.2-.46-.3-.8-.3l.77-.92c.33 0 .6.1.8.3z' />
+                <path d='M31.36 19.08c-.36 0-.65.13-.87.4l.77-.92c.22-.27.5-.4.86-.4z' />
+                <path d='m30.49 19.48-.04.05.77-.92c0-.02.02-.04.04-.05z' />
+                <path d='M30.45 19.53c-.14.19-.24.47-.28.84l.77-.92c.04-.37.13-.65.28-.84z' />
+                <path d='M30.17 20.37h2.35l.77-.92h-2.35z' />
+              </g>
+              <path
+                fill='red'
+                d='M34.95 21.51h-4.78q.06.58.3.86.35.4.91.4.35 0 .67-.17.2-.12.42-.4l2.34.22q-.53.94-1.3 1.35-.76.4-2.18.4-1.24 0-1.95-.34-.7-.36-1.17-1.11-.47-.76-.47-1.79 0-1.46.93-2.36.94-.9 2.59-.9 1.33 0 2.1.4.78.4 1.19 1.17.4.77.4 2zm-2.43-1.14q-.07-.7-.37-1-.3-.29-.8-.29-.56 0-.9.45-.22.28-.28.84z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M40.06 17.8h2.23l.5-1.08h-2.22z' />
+                <path d='M42.3 17.8v.92l.5-1.1v-.9z' />
+                <path d='M42.3 18.72c.31-.38.63-.65.96-.81l.5-1.1c-.32.17-.65.44-.97.82z' />
+                <path d='M43.26 17.9c.33-.15.72-.23 1.18-.23l.5-1.1c-.46 0-.85.09-1.18.25z' />
+                <path d='M44.44 17.67c.5 0 .9.09 1.18.26l.5-1.09a2.26 2.26 0 0 0-1.18-.26z' />
+                <path d='M45.62 17.93c.29.18.53.44.7.79l.51-1.1c-.18-.34-.42-.6-.7-.78z' />
+                <path d='M46.33 18.72c.37-.4.72-.68 1.02-.83l.5-1.09c-.3.15-.64.42-1.02.83z' />
+                <path d='M47.35 17.9c.31-.16.7-.23 1.15-.23l.5-1.1c-.46 0-.84.08-1.14.23z' />
+                <path d='M48.5 17.67c.66 0 1.19.2 1.56.6l.5-1.1c-.37-.4-.9-.6-1.56-.6z' />
+                <path d='M50.06 18.27c.38.39.56 1.01.56 1.85l.5-1.09c0-.84-.18-1.46-.56-1.85z' />
+                <path d='M50.62 20.12v3.91l.5-1.09v-3.9z' />
+                <path d='M50.62 24.03h-2.39l.5-1.09h2.4z' />
+                <path d='M48.23 24.03V20.5l.5-1.1v3.55z' />
+                <path d='M48.23 20.49c0-.28-.05-.5-.16-.63l.5-1.09c.11.14.16.35.16.63z' />
+                <path d='M48.07 19.86a.72.72 0 0 0-.6-.32l.5-1.1c.24 0 .44.11.6.33z' />
+                <path d='M47.47 19.54c-.28 0-.5.1-.68.3l.5-1.09c.17-.2.4-.3.68-.3z' />
+                <path d='M46.8 19.84a.85.85 0 0 0-.13.2l.5-1.1a.85.85 0 0 1 .12-.19z' />
+                <path d='M46.67 20.04c-.1.2-.14.46-.14.78l.5-1.09c0-.33.05-.59.14-.78z' />
+                <path d='M46.53 20.82v3.21l.5-1.09v-3.21z' />
+                <path d='M46.53 24.03h-2.39l.5-1.09h2.4z' />
+                <path d='M44.14 24.03V20.6l.5-1.09v3.43z' />
+                <path d='M44.14 20.6c0-.27-.01-.46-.04-.55l.5-1.1c.03.1.04.29.04.56z' />
+                <path d='M44.1 20.05a.74.74 0 0 0-.27-.38l.5-1.09c.13.1.22.22.27.38z' />
+                <path d='M43.83 19.67a.7.7 0 0 0-.44-.14l.5-1.1a.7.7 0 0 1 .44.15z' />
+                <path d='M43.4 19.53c-.28 0-.5.1-.68.3l.5-1.08c.18-.21.4-.31.67-.31z' />
+                <path d='M42.72 19.84a.85.85 0 0 0-.12.2l.5-1.1a.85.85 0 0 1 .12-.2z' />
+                <path d='M42.6 20.03a2 2 0 0 0-.14.83l.5-1.1a2 2 0 0 1 .14-.82z' />
+                <path d='M42.46 20.86v3.17l.5-1.09v-3.17z' />
+                <path d='M42.46 24.03h-2.4l.5-1.09h2.4z' />
+                <path d='M40.06 24.03v-6.22l.5-1.1v6.23z' />
+              </g>
+              <path
+                fill='red'
+                d='M40.06 17.8h2.23v.92q.48-.57.97-.81.5-.24 1.18-.24.75 0 1.18.26.43.27.7.79.57-.61 1.03-.83.47-.22 1.15-.22 1 0 1.56.6.56.59.56 1.85v3.91h-2.39V20.5q0-.43-.16-.63-.24-.32-.6-.32-.42 0-.68.3-.26.3-.26.98v3.21h-2.39V20.6q0-.4-.04-.55-.08-.24-.27-.38-.18-.14-.44-.14-.4 0-.67.3-.26.32-.26 1.03v3.17h-2.4z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M51.75 20.94c0-.11 0-.22.02-.33l.1-1.2-.02.33z' />
+                <path d='M51.77 20.61c.06-.8.38-1.47.95-2.02l.1-1.2a3.04 3.04 0 0 0-.95 2.03z' />
+                <path d='M52.72 18.6c.64-.62 1.5-.93 2.6-.93l.09-1.2c-1.09 0-1.96.31-2.6.93z' />
+                <path d='M55.31 17.67c1.25 0 2.19.36 2.83 1.08l.1-1.2c-.64-.72-1.58-1.08-2.83-1.08z' />
+                <path d='M58.14 18.75c.5.58.76 1.3.76 2.15l.1-1.2c0-.84-.25-1.56-.77-2.14z' />
+                <path d='m58.9 20.9-.01.34.1-1.2.01-.33z' />
+                <path d='M58.89 21.24c-.07.8-.38 1.48-.94 2.02l.1-1.2c.56-.54.87-1.21.94-2.02z' />
+                <path d='M57.95 23.26c-.64.6-1.51.91-2.63.91l.1-1.2c1.12 0 2-.3 2.63-.9z' />
+                <path d='M55.32 24.17c-1 0-1.81-.25-2.43-.76l.1-1.2c.62.51 1.43.77 2.43.77z' />
+                <path d='M52.9 23.41a3.06 3.06 0 0 1-1.15-2.47l.1-1.2c0 1.02.38 1.85 1.14 2.47z' />
+                <path d='m51.75 20.94.1-1.2z' />
+                <path d='M54.15 20.93c0 .56.1.97.33 1.23l.1-1.2c-.23-.26-.34-.67-.34-1.22z' />
+                <path d='M54.48 22.16c.23.27.5.4.85.4l.1-1.2c-.34 0-.63-.13-.85-.4z' />
+                <path d='M55.33 22.56c.34 0 .62-.13.84-.4l.1-1.19c-.22.26-.5.4-.84.4z' />
+                <path d='M56.17 22.17c.18-.21.29-.53.32-.95l.1-1.2c-.03.43-.14.74-.32.95z' />
+                <path d='M56.5 21.22v-.31l.1-1.2v.32z' />
+                <path d='M56.5 20.9c0-.53-.1-.93-.33-1.2l.1-1.19c.22.26.33.66.33 1.2z' />
+                <path d='M56.17 19.7c-.22-.26-.5-.4-.82-.4l.1-1.19c.32 0 .6.14.82.4z' />
+                <path d='M55.35 19.3c-.35 0-.64.14-.87.41l.1-1.2c.23-.26.52-.4.86-.4z' />
+                <path d='M54.48 19.71c-.18.22-.29.53-.32.94l.1-1.2c.03-.4.14-.71.32-.93z' />
+                <path d='m54.16 20.65-.01.28.1-1.2v-.28z' />
+                <path d='m54.15 20.93.1-1.2z' />
+              </g>
+              <path
+                fill='red'
+                d='M51.75 20.94q0-1.43.97-2.35.96-.92 2.6-.92 1.86 0 2.82 1.08.76.88.76 2.15 0 1.44-.95 2.36-.95.91-2.63.91-1.5 0-2.43-.76-1.14-.94-1.14-2.47zm2.4 0q0 .82.33 1.22.34.4.85.4t.84-.4q.34-.38.34-1.25 0-.81-.34-1.2-.33-.4-.82-.4-.53 0-.87.4-.33.4-.33 1.22z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M60.07 17.8h2.24l-.11-1.19h-2.23z' />
+                <path d='M62.3 17.8v1.03l-.1-1.2v-1.02z' />
+                <path d='M62.3 18.83c.22-.44.44-.75.67-.91l-.1-1.2c-.23.17-.45.47-.67.91z' />
+                <path d='M62.97 17.92c.23-.17.51-.25.85-.25l-.1-1.2c-.34 0-.63.09-.86.26z' />
+                <path d='M63.82 17.67c.35 0 .74.1 1.15.33l-.1-1.2c-.42-.22-.8-.33-1.16-.33Z' />
+                <path d='m64.97 18-.74 1.7-.1-1.2.74-1.7z' />
+                <path d='M64.23 19.7c-.28-.12-.5-.18-.66-.18l-.11-1.2c.16 0 .39.06.67.18z' />
+                <path d='M63.57 19.52a.82.82 0 0 0-.73.39l-.1-1.2a.82.82 0 0 1 .72-.39z' />
+                <path d='M62.84 19.9c-.25.37-.37 1.05-.37 2.05l-.1-1.2c0-1 .12-1.68.36-2.04z' />
+                <path d='M62.47 21.95v2.08l-.1-1.2v-2.08z' />
+                <path d='M62.47 24.03h-2.4l-.1-1.2h2.4z' />
+                <path d='M60.07 24.03v-6.22l-.1-1.2v6.23z' />
+              </g>
+              <path
+                fill='red'
+                d='M60.07 17.8h2.24v1.03q.32-.66.66-.91t.85-.25q.53 0 1.15.33l-.74 1.7q-.42-.18-.66-.18-.47 0-.73.39-.37.54-.37 2.04v2.08h-2.4z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M72.48 21.51H67.7l-.21-1.18h4.78z' />
+                <path d='m67.7 21.51.02.18-.2-1.18a2.7 2.7 0 0 1-.03-.18Z' />
+                <path d='M67.72 21.69c.06.3.15.52.29.68l-.21-1.18a1.38 1.38 0 0 1-.29-.68Z' />
+                <path d='M68 22.37c.24.27.54.4.91.4l-.21-1.18c-.37 0-.67-.13-.9-.4z' />
+                <path d='M68.91 22.77c.24 0 .46-.06.67-.17l-.21-1.19c-.21.12-.44.18-.67.18z' />
+                <path d='M69.58 22.6c.13-.08.27-.2.41-.4l-.2-1.18c-.15.19-.3.32-.42.4z' />
+                <path d='m70 22.2 2.34.22-.2-1.18-2.36-.22z' />
+                <path d='M72.34 22.42c-.36.63-.79 1.07-1.3 1.35l-.2-1.18c.5-.28.93-.73 1.3-1.35z' />
+                <path d='M71.04 23.77c-.5.27-1.23.4-2.18.4L68.65 23c.95 0 1.68-.13 2.18-.4z' />
+                <path d='M68.86 24.17a4.5 4.5 0 0 1-1.95-.34l-.2-1.18a4.5 4.5 0 0 0 1.94.34z' />
+                <path d='M66.91 23.83a2.9 2.9 0 0 1-1.18-1.11l-.2-1.18c.3.5.7.87 1.17 1.1z' />
+                <path d='M65.73 22.72c-.2-.33-.33-.69-.4-1.09l-.2-1.18c.06.4.2.76.4 1.09z' />
+                <path d='M65.33 21.63a4 4 0 0 1-.06-.7l-.2-1.18a4 4 0 0 0 .05.7z' />
+                <path d='M65.27 20.93c0-.97.31-1.76.93-2.36L66 17.4c-.63.6-.94 1.39-.94 2.36z' />
+                <path d='M66.2 18.57c.63-.6 1.49-.9 2.59-.9l-.21-1.18c-1.1 0-1.96.3-2.59.9z' />
+                <path d='M68.79 17.67c.89 0 1.6.13 2.1.4l-.2-1.18a4.6 4.6 0 0 0-2.11-.4Z' />
+                <path d='M70.9 18.07c.51.27.9.66 1.17 1.17l-.2-1.18c-.28-.5-.67-.9-1.18-1.17z' />
+                <path d='M72.07 19.24c.15.29.26.61.33.99l-.21-1.18c-.07-.38-.18-.7-.33-.99z' />
+                <path d='M72.4 20.23c.05.3.08.64.08 1.01l-.21-1.18c0-.37-.03-.7-.08-1.01z' />
+                <path d='M72.48 21.24v.27l-.21-1.18v-.27z' />
+                <path d='M70.05 20.37c0-.08-.02-.16-.03-.23l-.2-1.18.02.23z' />
+                <path d='M70.02 20.14c-.06-.34-.17-.6-.34-.76l-.21-1.18c.17.16.28.42.34.76z' />
+                <path d='M69.68 19.38c-.2-.2-.46-.3-.8-.3l-.2-1.18c.32 0 .59.1.79.3z' />
+                <path d='M68.89 19.08c-.38 0-.68.15-.91.45l-.21-1.18c.23-.3.53-.45.9-.45z' />
+                <path d='M67.98 19.53c-.15.19-.24.47-.28.84l-.2-1.18c.03-.37.12-.65.27-.84z' />
+                <path d='M67.7 20.37h2.35l-.2-1.18h-2.36z' />
+              </g>
+              <path
+                fill='red'
+                d='M72.48 21.51H67.7q.06.58.3.86.35.4.91.4.35 0 .67-.17.2-.12.41-.4l2.35.22q-.53.94-1.3 1.35-.76.4-2.18.4-1.24 0-1.95-.34-.7-.36-1.18-1.11-.46-.76-.46-1.79 0-1.46.93-2.36.94-.9 2.59-.9 1.33 0 2.1.4.78.4 1.18 1.17.4.77.4 2zm-2.43-1.14q-.07-.7-.37-1-.3-.29-.8-.29-.56 0-.9.45-.22.28-.28.84z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M80.45 15.44v2.37l-.4-1.13v-2.37z' />
+                <path d='M80.45 17.8h1.32l-.41-1.12h-1.32z' />
+                <path d='M81.77 17.8v1.75l-.41-1.13v-1.74z' />
+                <path d='M81.77 19.55h-1.32l-.4-1.13h1.3z' />
+                <path d='M80.45 19.55v2.2l-.4-1.12v-2.2z' />
+                <path d='M80.45 21.76c0 .22.02.38.06.47l-.41-1.12c-.04-.1-.06-.26-.06-.48z' />
+                <path d='m80.5 22.23.03.06-.41-1.13a.31.31 0 0 1-.02-.05Z' />
+                <path d='M80.53 22.29c.08.13.21.2.41.2l-.41-1.13c-.2 0-.33-.07-.41-.2z' />
+                <path d='M80.94 22.48c.18 0 .42-.05.74-.15l-.41-1.13c-.32.1-.56.16-.74.16z' />
+                <path d='m81.68 22.33.17 1.65-.4-1.13-.18-1.65z' />
+                <path d='M81.85 23.98c-.59.13-1.14.2-1.65.2l-.4-1.14c.5 0 1.05-.06 1.64-.19z' />
+                <path d='M80.2 24.17c-.6 0-1.03-.07-1.31-.23l-.41-1.12c.28.15.72.22 1.31.22z' />
+                <path d='M78.89 23.94a1.4 1.4 0 0 1-.63-.69l-.4-1.13c.13.31.34.54.62.7z' />
+                <path d='m78.26 23.25-.02-.07-.42-1.12.03.06z' />
+                <path d='M78.24 23.18a4.5 4.5 0 0 1-.18-1.44l-.4-1.13c0 .65.05 1.13.16 1.45z' />
+                <path d='M78.06 21.74v-2.2l-.4-1.12v2.2z' />
+                <path d='M78.06 19.55h-.88l-.4-1.13h.87z' />
+                <path d='M77.18 19.55V17.8l-.4-1.13v1.74z' />
+                <path d='M77.18 17.8h.88l-.4-1.12h-.89Z' />
+                <path d='M78.06 17.8v-1.13l-.4-1.13v1.14z' />
+                <path d='m78.06 16.67 2.4-1.23-.42-1.13-2.39 1.23z' />
+              </g>
+              <path
+                fill='red'
+                d='M80.45 15.44v2.37h1.32v1.74h-1.32v2.2q0 .4.08.54.12.2.41.2.26 0 .74-.16l.17 1.65q-.88.2-1.65.2-.89 0-1.31-.24-.42-.22-.63-.69-.2-.47-.2-1.5v-2.2h-.88V17.8h.88v-1.14z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M83 15.44v1.62l-.52-1.08v-1.63z' />
+                <path d='M83 17.06h2.38l-.51-1.08h-2.39z' />
+                <path d='M85.38 17.06v-1.62l-.51-1.09v1.63z' />
+                <path d='M85.38 15.44h-2.39l-.5-1.09h2.38z' />
+                <path d='m83 15.44-.52-1.09z' />
+                <path d='M83 17.8v6.23l-.52-1.09v-6.22z' />
+                <path d='M83 24.03h2.38l-.51-1.09h-2.39z' />
+                <path d='M85.38 24.03v-6.22l-.51-1.09v6.22z' />
+                <path d='M85.38 17.8h-2.39l-.5-1.08h2.38z' />
+                <path d='m83 17.8-.52-1.08z' />
+              </g>
+              <path
+                fill='red'
+                d='M83 15.44v1.62h2.38v-1.62zm0 2.37v6.22h2.38v-6.22z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M86.92 17.8h2.22l-.6-1.03h-2.22z' />
+                <path d='M89.14 17.8v.92l-.6-1.04v-.91z' />
+                <path d='M89.14 18.72c.32-.38.65-.65.97-.81l-.6-1.04c-.32.16-.65.43-.97.8z' />
+                <path d='M90.11 17.9c.33-.15.72-.23 1.18-.23l-.6-1.04c-.46 0-.85.08-1.18.24z' />
+                <path d='M91.3 17.67c.49 0 .88.09 1.17.26l-.6-1.04a2.26 2.26 0 0 0-1.18-.26z' />
+                <path d='M92.47 17.93c.27.16.49.4.66.7l-.6-1.04c-.17-.3-.4-.54-.66-.7z' />
+                <path d='m93.13 18.63.05.09-.6-1.04a2.39 2.39 0 0 0-.05-.09Z' />
+                <path d='M93.18 18.72c.38-.4.72-.68 1.03-.83l-.6-1.04c-.31.15-.65.42-1.03.83z' />
+                <path d='M94.2 17.9c.31-.16.7-.23 1.15-.23l-.6-1.04c-.45 0-.84.07-1.14.22z' />
+                <path d='M95.35 17.67c.67 0 1.19.2 1.56.6l-.6-1.04c-.37-.4-.9-.6-1.56-.6z' />
+                <path d='M96.91 18.27c.09.09.16.19.23.3l-.6-1.04a1.63 1.63 0 0 0-.23-.3z' />
+                <path d='M97.14 18.57c.22.39.34.9.34 1.55l-.6-1.04c0-.65-.12-1.16-.34-1.55z' />
+                <path d='M97.48 20.12v3.91l-.6-1.04v-3.9z' />
+                <path d='M97.48 24.03h-2.4l-.6-1.04h2.4z' />
+                <path d='M95.08 24.03V20.5l-.6-1.04v3.54z' />
+                <path d='M95.08 20.49c0-.24-.03-.43-.11-.56l-.6-1.04c.08.13.11.32.11.56z' />
+                <path d='M94.97 19.93a.58.58 0 0 0-.05-.07l-.6-1.04.05.07z' />
+                <path d='M94.92 19.86a.72.72 0 0 0-.6-.32l-.6-1.04c.24 0 .44.1.6.32z' />
+                <path d='M94.32 19.54c-.28 0-.5.1-.68.3l-.6-1.04c.18-.2.4-.3.68-.3z' />
+                <path d='M93.64 19.84c-.17.2-.25.53-.25.98l-.6-1.04c0-.45.08-.77.25-.98z' />
+                <path d='M93.39 20.82v3.21l-.6-1.04v-3.2z' />
+                <path d='M93.39 24.03h-2.4L90.4 23h2.4z' />
+                <path d='M91 24.03V20.6l-.6-1.04V23z' />
+                <path d='M91 20.6c0-.27-.02-.46-.05-.55l-.6-1.04c.03.1.04.28.04.55z' />
+                <path d='M90.95 20.05a.8.8 0 0 0-.07-.16l-.6-1.04.07.16z' />
+                <path d='M90.88 19.9a.73.73 0 0 0-.2-.23l-.6-1.04c.08.06.15.14.2.22z' />
+                <path d='M90.68 19.67a.7.7 0 0 0-.44-.14l-.6-1.04a.7.7 0 0 1 .44.14z' />
+                <path d='M90.24 19.53c-.27 0-.5.1-.67.3l-.6-1.03c.18-.21.4-.31.67-.31z' />
+                <path d='M89.57 19.84c-.17.2-.26.54-.26 1.02l-.6-1.04c0-.48.09-.82.26-1.02z' />
+                <path d='M89.3 20.86v3.17L88.7 23v-3.17z' />
+                <path d='M89.3 24.03h-2.38l-.6-1.04h2.39z' />
+                <path d='M86.92 24.03v-6.22l-.6-1.04v6.22z' />
+              </g>
+              <path
+                fill='red'
+                d='M86.92 17.8h2.22v.92q.48-.57.97-.81.5-.24 1.18-.24.75 0 1.18.26.43.27.71.79.56-.61 1.03-.83.46-.22 1.14-.22 1 0 1.56.6.57.59.57 1.85v3.91h-2.4V20.5q0-.43-.16-.63-.24-.32-.6-.32-.42 0-.68.3-.25.3-.25.98v3.21h-2.4V20.6q0-.4-.04-.55-.08-.24-.27-.38-.18-.14-.44-.14-.4 0-.67.3-.26.32-.26 1.03v3.17h-2.4z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M105.8 21.51h-4.77l-.74-.94h4.78z' />
+                <path d='M101.03 21.51c.04.36.13.63.28.82l-.74-.95a1.61 1.61 0 0 1-.28-.81z' />
+                <path d='m101.3 22.33.04.04-.74-.95a.61.61 0 0 1-.03-.04z' />
+                <path d='M101.34 22.37c.23.27.53.4.9.4l-.74-.94c-.37 0-.67-.14-.9-.4z' />
+                <path d='M102.24 22.77c.23 0 .46-.06.67-.17l-.74-.95c-.21.12-.44.18-.67.18z' />
+                <path d='M102.9 22.6c.14-.08.27-.2.42-.4l-.74-.94c-.14.19-.28.32-.41.39z' />
+                <path d='m103.32 22.2 2.35.22-.74-.95-2.35-.21z' />
+                <path d='M105.67 22.42c-.36.63-.8 1.07-1.3 1.35l-.74-.95c.51-.27.94-.72 1.3-1.35z' />
+                <path d='M104.37 23.77c-.5.27-1.24.4-2.18.4l-.74-.94c.95 0 1.67-.14 2.18-.4z' />
+                <path d='M102.19 24.17a4.5 4.5 0 0 1-1.95-.34l-.74-.95a4.5 4.5 0 0 0 1.95.35z' />
+                <path d='M100.24 23.83a2.78 2.78 0 0 1-.96-.8l-.74-.95c.27.35.6.62.96.8z' />
+                <path d='m99.28 23.03-.22-.31-.74-.95c.07.11.14.22.22.31z' />
+                <path d='M99.06 22.72c-.3-.5-.46-1.1-.46-1.79l-.74-.94c0 .68.16 1.28.46 1.78z' />
+                <path d='M98.6 20.93c0-.97.31-1.76.93-2.36l-.74-.95c-.62.6-.93 1.4-.93 2.37z' />
+                <path d='M99.53 18.57c.63-.6 1.49-.9 2.59-.9l-.74-.95c-1.1 0-1.96.3-2.59.9z' />
+                <path d='M102.12 17.67c.89 0 1.59.13 2.1.4l-.73-.94a4.59 4.59 0 0 0-2.11-.4z' />
+                <path d='M104.22 18.07c.37.2.67.44.9.75l-.73-.95c-.24-.3-.54-.55-.9-.74z' />
+                <path d='M105.13 18.82c.1.13.2.27.27.42l-.74-.94c-.08-.15-.17-.3-.27-.43z' />
+                <path d='M105.4 19.24c.27.52.4 1.18.4 2l-.73-.94c0-.82-.14-1.49-.4-2z' />
+                <path d='M105.8 21.24v.27l-.73-.94v-.27z' />
+                <path d='M103.38 20.37c-.04-.4-.14-.7-.3-.9l-.74-.95c.16.2.26.5.3.9z' />
+                <path d='M103.08 19.46a.85.85 0 0 0-.07-.08l-.74-.95.07.09z' />
+                <path d='M103 19.38c-.2-.2-.46-.3-.78-.3l-.74-.95c.32 0 .59.1.79.3z' />
+                <path d='M102.22 19.08c-.38 0-.69.15-.91.45l-.74-.94c.23-.3.53-.46.9-.46z' />
+                <path d='M101.3 19.53c-.14.19-.23.47-.27.84l-.74-.95c.04-.37.13-.65.28-.83z' />
+                <path d='M101.03 20.37h2.35l-.74-.95h-2.35z' />
+              </g>
+              <path
+                fill='red'
+                d='M105.8 21.51h-4.77q.06.58.3.86.35.4.9.4.36 0 .68-.17.19-.12.41-.4l2.35.22q-.54.94-1.3 1.35-.76.4-2.18.4-1.24 0-1.95-.34-.7-.36-1.18-1.11-.46-.76-.46-1.79 0-1.46.93-2.36.94-.9 2.59-.9 1.33 0 2.1.4.78.4 1.18 1.17.4.77.4 2zm-2.42-1.14q-.07-.7-.37-1-.3-.29-.8-.29-.56 0-.9.45-.22.28-.28.84z'
+              />
+            </g>
+            <g>
+              <g fill='#00f'>
+                <path d='M106.9 15.44v1.96l-.84-.85v-1.96z' />
+                <path d='m106.9 17.4.49 3.93-.85-.85-.48-3.93z' />
+                <path d='M107.39 21.33h1.57l-.84-.85h-1.58z' />
+                <path d='m108.97 21.33.49-3.93-.85-.85-.5 3.93z' />
+                <path d='M109.46 17.4v-1.96l-.85-.85v1.96z' />
+                <path d='M109.46 15.44h-2.55l-.85-.85h2.55z' />
+                <path d='m106.9 15.44-.84-.85z' />
+                <path d='M107 21.93v2.1l-.85-.85v-2.1z' />
+                <path d='M107 24.03h2.38l-.85-.85h-2.38z' />
+                <path d='M109.38 24.03v-2.1l-.85-.85v2.1z' />
+                <path d='M109.38 21.93H107l-.85-.85h2.38z' />
+                <path d='m107 21.93-.85-.85z' />
+              </g>
+              <path
+                fill='red'
+                d='M106.9 15.44v1.96l.49 3.93h1.58l.49-3.93v-1.96zm.1 6.49v2.1h2.38v-2.1z'
+              />
+            </g>
+          </g>
+        </svg>
+      </div>
       <div
         ref={glassContainerRef}
         className='home__svg-glass-container'

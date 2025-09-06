@@ -2,8 +2,58 @@
   min-height: calc(100vh - 70px);
   width: 100%;
   // inset: 70px 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-#ppp {
-  color: red;
-  z-index: 10;
+.button {
+  position: relative;
+  font-size: 1.8rem;
+  padding: 0.5rem 1rem;
+  border-radius: 30px;
+  transform: scale(1, 1);
+  filter: url('#test0goo');
+}
+
+.letter {
+  display: inline-block;
+  &--1 {
+    transform: translate(0px);
+    background-color: red;
+    padding: 10px;
+  }
+  &--2 {
+    transform: translate(10px);
+    transition: transform 2s linear;
+    background-color: red;
+    padding: 10px;
+  }
+}
+.blobs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: url('#test0goo');
+  width: 500px;
+  height: 500px;
+  // background-color: aqua;
+}
+.blob {
+  width: 55px;
+  height: 55px;
+  background-color: red;
+
+  // text-align: center;
+  // font-size: 4rem;
+  border-radius: 50%;
+  // background-clip: text;
+  // color: transparent;
+  &--1 {
+    margin-right: 50px;
+    transform: translate(0px);
+    transition: transform 3s linear;
+  }
+
+  &--2 {
+  }
 }
