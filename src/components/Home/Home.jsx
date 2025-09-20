@@ -1727,7 +1727,14 @@ const Home = () => {
   }, []);
 
   const moovies = ['M', 'O', 'O', 'V', 'I', 'E', 'S'];
+  const letterStrokeColor = 'hsl(180, 10%, 95%)';
+  const letterFillColor = 'hsl(180, 10%, 95%)';
+  // const letterFillColor = 'hsl(180, 10%, 85%)';
+  // const borderFillColor = 'hsla(180, 70%, 55%, 1.00)';
+  const borderFillColor = 'hsla(180, 50%, 45%, 1.00)';
 
+  const buttonBorderStrokeColor = 'hsla(180, 45%, 84%, 1.00)';
+  const buttonBorderFillColor = 'hsla(180, 25%, 44%, .40)';
   return (
     <article ref={homeRef} className='home'>
       <button
@@ -2877,14 +2884,68 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
       </div>
       <div className='home__bottom-part'>
         <svg
+          className='test__svg'
           xmlns='http://www.w3.org/2000/svg'
           viewBox='0 0 120 40'
           version='1.1'
           width='100%'
           height='100%'>
-          <g stroke='#00f' strokeWidth='.1'>
-            <g>
-              <g fill='#00f'>
+          <defs>
+            <filter id='one_more_time_shadow'>
+              <feDropShadow
+                dx='1'
+                dy='1'
+                stdDeviation='1'
+                floodColor='hsl(180, 30%, 25%)'
+                floodOpacity='.8'
+              />
+            </filter>
+            <linearGradient
+              id='glassyGradient'
+              x1='0%'
+              y1='0%'
+              x2='100%'
+              y2='100%'>
+              <stop
+                offset='0%'
+                stopColor='rgb(195, 232, 232)'
+                stopOpacity='0.6'
+              />
+              <stop
+                offset='50%'
+                stopColor='rgb(0, 107, 107)'
+                stopOpacity='0.3'
+              />
+              <stop
+                offset='100%'
+                stopColor='rgb(0, 68, 68)'
+                stopOpacity='0.5'
+              />
+            </linearGradient>
+            <linearGradient id='glassGradient1' gradientTransform='rotate(45)'>
+              <stop offset='0%' stopColor='hsla(175, 100.00%, 89%, 0.40)' />
+              <stop offset='100%' stopColor='hsla(175, 100.00%, 22%, 0.25)' />
+            </linearGradient>
+          </defs>
+          <rect
+            filter='url(#one_more_time_shadow)'
+            className='test__rect'
+            x='5%'
+            y='25%'
+            pathLength='20'
+            strokeDasharray='20 0 20'
+            strokeDashoffset='-21'
+            width='90%'
+            height='50%'
+            stroke={buttonBorderStrokeColor}
+            strokeWidth='.5'
+            fill={buttonBorderFillColor}
+            // fill='none'
+            rx='5'></rect>
+
+          <g className='test__letters-group' stroke='#00f' strokeWidth='.1'>
+            <g className='test-letter test-letter--1'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M9.87 19.74c0-1.4.39-2.5 1.17-3.27l.98-.7a4.43 4.43 0 0 0-1.17 3.28z' />
                 <path d='M11.04 16.47c.14-.15.3-.28.47-.4l.98-.7c-.17.12-.33.26-.47.4z' />
                 <path d='M11.51 16.07a4.72 4.72 0 0 1 2.8-.77l.97-.7c-1.13 0-2.06.26-2.8.78z' />
@@ -2911,12 +2972,14 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='m12.52 19.75.98-.69z' />
               </g>
               <path
-                fill='red'
+                className='test-path22'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M9.87 19.74q0-2.1 1.17-3.27t3.26-1.17q2.15 0 3.3 1.15 1.17 1.15 1.17 3.22 0 1.5-.51 2.47-.5.97-1.47 1.5-.95.54-2.38.54-1.46 0-2.41-.46-.95-.47-1.54-1.47-.6-1-.6-2.5zm2.65.01q0 1.3.48 1.87.49.57 1.32.57.85 0 1.32-.55.47-.56.47-2 0-1.22-.49-1.77-.49-.56-1.32-.56-.8 0-1.3.56-.48.57-.48 1.88z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--2'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M20.04 17.8h2.22l.91-.77h-2.22z' />
                 <path d='M22.26 17.8v1.02l.91-.77v-1.02z' />
                 <path d='M22.26 18.82c.18-.22.36-.41.54-.56l.92-.78c-.19.15-.37.34-.55.57z' />
@@ -2937,12 +3000,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='M20.04 24.03v-6.22l.91-.78v6.23z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M20.04 17.8h2.22v1.02q.5-.62 1-.88.52-.27 1.25-.27.99 0 1.55.59t.56 1.82v3.95h-2.4v-3.42q0-.59-.22-.83-.21-.24-.6-.24-.44 0-.7.33-.28.32-.28 1.17v3h-2.38z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--3'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M34.95 21.51h-4.78l.76-.92h4.79z' />
                 <path d='M30.17 21.51c.04.38.14.67.3.86l.78-.93a1.54 1.54 0 0 1-.32-.85Z' />
                 <path d='M30.48 22.37c.23.27.53.4.9.4l.77-.92c-.37 0-.67-.14-.9-.4z' />
@@ -2971,12 +3035,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='M30.17 20.37h2.35l.77-.92h-2.35z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M34.95 21.51h-4.78q.06.58.3.86.35.4.91.4.35 0 .67-.17.2-.12.42-.4l2.34.22q-.53.94-1.3 1.35-.76.4-2.18.4-1.24 0-1.95-.34-.7-.36-1.17-1.11-.47-.76-.47-1.79 0-1.46.93-2.36.94-.9 2.59-.9 1.33 0 2.1.4.78.4 1.19 1.17.4.77.4 2zm-2.43-1.14q-.07-.7-.37-1-.3-.29-.8-.29-.56 0-.9.45-.22.28-.28.84z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--4'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M40.06 17.8h2.23l.5-1.08h-2.22z' />
                 <path d='M42.3 17.8v.92l.5-1.1v-.9z' />
                 <path d='M42.3 18.72c.31-.38.63-.65.96-.81l.5-1.1c-.32.17-.65.44-.97.82z' />
@@ -3009,12 +3074,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='M40.06 24.03v-6.22l.5-1.1v6.23z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M40.06 17.8h2.23v.92q.48-.57.97-.81.5-.24 1.18-.24.75 0 1.18.26.43.27.7.79.57-.61 1.03-.83.47-.22 1.15-.22 1 0 1.56.6.56.59.56 1.85v3.91h-2.39V20.5q0-.43-.16-.63-.24-.32-.6-.32-.42 0-.68.3-.26.3-.26.98v3.21h-2.39V20.6q0-.4-.04-.55-.08-.24-.27-.38-.18-.14-.44-.14-.4 0-.67.3-.26.32-.26 1.03v3.17h-2.4z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--5'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M51.75 20.94c0-.11 0-.22.02-.33l.1-1.2-.02.33z' />
                 <path d='M51.77 20.61c.06-.8.38-1.47.95-2.02l.1-1.2a3.04 3.04 0 0 0-.95 2.03z' />
                 <path d='M52.72 18.6c.64-.62 1.5-.93 2.6-.93l.09-1.2c-1.09 0-1.96.31-2.6.93z' />
@@ -3039,12 +3105,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='m54.15 20.93.1-1.2z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M51.75 20.94q0-1.43.97-2.35.96-.92 2.6-.92 1.86 0 2.82 1.08.76.88.76 2.15 0 1.44-.95 2.36-.95.91-2.63.91-1.5 0-2.43-.76-1.14-.94-1.14-2.47zm2.4 0q0 .82.33 1.22.34.4.85.4t.84-.4q.34-.38.34-1.25 0-.81-.34-1.2-.33-.4-.82-.4-.53 0-.87.4-.33.4-.33 1.22z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--6'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M60.07 17.8h2.24l-.11-1.19h-2.23z' />
                 <path d='M62.3 17.8v1.03l-.1-1.2v-1.02z' />
                 <path d='M62.3 18.83c.22-.44.44-.75.67-.91l-.1-1.2c-.23.17-.45.47-.67.91z' />
@@ -3059,12 +3126,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='M60.07 24.03v-6.22l-.1-1.2v6.23z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M60.07 17.8h2.24v1.03q.32-.66.66-.91t.85-.25q.53 0 1.15.33l-.74 1.7q-.42-.18-.66-.18-.47 0-.73.39-.37.54-.37 2.04v2.08h-2.4z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--7'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M72.48 21.51H67.7l-.21-1.18h4.78z' />
                 <path d='m67.7 21.51.02.18-.2-1.18a2.7 2.7 0 0 1-.03-.18Z' />
                 <path d='M67.72 21.69c.06.3.15.52.29.68l-.21-1.18a1.38 1.38 0 0 1-.29-.68Z' />
@@ -3093,12 +3161,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='M67.7 20.37h2.35l-.2-1.18h-2.36z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M72.48 21.51H67.7q.06.58.3.86.35.4.91.4.35 0 .67-.17.2-.12.41-.4l2.35.22q-.53.94-1.3 1.35-.76.4-2.18.4-1.24 0-1.95-.34-.7-.36-1.18-1.11-.46-.76-.46-1.79 0-1.46.93-2.36.94-.9 2.59-.9 1.33 0 2.1.4.78.4 1.18 1.17.4.77.4 2zm-2.43-1.14q-.07-.7-.37-1-.3-.29-.8-.29-.56 0-.9.45-.22.28-.28.84z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--8'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M80.45 15.44v2.37l-.4-1.13v-2.37z' />
                 <path d='M80.45 17.8h1.32l-.41-1.12h-1.32z' />
                 <path d='M81.77 17.8v1.75l-.41-1.13v-1.74z' />
@@ -3122,12 +3191,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='m78.06 16.67 2.4-1.23-.42-1.13-2.39 1.23z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M80.45 15.44v2.37h1.32v1.74h-1.32v2.2q0 .4.08.54.12.2.41.2.26 0 .74-.16l.17 1.65q-.88.2-1.65.2-.89 0-1.31-.24-.42-.22-.63-.69-.2-.47-.2-1.5v-2.2h-.88V17.8h.88v-1.14z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--9'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M83 15.44v1.62l-.52-1.08v-1.63z' />
                 <path d='M83 17.06h2.38l-.51-1.08h-2.39z' />
                 <path d='M85.38 17.06v-1.62l-.51-1.09v1.63z' />
@@ -3140,12 +3210,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='m83 17.8-.52-1.08z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M83 15.44v1.62h2.38v-1.62zm0 2.37v6.22h2.38v-6.22z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--10'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M86.92 17.8h2.22l-.6-1.03h-2.22z' />
                 <path d='M89.14 17.8v.92l-.6-1.04v-.91z' />
                 <path d='M89.14 18.72c.32-.38.65-.65.97-.81l-.6-1.04c-.32.16-.65.43-.97.8z' />
@@ -3180,12 +3251,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='M86.92 24.03v-6.22l-.6-1.04v6.22z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M86.92 17.8h2.22v.92q.48-.57.97-.81.5-.24 1.18-.24.75 0 1.18.26.43.27.71.79.56-.61 1.03-.83.46-.22 1.14-.22 1 0 1.56.6.57.59.57 1.85v3.91h-2.4V20.5q0-.43-.16-.63-.24-.32-.6-.32-.42 0-.68.3-.25.3-.25.98v3.21h-2.4V20.6q0-.4-.04-.55-.08-.24-.27-.38-.18-.14-.44-.14-.4 0-.67.3-.26.32-.26 1.03v3.17h-2.4z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--11'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M105.8 21.51h-4.77l-.74-.94h4.78z' />
                 <path d='M101.03 21.51c.04.36.13.63.28.82l-.74-.95a1.61 1.61 0 0 1-.28-.81z' />
                 <path d='m101.3 22.33.04.04-.74-.95a.61.61 0 0 1-.03-.04z' />
@@ -3214,12 +3286,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='M101.03 20.37h2.35l-.74-.95h-2.35z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M105.8 21.51h-4.77q.06.58.3.86.35.4.9.4.36 0 .68-.17.19-.12.41-.4l2.35.22q-.54.94-1.3 1.35-.76.4-2.18.4-1.24 0-1.95-.34-.7-.36-1.18-1.11-.46-.76-.46-1.79 0-1.46.93-2.36.94-.9 2.59-.9 1.33 0 2.1.4.78.4 1.18 1.17.4.77.4 2zm-2.42-1.14q-.07-.7-.37-1-.3-.29-.8-.29-.56 0-.9.45-.22.28-.28.84z'
               />
             </g>
-            <g>
-              <g fill='#00f'>
+            <g className='test-letter test-letter--12'>
+              <g fill={borderFillColor} stroke={borderFillColor}>
                 <path d='M106.9 15.44v1.96l-.84-.85v-1.96z' />
                 <path d='m106.9 17.4.49 3.93-.85-.85-.48-3.93z' />
                 <path d='M107.39 21.33h1.57l-.84-.85h-1.58z' />
@@ -3234,11 +3307,23 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 <path d='m107 21.93-.85-.85z' />
               </g>
               <path
-                fill='red'
+                fill={letterFillColor}
+                stroke={letterFillColor}
                 d='M106.9 15.44v1.96l.49 3.93h1.58l.49-3.93v-1.96zm.1 6.49v2.1h2.38v-2.1z'
               />
             </g>
           </g>
+          {/* <rect
+            className='test__rect'
+            x='5%'
+            y='25%'
+            pathLength='20'
+            strokeDasharray='20 0 20'
+            strokeDashoffset='-21'
+            width='90%'
+            height='50%'
+            fill='url(#glassyGradient)'
+            rx='5'></rect> */}
         </svg>
       </div>
       <div

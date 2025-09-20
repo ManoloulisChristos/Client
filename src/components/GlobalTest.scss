@@ -1,107 +1,73 @@
 .test {
   min-height: calc(100vh - 70px);
-  width: 50%;
+  width: 100%;
   // inset: 70px 0 0 0;
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: center;
+  position: relative;
 }
-.letter-o {
+
+.test__svg-wrapper {
+  // position: absolute;
+  width: 25%;
+}
+
+.hello {
   transform-origin: center;
   transform-box: fill-box;
-  // transform: scale(0.5, 1.2);
-  animation: test-elastic 2.5s linear;
-  @keyframes test-elastic {
+  animation: svg-3d-test 2s linear forwards;
+  @keyframes svg-3d-test {
     0% {
-      transform: scale(1, 1) translateX(-50px);
-      opacity: 0;
+      transform: perspective(500px) translateZ(0px);
     }
-    20% {
-      transform: scale(0.8, 1) translateX(0px);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(0.6, 1.2) translateX(5px);
-    }
-
     100% {
-      transform: scale(1, 1) translateX(0px);
+      transform: perspective(500px) translateZ(400px);
     }
   }
 }
-
-.exclamation {
-  transform-origin: center;
-  transform-box: fill-box;
-  animation: test-reverse-elastic 1.5s linear;
-  // cubic-bezier(0.5, 1.75, 0.75, 1.25)
-  // @keyframes test-reverse-elastic {
-  //   0% {
-  //     transform: scale(1, 1) translateX(-50px);
-  //     opacity: 1;
-  //   }
-  //   40% {
-  //     transform: scale(1, 1) translateX(0px);
-  //   }
-  //   60% {
-  //     transform: scale(0.6, 1.2) translateX(5px);
-  //   }
-  //   70% {
-  //     transform: scale(1, 1) translateX(0px);
-  //   }
-
-  //   90% {
-  //     transform: scale(0.8, 1.1) translateX(-2px);
-  //   }
-
-  //   100% {
-  //     transform: scale(1, 1) translateX(0px);
-  //   }
-  // }
-  // @keyframes test-reverse-elastic {
-  //   0% {
-  //     transform: scale(1, 1) translateX(-50px);
-  //     opacity: 1;
-  //   }
-  //   40% {
-  //     transform: scale(1, 1) translateX(0px);
-  //   }
-  //   50% {
-  //     transform: scale(0.6, 1.2) translateX(5px);
-  //   }
-  //   60% {
-  //     transform: scale(1, 1) translateX(0px);
-  //   }
-
-  //   70% {
-  //     transform: scale(0.75, 1.2) translateX(-2px);
-  //   }
-  //   80% {
-  //     transform: scale(1, 1) translateX(0px);
-  //   }
-  //   90% {
-  //     transform: scale(0.8, 1.1) translateX(1px);
-  //   }
-
-  //   100% {
-  //     transform: scale(1, 1) translateX(0px);
-  //     opacity: 1;
-  //   }
-  // }
-}
-.letter-m {
-  transform-origin: center;
-  transform-box: fill-box;
-  animation: test-reverse-elastic 1s linear;
+.test-O-group {
 }
 
+// Gia kapoio logo otan ftasw sto 200px sto X axis to Z axis menei stathero
+// kai suberiferete fusiologika.
+// Isws an valw fixed values sto svg anti me % pou ginode relative
+// na leitourgisei fisiologika.
+// Dokimase na pas anapoda apo to glass apo to 100% se mikrotera!
+.test__svg {
+  // filter: drop-shadow(hsl(180, 30%, 30%) 3px 3px 5px);
+  transform-origin: center;
+  transform-box: fill-box;
+  // animation: svg-3d-test 0.5s 20s linear backwards;
+
+  @keyframes svg-3d-test {
+    0% {
+      transform: perspective(500px) translateZ(200px);
+    }
+    100% {
+      transform: perspective(500px) translateZ(0px);
+    }
+  }
+}
+.test__rect {
+  animation: test-rect-path-length 1.5s 2s linear forwards;
+
+  @keyframes test-rect-path-length {
+    0% {
+      stroke-dashoffset: -20;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+}
 .test-letter {
   transform-origin: center;
   transform-box: fill-box;
   fill: green;
   opacity: 0;
 
-  --_delay: 0.2;
+  --_delay: calc(0.2);
   &--1 {
     animation: test-reverse-elastic 1s linear forwards;
     animation-delay: calc(var(--_delay) * 5s);
@@ -215,21 +181,21 @@
     opacity: 1;
   }
 }
-.rect {
-  animation: rect-width 1s linear forwards;
-  @keyframes rect-width {
-    0% {
-      // x: 60;
-      // width: 20px;
-      // rx: 10;
-      stroke-dashoffset: -20;
-    }
+// .rect {
+//   animation: rect-width 1s linear forwards;
+//   @keyframes rect-width {
+//     0% {
+//       x: 60;
+//       width: 20px;
+//       rx: 10;
+//       stroke-dashoffset: -20;
+//     }
 
-    100% {
-      // x: 0;
-      // width: 120px;
-      // rx: 5;
-      stroke-dashoffset: 0;
-    }
-  }
-}
+//     100% {
+//       x: 10;
+//       width: 100px;
+//       rx: 5;
+//       stroke-dashoffset: 0;
+//     }
+//   }
+// }
