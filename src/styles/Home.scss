@@ -374,8 +374,6 @@
 
   &__bottom-part {
     width: 15%;
-    transform: perspective(1000px) translateZ(0px);
-    transition: transform 1s linear;
   }
 
   &__svg-glass-container {

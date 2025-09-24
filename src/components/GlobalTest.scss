@@ -38,7 +38,7 @@
   // filter: drop-shadow(hsl(180, 30%, 30%) 3px 3px 5px);
   transform-origin: center;
   transform-box: fill-box;
-  // animation: svg-3d-test 0.5s 20s linear backwards;
+  animation: svg-3d-test 0.5s 12s linear backwards;
 
   @keyframes svg-3d-test {
     0% {
@@ -50,7 +50,8 @@
   }
 }
 .test__rect {
-  animation: test-rect-path-length 1.5s 2s linear forwards;
+  // animation: rect-opacity-test 5s linear;
+  animation: test-rect-path-length 1.5s 2.5s linear forwards;
 
   @keyframes test-rect-path-length {
     0% {
@@ -60,7 +61,24 @@
       stroke-dashoffset: 0;
     }
   }
+  @keyframes rect-opacity-test {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 }
+
+.test__rect2 {
+  transform-origin: bottom;
+  transform-box: fill-box;
+
+  // transform: translateY(20px);
+  // transition: transform 0.5s linear;
+}
+//style="line-height:0;-inkscape-font-specification:'Arial Heavy';text-align:center"
 .test-letter {
   transform-origin: center;
   transform-box: fill-box;

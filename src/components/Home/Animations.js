@@ -463,3 +463,30 @@ export const backgroundAnimationArgs = {
     options: { duration: 1000, fill: 'forwards' },
   },
 };
+
+export const svgButtonAnimationArgs = {
+  elasticLetterMiddle: {
+    keyframes: [],
+    options: {},
+  },
+  elasticLetterLeft: {
+    keyframes: [],
+    optionsFn: (delay) => {},
+  },
+  elasticLetterRight: {
+    keyframes: [],
+    optionsFn: (delay) => {},
+  },
+  svgMoveBackwards: {
+    keyframes: [],
+    options: {},
+  },
+  rectBackFillOpacity: {
+    keyframes: [],
+    options: {},
+  },
+  rectBackStrokeDashOffset: {
+    keyframes: [],
+    options: {},
+  },
+};
