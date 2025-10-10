@@ -465,28 +465,148 @@ export const backgroundAnimationArgs = {
 };
 
 export const svgButtonAnimationArgs = {
-  elasticLetterMiddle: {
-    keyframes: [],
-    options: {},
-  },
+  // Change scale and move on the X axis to create bouncy/elastic effect
   elasticLetterLeft: {
-    keyframes: [],
-    optionsFn: (delay) => {},
+    keyframes: [
+      {
+        transform: 'scale(1, 1) translateX(-85px)',
+        opacity: '1',
+        offset: 0,
+      },
+
+      {
+        transform: 'scale(1, 1) translateX(0px)',
+        offset: 0.4,
+      },
+      {
+        transform: 'scale(0.6, 1.2) translateX(5px)',
+        offset: 0.5,
+      },
+      {
+        transform: 'scale(1, 1) translateX(0px)',
+        offset: 0.6,
+      },
+
+      {
+        transform: 'scale(0.75, 1.2) translateX(-2px)',
+        offset: 0.7,
+      },
+      {
+        transform: 'scale(1, 1) translateX(0px)',
+        offset: 0.8,
+      },
+      {
+        transform: 'scale(0.8, 1.1) translateX(1px)',
+        offset: 0.9,
+      },
+
+      {
+        transform: 'scale(1, 1) translateX(0px)',
+        opacity: '1',
+        offset: 1,
+      },
+    ],
+    optionsFn: (delay) => ({
+      duration: 500,
+      fill: 'forwards',
+      easing: 'linear',
+      delay,
+    }),
   },
   elasticLetterRight: {
-    keyframes: [],
-    optionsFn: (delay) => {},
+    keyframes: [
+      {
+        transform: 'scale(1, 1) translateX(85px)',
+        opacity: '1',
+        offset: 0,
+      },
+
+      {
+        transform: 'scale(1, 1) translateX(0px)',
+        offset: 0.4,
+      },
+      {
+        transform: 'scale(0.6, 1.2) translateX(-5px)',
+        offset: 0.5,
+      },
+      {
+        transform: 'scale(1, 1) translateX(0px)',
+        offset: 0.6,
+      },
+
+      {
+        transform: 'scale(0.75, 1.2) translateX(2px)',
+        offset: 0.7,
+      },
+      {
+        transform: 'scale(1, 1) translateX(0px)',
+        offset: 0.8,
+      },
+      {
+        transform: 'scale(0.8, 1.1) translateX(-1px)',
+        offset: 0.9,
+      },
+
+      {
+        transform: 'scale(1, 1) translateX(0px)',
+        opacity: '1',
+        offset: 1,
+      },
+    ],
+    optionsFn: (delay) => ({
+      duration: 500,
+      fill: 'forwards',
+      easing: 'linear',
+      delay,
+    }),
   },
   svgMoveBackwards: {
-    keyframes: [],
-    options: {},
+    keyframes: [
+      {
+        transform: 'perspective(500px) rotateZ(0deg)  translateZ(300px)',
+      },
+      {
+        transform: 'perspective(500px) rotateZ(0deg)  translateZ(300px)',
+        easing: 'cubic-bezier(.4,.2,.2,1)',
+        offset: 0.65,
+      },
+      {
+        transform: 'perspective(500px) rotateZ(0deg) translateZ(0px)',
+      },
+    ],
+    options: { duration: 2800, delay: 0, fill: 'backwards' },
+  },
+  svgDissapear: {
+    keyframes: [
+      {
+        transform: 'perspective(500px) translateZ(0px) scale(1)',
+      },
+
+      {
+        transform: 'perspective(500px) translateZ(-500px) scale(0)',
+      },
+    ],
+    options: {
+      duration: 380,
+      fill: 'forwards',
+      easing: 'cubic-bezier(1, 0, 0, 1',
+    },
   },
   rectBackFillOpacity: {
     keyframes: [],
     options: {},
   },
-  rectBackStrokeDashOffset: {
-    keyframes: [],
-    options: {},
+  rectBackStrokeDashOffsetAndFillOpacity: {
+    keyframes: [
+      {
+        strokeDashoffset: '-21',
+        fillOpacity: '0',
+      },
+      {
+        strokeDashoffset: '0',
+        fillOpacity: '.4',
+      },
+    ],
+    options: { duration: 750, delay: 500, fill: 'forwards' },
   },
 };

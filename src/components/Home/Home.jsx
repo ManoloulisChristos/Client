@@ -13,6 +13,7 @@ import {
   svgAnimationArgs,
   glass3dAnimationArgs,
   backgroundAnimationArgs,
+  svgButtonAnimationArgs,
 } from './Animations';
 
 ///////////// IMPORTANT //////////////
@@ -336,7 +337,7 @@ if (window !== undefined) {
 const Home = () => {
   const btnRef = useRef(null);
   const testAnimateRef = useRef(null);
-  const [animationsPlayState, setAnimationsPlayState] = useState('iddle');
+  const [animationsPlayState, setAnimationsPlayState] = useState('iddle'); //  iddle / running / reverse
   // Letter relative states based on different viewports
   const [protrusionSize, setProtrusionSize] = useState(initialProtrusion); // Front + Back + Middle letters sum of pixels in depth
   const [letterTextStrokeWidth, setLetterTextStrokeWidth] = useState(
@@ -356,7 +357,8 @@ const Home = () => {
   const [toggleGlassClassName, setToggleGlassClassName] = useState(
     'home__svg-glass-empty home__svg-glass-empty--'
   );
-  const animationsStateRef = useRef('initial'); // initial / iddle / running / finished / reverse
+
+  const [svgButtonTabIndexState, setSvgButtonTabIndexState] = useState(false);
 
   const homeRef = useRef(null);
   const resizeObserverRef = useRef(null);
@@ -382,6 +384,9 @@ const Home = () => {
   const cowEarRightRef = useRef(null);
   const cowMouthBottomRef = useRef(null);
   const cowDisplaceAnimateRef = useRef(null);
+  const cowEyeLeftRef = useRef(null);
+  const cowEyeRightRef = useRef(null);
+
   // Svg animate element for star
   // This starts a series of animate properties that are interconnected with each other
   const starMorphShapeAnimateRef = useRef(null);
@@ -410,6 +415,9 @@ const Home = () => {
   const svgButtonRectFrontRef = useRef(null);
   const svgButtonRectPlaceholderRef = useRef(null);
   const svgButtonGroupedPathsRef = useRef(null);
+  const svgButtonRectClipScaleUpAnimateRef = useRef(null);
+  const svgButtonRectClipScaleDownAnimateRef = useRef(null);
+  const svgButtonRectClipIddleStateAnimateRef = useRef(null);
 
   // Animate SVG Elements that control the state of all animated svg elements
   const globalEndAnimateRef = useRef(null);
@@ -788,35 +796,49 @@ const Home = () => {
     if (animationsPlayState !== 'running') {
       return;
     }
-    beamAndBubbleContainerRef.current.dataset.display = 'true';
-    glassContainerRef.current.dataset.display = 'true';
-    svgShadowRef.current.dataset.display = 'true';
-    mainSvgContainerRef.current.style.opacity = '0';
-    setToggleGlassClassName(glass3dAnimationArgs.strokeState.empty);
 
     // Reset SVG container timmers only if the animations have been canceled.
     if (animationsCanceledRef.current) {
       // Get svg timmers and add 60 seconds.
       const svgStar = svgStarRef.current;
       const svgShadow = svgShadowRef.current;
+      const svgButton = svgButtonRef.current;
       const starCurrTime = svgStar.getCurrentTime();
       const turblulenceCurrTime = svgShadow.getCurrentTime();
+      const svgButtonTime = svgButton.getCurrentTime();
       svgStar.setCurrentTime(starCurrTime + 60);
       svgShadow.setCurrentTime(turblulenceCurrTime + 60);
+      svgButton.setCurrentTime(svgButtonTime + 60);
 
-      // Trigger all relative SVG animations with fill into their starting states.
+      // Trigger all relative SVG animations with fill="freeze" into their starting states.
       animateGlobalResetRef.current.beginElement();
 
       // Reset the flag.
       animationsCanceledRef.current = false;
     }
+    // Reset all of the relative element's attached attributes/properties to their "running" state.
+    // This triggers even if its the first time animating but it's ok.
+    beamAndBubbleContainerRef.current.dataset.display = 'true';
+    glassContainerRef.current.dataset.display = 'true';
+    svgShadowRef.current.dataset.display = 'true';
+    svgButtonRectPlaceholderRef.current.dataset.display = 'false';
+    mainSvgContainerRef.current.style.opacity = '0';
+    setToggleGlassClassName(glass3dAnimationArgs.strokeState.empty);
 
+    // DONT remove the whole style attribute!!!
     getMap(boxesRef).forEach((val) => val.style.removeProperty('transform'));
     getMap(containersRef).forEach((val) => {
       val.style.removeProperty('transform');
       val.style.removeProperty('opacity');
     });
     svgCowRef.current.style.removeProperty('opacity');
+
+    // It's ok to remove the whole style attribute.
+    svgButtonRef.current.removeAttribute('style');
+    getMap(svgButtonGroupedPathsRef).forEach((val) =>
+      val.removeAttribute('style')
+    );
+    svgButtonRectBackRef.current.removeAttribute('style');
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -1027,11 +1049,14 @@ const Home = () => {
     let path10TransitionEndCallback = null;
     let path4TransitionEndCallback = null;
     let shadowDissapearEndEventCallback = null;
+    let cowAppearEndEventCallback = null;
+
     // All elements that listeners attach to
     const path10 = getMap(glassPathsRef).get(10);
     const path4 = getMap(glassPathsRef).get(4);
     const shadowEyeAngryAnimate = shadowEyeAngryAnimateRef.current;
     const shadowDissapear = shadowTurblulenceDisplaceAnimRef.current;
+    const cowAppear = cowDisplaceAnimateRef.current;
 
     //// 3 eventListeners nested one after the other ///
 
@@ -1117,36 +1142,100 @@ const Home = () => {
             );
             forwardsAnimRef.current.push(cowOpacity);
             cowDisplaceAnimateRef.current.beginElement();
-            await cowOpacity.finished;
-            console.log(document.getAnimations());
-            // After all the animations have finished the ones that have the fill:'forwards' flag are persisting.
-            // So the animations need to get canceled and the styles must be commited for better performance.
-            document.getAnimations().forEach((animation) => {
-              const animationFill = animation.effect.getTiming().fill;
-              const localAnimation = homeRef.current.contains(
-                animation.effect.target
+
+            cowAppearEndEventCallback = async () => {
+              ///// BUTTON /////
+              // Translate on the Z axis the whole SVG wait at the given max point and then move
+              // backwards to the default position.
+              const svgButtonAnim = svgButtonRef.current.animate(
+                svgButtonAnimationArgs.svgMoveBackwards.keyframes,
+                svgButtonAnimationArgs.svgMoveBackwards.options
               );
+              forwardsAnimRef.current.push(svgButtonAnim);
+              // Animate the stroke-dash with a delay
+              const strokeDashOffsetAnim = svgButtonRectBackRef.current.animate(
+                svgButtonAnimationArgs.rectBackStrokeDashOffsetAndFillOpacity
+                  .keyframes,
+                svgButtonAnimationArgs.rectBackStrokeDashOffsetAndFillOpacity
+                  .options
+              );
+              forwardsAnimRef.current.push(strokeDashOffsetAnim);
+              const map = getMap(svgButtonGroupedPathsRef);
+              // Starting from the letter 'O' which is at the leftmost side I give the biggest delay,
+              // when that reaches the 'r' which is the middle letter and the starting point of the animation
+              // the delay has reached 0. At that point I give a delay of 50ms as a starting point for the right side
+              // letters to create a small gap in the timming of the letters appearing for each side.
+              let delay = 500; // ms
 
-              const hasConicClassName =
-                animation.effect.target.classList.contains('home__conic');
-              // Check if the animation is inside the component and if it has forwards fill and is not conic gradient
-              if (
-                localAnimation &&
-                animationFill === 'forwards' &&
-                !hasConicClassName
-              ) {
-                console.log(animation);
-                animation.commitStyles();
-                animation.cancel();
-              }
-            });
-            // All animations have finished + canceled and the styles have been commited.
-            // Empty the array
-            forwardsAnimRef.current = [];
-            // Change the animations play state
-            setAnimationsPlayState('iddle');
+              map.forEach((val, key) => {
+                let animation = null;
+                // Left letters
+                if (key <= 4) {
+                  animation = val.animate(
+                    svgButtonAnimationArgs.elasticLetterLeft.keyframes,
+                    svgButtonAnimationArgs.elasticLetterLeft.optionsFn(delay)
+                  );
+                  delay = delay - 100; // Decrease by 100ms.
+                }
+                // Middle
+                else if (key === 5) {
+                  animation = val.animate(
+                    svgButtonAnimationArgs.elasticLetterLeft.keyframes,
+                    svgButtonAnimationArgs.elasticLetterLeft.optionsFn(delay)
+                  );
+                  delay = 50; // Start at 50ms to create gap between the two sides.
+                }
+                // Right letters
+                else {
+                  animation = val.animate(
+                    svgButtonAnimationArgs.elasticLetterRight.keyframes,
+                    svgButtonAnimationArgs.elasticLetterRight.optionsFn(delay)
+                  );
+                  delay = delay + 100; // Increase by 100.
+                }
+                if (animation) forwardsAnimRef.current.push(animation);
+              });
+              // Wait for the stroke to animate and then start the SMIL animation of the "glass closing" after 0.2s.
+              await strokeDashOffsetAnim.finished;
+              svgButtonRectClipScaleUpAnimateRef.current.beginElementAt(0.2);
 
-            console.log(document.getAnimations());
+              // Wait for the button to go to its default state and then finish up.
+              await svgButtonAnim.finished;
+              // Enable the placeholder rect in the svg that controls the mouse events for the "glass".
+              svgButtonRectPlaceholderRef.current.dataset.display = 'true';
+              ////
+              console.log(document.getAnimations());
+              // After all the animations have finished the ones that have the fill:'forwards' flag are persisting.
+              // So the animations need to get canceled and the styles must be commited for better performance.
+              document.getAnimations().forEach((animation) => {
+                const animationFill = animation.effect.getTiming().fill;
+                const localAnimation = homeRef.current.contains(
+                  animation.effect.target
+                );
+
+                const hasConicClassName =
+                  animation.effect.target.classList.contains('home__conic');
+                // Check if the animation is inside the component and if it has forwards fill and is not conic gradient
+                if (
+                  localAnimation &&
+                  animationFill === 'forwards' &&
+                  !hasConicClassName
+                ) {
+                  console.log(animation);
+                  animation.commitStyles();
+                  animation.cancel();
+                }
+              });
+              // All animations have finished + canceled and the styles have been commited.
+              // Empty the array
+              forwardsAnimRef.current = [];
+              // Change the animations play state
+              setAnimationsPlayState('iddle');
+
+              console.log(document.getAnimations());
+            };
+            // 4th level of depth
+            cowAppear.addEventListener('endEvent', cowAppearEndEventCallback);
           };
 
           // 3rd level of depth
@@ -1237,6 +1326,9 @@ const Home = () => {
             shadowDissapearEndEventCallback
           );
         }
+        if (cowAppearEndEventCallback) {
+          cowAppear.removeEventListener('endEvent', cowAppearEndEventCallback);
+        }
         // Cancel all fill='forwards' animations independetly based on reference of the animation object itself.
         // Otherwise their reference is lost and they dont show up in the getAnimations() array!
         forwardsAnimRef.current.forEach((anim) => anim.cancel());
@@ -1287,6 +1379,7 @@ const Home = () => {
     animationsPlayState,
   ]);
 
+  //////// IDDLE ////////
   useEffect(() => {
     if (animationsPlayState === 'iddle') {
       // Display
@@ -1314,9 +1407,19 @@ const Home = () => {
       mainSvgContainerRef.current.style.opacity = '1';
       svgCowRef.current.style.opacity = '1';
       svgStarRef.current.style.opacity = '0';
+      // SVG Button
+      svgButtonRef.current.style.opacity = '1';
+      svgButtonRectPlaceholderRef.current.dataset.display = 'true';
+      getMap(svgButtonGroupedPathsRef).forEach(
+        (val) => (val.style.opacity = '1')
+      );
+      svgButtonRectBackRef.current.style.strokeDashoffset = '0';
+      svgButtonRectBackRef.current.style.fillOpacity = '.4';
+      svgButtonRectClipIddleStateAnimateRef.current.beginElement();
     }
   }, [protrusionSize, animationsPlayState]);
 
+  //////// REVERSE ////////
   // This should only trigger from the animationsPlayState changing from 'iddle' to 'reverse' and that happens only if you click the button.
   useEffect(() => {
     if (animationsPlayState === 'reverse') {
@@ -1327,14 +1430,27 @@ const Home = () => {
         // Get SVG timmers and add 60 seconds.
         const svgStar = svgStarRef.current;
         const svgShadow = svgShadowRef.current;
+        const svgButton = svgButtonRef.current;
         const starCurrTime = svgStar.getCurrentTime();
         const turblulenceCurrTime = svgShadow.getCurrentTime();
+        const svgButtonTime = svgButton.getCurrentTime();
         svgStar.setCurrentTime(starCurrTime + 60);
         svgShadow.setCurrentTime(turblulenceCurrTime + 60);
+        svgButton.setCurrentTime(svgButtonTime + 60);
 
         // Reset the flag
         animationsCanceledRef.current = false;
       }
+
+      const svgButtonDissapear = () => {
+        const animation = svgButtonRef.current.animate(
+          svgButtonAnimationArgs.svgDissapear.keyframes,
+          svgButtonAnimationArgs.svgDissapear.options
+        );
+        reverseForwardsAnimRef.current.push(animation);
+        return animation;
+      };
+
       const cowStarArcAnimations = () => {
         const animation = svgCowRef.current.animate(
           [
@@ -1364,13 +1480,14 @@ const Home = () => {
             options = svgAnimationArgs.containerPhone.options;
           }
         }
-        mainSvgContainerRef.current.style.opacity = '1';
+
         const animation = mainSvgContainerRef.current.animate(
           keyframes,
           options
         );
+        // Change the current time into a bigger value that duration to add delay!
         animation.currentTime = 8000;
-        animation.playbackRate = -1;
+        animation.updatePlaybackRate(-1);
         return animation;
       };
 
@@ -1392,8 +1509,9 @@ const Home = () => {
             ],
             { ...letterAnimationArgs.boxEnding.options, fill: 'backwards' }
           );
+          // Change the current time into a bigger value that duration to add delay!
           animation.currentTime = 1600 + 1200;
-          animation.playbackRate = -1;
+          animation.updatePlaybackRate(-1);
           reverseForwardsAnimRef.current.push(animation);
         });
       };
@@ -1439,7 +1557,10 @@ const Home = () => {
         reverseForwardsAnimRef.current.push(animation);
         return animation;
       };
+
       const playAllAnimations = async () => {
+        const svgButtonAnim = svgButtonDissapear();
+        // await svgButtonAnim.finished;
         cowStarArcAnimations();
         const mainSvgContainerAnimation = mainSvgContainerReverseAnimation();
         letterBoxesToInitialPosition();
@@ -1474,6 +1595,7 @@ const Home = () => {
         reverseForwardsAnimRef.current = [];
         setAnimationsPlayState('running');
       };
+      /////////
       playAllAnimations();
       const homeArticle = homeRef.current;
       return () => {
@@ -1504,17 +1626,26 @@ const Home = () => {
     animationsPlayState,
   ]);
 
-  const handleReverseAnimationsClick = () => {};
-
-  // If i have the star and the cow in the same <svg> either under the <g> tag or under the <svg>
-  // (with viewports and width/height = 100% ) changing the opacity of the cow that is inside <g> or <svg>
-  // blurs the star (anti-aliasing propably), changing the display of the cow to none is fixing the problem.
-  // I propably have to have them in the same svg because i need the dimension to be the same of the end result
-  // and i cant use px values because of different sizes so i prefer to have them under the same <svg>
-  // and use a percentage of width (like 25%). Both have been drawn under the same viewbox so its ok to grp.
+  // The placeholder rect is responsible for handling mouse events since its the element
+  // placed on top of all others and it has stroke & fill set to transparent so click events still
+  // trigger through it!
+  const handleReverseAnimationsClick = () => {
+    if (animationsPlayState === 'iddle') setAnimationsPlayState('reverse');
+  };
+  // The whole SVG Button element is set to receive keyboard focus via tabindex and it is expected
+  // to behave as a <button>. In order for that to happen "enter" and " " (space) should trigger the
+  // button's operation.
+  const handleReverseAnimationsKeypress = (e) => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      if (animationsPlayState === 'iddle') {
+        setAnimationsPlayState('reverse');
+      }
+    }
+  };
 
   // useLayoutEffect(() => {
-  //   // const groupBox = groupRef.current.getBBox();
+  //   const groupBox = groupRef.current.getBBox();
 
   //  // console.log(groupBox);
   //   const box = groupRef.current.getBBox();
@@ -1523,67 +1654,71 @@ const Home = () => {
   //   console.log(clint);
   // }, []);
 
-  // useLayoutEffect(() => {
-  //   // measure viewport width
-  //   const vpWidth = document.documentElement.clientWidth;
-  //   const vpHeight = document.documentElement.clientHeight;
-  //   console.log(vpWidth, vpHeight);
-  //   // measure cow and find center point
-  //   const clint = cowRef.current.getBoundingClientRect();
-  //   const cx = clint.x + clint.width / 2;
-  //   const cy = clint.y + clint.height / 2;
-  //   console.log(cx, cy);
+  useEffect(() => {
+    // check pointer device
+    // resizeObserver for home and update the callback with the new values
+    // Add checks to remove the listener when the animations happen!!!
+    // Maybe upon reset i have to delete the style attribute afterwards!
+    // Maybe fix the point where the mouse leaves the viewport
 
-  //   // normalize the distances and make the center point of the cow the (0,0) point of the coordinate system
-  //   // in order to calculate the eye movement and interpolate the distance
-  //   // so i have to find min max values from the center point to the ends of the viewport
-  //   const centerX = cx - vpWidth;
-  //   const centerY = cy - vpHeight;
-  //   console.log(centerX, centerY);
+    // measure home dimensions
+    const homeW = homeRef.current.clientWidth;
+    const homeH = homeRef.current.clientHeight;
+    console.log('home', homeW, homeH);
 
-  //   // const normalize = 20 + ((mx - -Math.abs(centerX)) * 40) / vpWidth;
-  // }, []);
-  // useEffect(() => {
-  //   // measure home dimensions
-  //   const homeW = homeRef.current.clientWidth;
-  //   const homeH = homeRef.current.clientHeight;
-  //   console.log('home', homeW, homeH);
+    // find center point of the cow
+    const cowRect = svgCowRef.current.getBoundingClientRect();
+    console.log(cowRect);
+    // Distance from one side plus half of the width gives the center point (cx) in the viewport.
+    const cx = cowRect.x + cowRect.width / 2;
+    // Same for (cy)
+    const cy = cowRect.y + cowRect.height / 2 - 70; // -70 because of the navbar height
+    console.log('cow center', cx, cy);
+    // In order to interpolate the values from the big system (the cow and the viewport) to the small system
+    // (the eyeball and the circle of the eye), I have to define the ranges [min,max] of the two different systems.
+    // Because I am using SVG the transform property that I want to use although it is defined in px for the
+    // inline style or CSS to take effect, it is actualy in viewport units!!!
+    // After some testing I found that the [min,max] values of the small system must be [-25,25] for the eye
+    // to stay inside the circle!
+    // To find the [min,max] values of the bigger system I have to take the center of the cow and find  its left,right,top,bottom
+    // distances from the viewport edges. In pracice and for the Linear Interpolation equation I just have to find
+    // the min value and the actual width and height of the viewport gives the denominator of the equation [max-min].
 
-  //   // find center point of the cow
-  //   const clint = cowRef.current.getBoundingClientRect();
-  //   const cx = clint.x + clint.width / 2;
-  //   const cy = clint.y + clint.height / 2 - 70;
-  //   console.log('cow center', cx, cy);
+    // min = - abs(Center of cow - viewport width)
+    const centerX = cx - homeW;
+    const centerY = cy - homeH;
 
-  //   // center of cow - viewport width = distance from one side
-  //   // make the center of the cow the (0,0) point of the coordinate system
-  //   // and the distance from one side the min and the other side the max values of the system
-  //   ////////// IMPORTANT!! //////////
-  //   // cow is centered with CSS so there is kinda no need to do this but there are deviations in the measuring with clientWidth
-  //   // and what centerX * 2 gives.
+    const calcAngle = (e) => {
+      // Mouse position
+      const mx = e.clientX;
+      const my = e.clientY - 70; // -70 because of the navbar height
+      // Distance between mouse and cow
+      const dx = mx - cx;
+      const dy = my - cy;
+      /*
+                        Linear Interpolation explanation 
+                        
+       * ValueNew = MinNew + (ValueOld - MinOld) * (MaxNew - MinNew)
+       *            ------------------------------------------------
+       *                          MaxOld - MinOld
+       */
+      /*
+       * normalized = -25 + (dx - centerX) * (25 - (-25))
+       *            ------------------------------------------------
+       *                          Width
+       */
+      const normalizeX = -25 + ((dx - -Math.abs(centerX)) * 50) / homeW;
+      const normalizeY = -25 + ((dy - -Math.abs(centerY)) * 50) / homeH;
 
-  //   const centerX = cx - homeW;
-  //   const centerY = cy - homeH;
-  //   console.log('center by vp', centerX, centerY);
+      requestAnimationFrame(() => {
+        cowEyeLeftRef.current.style.transform = `translate(${normalizeX}px, ${normalizeY}px)`;
+        cowEyeRightRef.current.style.transform = `translate(${normalizeX}px, ${normalizeY}px)`;
+      });
+    };
+    window.addEventListener('mousemove', calcAngle);
 
-  //   const calcAngle = (e) => {
-  //     const mx = e.clientX;
-  //     const my = e.clientY - 70;
-  //     console.log('mouse', mx, my);
-  //     const dx = mx - cx;
-  //     const dy = my - cy;
-
-  //     const normalizeX = -25 + ((dx - -Math.abs(centerX)) * 50) / homeW;
-  //     const normalizeY = -25 + ((dy - -Math.abs(centerY)) * 50) / homeH;
-
-  //     // console.log(normalizeX, normalizeY);
-  //     leftEyeRef.current.style.transform = `translate(${normalizeX}px, ${normalizeY}px)`;
-  //     rightEyeRef.current.style.transform = `translate(${normalizeX}px, ${normalizeY}px)`;
-  //   };
-  //   window.addEventListener('mousemove', calcAngle);
-
-  //   return () => window.removeEventListener('mousemove', calcAngle);
-  // }, []);
+    return () => window.removeEventListener('mousemove', calcAngle);
+  }, []);
 
   // useEffect(() => {
   //   const keyframes = [
@@ -1619,13 +1754,13 @@ const Home = () => {
   //     circlePatternRef.current.animation.play();
   //   };
   // }, []);
-
   const playAnimations = async () => {
-    setAnimationsPlayState('iddle');
+    svgStarRef.current.style.opacity = '1';
+    arcAnimateReverseRef.current.beginElement();
   };
 
   const cancelAnimations = async () => {
-    setAnimationsPlayState('running');
+    // setAnimationsPlayState('running');
   };
 
   const reverseAnimations = async () => {
@@ -1731,14 +1866,7 @@ const Home = () => {
   }, []);
 
   const moovies = ['M', 'O', 'O', 'V', 'I', 'E', 'S'];
-  const letterStrokeColor = 'hsl(180, 10%, 95%)';
-  const letterFillColor = 'hsl(180, 10%, 95%)';
-  // const letterFillColor = 'hsl(180, 10%, 85%)';
-  // const borderFillColor = 'hsla(180, 70%, 55%, 1.00)';
-  const borderFillColor = 'hsla(180, 50%, 45%, 1.00)';
 
-  const buttonBorderStrokeColor = 'hsla(180, 45%, 84%, 1.00)';
-  const buttonBorderFillColor = 'hsla(180, 25%, 44%, .40)';
   return (
     <article ref={homeRef} className='home'>
       <button
@@ -2515,7 +2643,10 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
               </g>
             </g>
             <g inkscape:label='eyes'>
-              <g inkscape:label='eye_right' transform='translate(.4 5.2)'>
+              <g
+                ref={cowEyeRightRef}
+                inkscape:label='eye_right'
+                transform='translate(.4 5.2)'>
                 <circle cx='876.28' cy='350.13' r='15.31' fill='#803300' />
                 <circle cx='876.28' cy='350.13' r='15.31' fill='url(#c)' />
                 <circle cx='876.28' cy='350.13' r='15.31' fill='url(#d)' />
@@ -2528,7 +2659,10 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   opacity='.9'
                 />
               </g>
-              <g inkscape:label='eye_left' transform='translate(.98 1.86)'>
+              <g
+                ref={cowEyeLeftRef}
+                inkscape:label='eye_left'
+                transform='translate(.98 1.86)'>
                 <circle cx='748.72' cy='353.52' r='15.31' fill='#803300' />
                 <circle cx='748.72' cy='353.52' r='15.31' fill='url(#e)' />
                 <circle cx='748.72' cy='353.52' r='15.31' fill='url(#f)' />
@@ -2886,14 +3020,27 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
           </g>
         </svg>
       </div>
-      <div className='home__bottom-part'>
+      <div className='home__svg-button-container'>
+        <p
+          id='home-svg-button-description'
+          className='visually-hidden'
+          aria-hidden='true'>
+          Restarts the animations and is enabled and visible only when the
+          animations are not playing.
+        </p>
         <svg
+          role='button'
+          tabIndex='0'
+          aria-disabled={animationsPlayState === 'iddle' ? 'false' : 'true'}
+          aria-label='One more time!'
+          aria-describedby='home-svg-button-description'
           ref={svgButtonRef}
-          className='test__svg'
+          className='home__svg-button'
           viewBox='0 0 120 40'
           version='1.1'
           width='100%'
-          height='100%'>
+          height='100%'
+          onKeyDown={handleReverseAnimationsKeypress}>
           <defs>
             <filter id='home_button_filter_shadow'>
               <feDropShadow
@@ -2926,26 +3073,34 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 stopOpacity='0.5'
               />
             </linearGradient>
-
+            {/* Animating a clip path instead of just directly scaling the "glass" rect,
+               is providing better results. */}
             <clipPath
               id='home_button_clip_glass_rect'
               clipPathUnits='objectBoundingBox'>
-              <rect className='test__rect2' x='0' y='0' width='1' height='1'>
+              <rect
+                className='home__svg-button-clip-rect'
+                x='0'
+                y='0'
+                width='1'
+                height='1'
+                transform='scale(1 0)'>
                 <animateTransform
+                  ref={svgButtonRectClipScaleDownAnimateRef}
                   attributeName='transform'
                   attributeType='XML'
                   type='scale'
                   calcMode='spline'
                   keyTimes='0;1'
-                  keySplines='.27 .30 .7 1'
+                  keySplines='.27 .20 .7 1'
                   values='1 1; 1 0'
-                  dur='.45s'
-                  begin='home_one_more_time_rect_placeholder.mouseenter'
+                  dur='.3s'
+                  begin='home_svg_button_rect_placeholder.mouseenter;indefinite'
                   restart='whenNotActive'
                   fill='freeze'
                 />
-
                 <animateTransform
+                  ref={svgButtonRectClipScaleUpAnimateRef}
                   attributeName='transform'
                   attributeType='XML'
                   type='scale'
@@ -2954,9 +3109,30 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   keySplines='.37 1 1 1'
                   values='1 0; 1 1'
                   dur='.25s'
-                  fill='freeze'
-                  begin='home_one_more_time_rect_placeholder.mouseleave'
+                  begin='home_svg_button_rect_placeholder.mouseleave; indefinite'
                   restart='whenNotActive'
+                  fill='freeze'
+                />
+                {/* Iddle */}
+                <animateTransform
+                  ref={svgButtonRectClipIddleStateAnimateRef}
+                  attributeName='transform'
+                  attributeType='XML'
+                  type='scale'
+                  values='1 0; 1 1'
+                  dur='.001s'
+                  begin='indefinite'
+                  fill='freeze'
+                />
+                {/* Global Reset */}
+                <animateTransform
+                  attributeName='transform'
+                  attributeType='XML'
+                  type='scale'
+                  values='1 1; 1 0'
+                  dur='.001s'
+                  begin='home_animate_global_reset.begin;'
+                  fill='freeze'
                 />
               </rect>
             </clipPath>
@@ -2974,9 +3150,9 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
             width='90%'
             height='50%'
             strokeWidth='.5'
-            stroke={buttonBorderStrokeColor}
-            fillOpacity='1'
-            fill={buttonBorderFillColor}></rect>
+            stroke='hsl(180, 45%, 84%)'
+            fillOpacity='0'
+            fill='hsla(180, 25%, 44%, 1)'></rect>
 
           <g strokeWidth='.1'>
             <g
@@ -2985,14 +3161,14 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(0, node)
                   : getMap(svgButtonGroupedPathsRef).delete(0)
               }
-              className='test-letter test-letter--1'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='m14.28 16.9-.98.7-.3.27c-.32.38-.48 1-.48 1.88 0 .87.16 1.5.48 1.87.32.38.76.57 1.32.57.41 0 .76-.1 1.04-.3l.98-.69c-.28.2-.63.3-1.04.3-.56 0-1-.2-1.32-.57-.32-.38-.48-1-.48-1.87 0-.87.16-1.5.49-1.88.09-.1.18-.2.3-.27z' />
                 <path d='M15.28 14.6c-1.13 0-2.06.26-2.8.78l-.97.69c-.17.12-.33.25-.47.4l.98-.7a5.1 5.1 0 0 1 2.28-.47c1.43 0 2.53.38 3.3 1.15a4.33 4.33 0 0 1 1.17 3.22c0 1-.17 1.83-.51 2.47-.21.4-.48.75-.8 1.04l-.67.46c.12-.06.24-.14.35-.22l.97-.68.01-.01c.47-.33.84-.76 1.12-1.28.34-.64.5-1.47.5-2.47 0-1.38-.38-2.46-1.15-3.22a4.5 4.5 0 0 0-3.3-1.16z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M9.87 19.74q0-2.1 1.17-3.27t3.26-1.17q2.15 0 3.3 1.15 1.17 1.15 1.17 3.22 0 1.5-.51 2.47-.5.97-1.47 1.5-.95.54-2.38.54-1.46 0-2.41-.46-.95-.47-1.54-1.47-.6-1-.6-2.5zm2.65.01q0 1.3.48 1.87.49.57 1.32.57.85 0 1.32-.55.47-.56.47-2 0-1.22-.49-1.77-.49-.56-1.32-.56-.8 0-1.3.56-.48.57-.48 1.88z'
               />
             </g>
@@ -3002,14 +3178,14 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(1, node)
                   : getMap(svgButtonGroupedPathsRef).delete(1)
               }
-              className='test-letter test-letter--2'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='M25.42 16.9c-.48 0-.9.08-1.24.26a2.5 2.5 0 0 0-.46.32l-.55.46v-.9h-2.22l-.91.77h2.22v1.01l.91-.77v-.06l.1-.05c.34-.18.75-.27 1.24-.27.66 0 1.17.2 1.55.59.37.4.56 1 .56 1.82v3.95l.91-.77V19.3c0-.82-.18-1.43-.56-1.82-.37-.4-.89-.59-1.55-.59z' />
                 <path d='m23.6 19.09-.9.78c-.19.21-.28.6-.28 1.17v3l.92-.78v-3c0-.56.09-.95.27-1.17z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M20.04 17.8h2.22v1.02q.5-.62 1-.88.52-.27 1.25-.27.99 0 1.55.59t.56 1.82v3.95h-2.4v-3.42q0-.59-.22-.83-.21-.24-.6-.24-.44 0-.7.33-.28.32-.28 1.17v3h-2.38z'
               />
             </g>
@@ -3019,15 +3195,15 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(2, node)
                   : getMap(svgButtonGroupedPathsRef).delete(2)
               }
-              className='test-letter test-letter--3'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='m31.22 18.6-.77.93c-.14.19-.24.47-.28.84h2.35l.77-.92h-2.35c.04-.37.13-.65.28-.84z' />
                 <path d='m30.93 20.59-.76.92c.04.38.15.67.3.86.24.27.54.4.91.4.24 0 .46-.06.67-.17.12-.07.24-.18.37-.34l.05-.06 2.35.22c-.14.23-.28.43-.43.61l.77-.92c.15-.18.29-.39.42-.61l-2.35-.22-.08.1c-.12.14-.23.23-.33.3-.22.11-.44.17-.67.17-.37 0-.67-.14-.9-.4a1.54 1.54 0 0 1-.32-.86z' />
                 <path d='M32.02 16.74a3.57 3.57 0 0 0-2.8 1.15l-.77.93.22-.25c.63-.6 1.5-.9 2.59-.9.89 0 1.6.13 2.1.4.52.27.92.66 1.19 1.17.27.52.4 1.18.4 2v.27l.77-.92v-.27c0-.82-.14-1.49-.4-2a2.8 2.8 0 0 0-1.19-1.17 4.6 4.6 0 0 0-2.1-.4z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M34.95 21.51h-4.78q.06.58.3.86.35.4.91.4.35 0 .67-.17.2-.12.42-.4l2.34.22q-.53.94-1.3 1.35-.76.4-2.18.4-1.24 0-1.95-.34-.7-.36-1.17-1.11-.47-.76-.47-1.79 0-1.46.93-2.36.94-.9 2.59-.9 1.33 0 2.1.4.78.4 1.19 1.17.4.77.4 2zm-2.43-1.14q-.07-.7-.37-1-.3-.29-.8-.29-.56 0-.9.45-.22.28-.28.84z'
               />
             </g>
@@ -3037,15 +3213,15 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(3, node)
                   : getMap(svgButtonGroupedPathsRef).delete(3)
               }
-              className='test-letter test-letter--4'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='M44.94 16.58c-.46 0-.85.08-1.18.24-.32.16-.65.43-.97.8v-.9h-2.22l-.5 1.09h2.22v.9c.32-.37.64-.64.97-.8.33-.16.72-.24 1.18-.24.5 0 .9.09 1.18.26.29.18.53.44.7.79a4 4 0 0 1 1.03-.83c.31-.15.7-.22 1.15-.22.66 0 1.19.2 1.56.6.38.4.56 1.01.56 1.85v3.91l.5-1.09v-3.9c0-.85-.18-1.47-.56-1.86-.37-.4-.9-.6-1.56-.6-.46 0-.84.07-1.14.22-.31.15-.65.42-1.03.83a2.01 2.01 0 0 0-.7-.79 2.26 2.26 0 0 0-1.19-.26z' />
                 <path d='m47.17 18.95-.5 1.09c-.1.2-.14.46-.14.78v3.21l.5-1.09v-3.21c0-.33.05-.59.14-.78z' />
                 <path d='m43.1 18.94-.5 1.1a2 2 0 0 0-.14.82v3.17l.5-1.09v-3.17a2 2 0 0 1 .14-.83z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M40.06 17.8h2.23v.92q.48-.57.97-.81.5-.24 1.18-.24.75 0 1.18.26.43.27.7.79.57-.61 1.03-.83.47-.22 1.15-.22 1 0 1.56.6.56.59.56 1.85v3.91h-2.39V20.5q0-.43-.16-.63-.24-.32-.6-.32-.42 0-.68.3-.26.3-.26.98v3.21h-2.39V20.6q0-.4-.04-.55-.08-.24-.27-.38-.18-.14-.44-.14-.4 0-.67.3-.26.32-.26 1.03v3.17h-2.4z'
               />
             </g>
@@ -3055,14 +3231,14 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(4, node)
                   : getMap(svgButtonGroupedPathsRef).delete(4)
               }
-              className='test-letter test-letter--5'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='M55.4 16.47c-1.08 0-1.95.31-2.59.93a3.04 3.04 0 0 0-.94 2.02l-.1 1.19a4 4 0 0 0-.02.33l.06-.64c.11-.67.41-1.24.9-1.7a3.6 3.6 0 0 1 2.6-.93c1.25 0 2.19.36 2.83 1.08a3.14 3.14 0 0 1 .75 2.49l.1-1.2.01-.33a3.1 3.1 0 0 0-.77-2.15c-.63-.73-1.57-1.09-2.82-1.09z' />
                 <path d='m54.24 19.74-.1 1.2c0 .55.12.96.34 1.22.23.27.5.4.85.4.34 0 .62-.13.84-.4.18-.2.29-.52.32-.94l.1-1.2a1.6 1.6 0 0 1-.32.95c-.22.26-.5.4-.84.4-.34 0-.63-.14-.85-.4-.23-.27-.34-.68-.34-1.23z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M51.75 20.94q0-1.43.97-2.35.96-.92 2.6-.92 1.86 0 2.82 1.08.76.88.76 2.15 0 1.44-.95 2.36-.95.91-2.63.91-1.5 0-2.43-.76-1.14-.94-1.14-2.47zm2.4 0q0 .82.33 1.22.34.4.85.4t.84-.4q.34-.38.34-1.25 0-.81-.34-1.2-.33-.4-.82-.4-.53 0-.87.4-.33.4-.33 1.22z'
               />
             </g>
@@ -3072,13 +3248,13 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(5, node)
                   : getMap(svgButtonGroupedPathsRef).delete(5)
               }
-              className='test-letter test-letter--6'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='M63.71 16.47c-.33 0-.62.09-.85.26-.2.14-.4.4-.58.75l-.08-.87h-2.23v6.23l.1 1.2V17.8h2.15l.09 1.02c.21-.44.43-.75.66-.91.23-.17.51-.25.85-.25.35 0 .74.1 1.15.33l-.1-1.2a2.5 2.5 0 0 0-1.16-.33z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M60.07 17.8h2.24v1.03q.32-.66.66-.91t.85-.25q.53 0 1.15.33l-.74 1.7q-.42-.18-.66-.18-.47 0-.73.39-.37.54-.37 2.04v2.08h-2.4z'
               />
             </g>
@@ -3088,15 +3264,15 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(6, node)
                   : getMap(svgButtonGroupedPathsRef).delete(6)
               }
-              className='test-letter test-letter--7'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='m67.51 20.5.21 1.19c.06.3.15.52.29.68.23.27.53.4.9.4.24 0 .46-.06.67-.17.13-.08.27-.2.41-.4l2.35.22-.2-1.18-2.36-.22c-.14.19-.28.32-.41.4-.21.11-.44.17-.67.17-.37 0-.67-.13-.9-.4a1.38 1.38 0 0 1-.29-.68z' />
                 <path d='M68.58 16.49c-1.1 0-1.96.3-2.59.9-.62.6-.93 1.39-.93 2.36a4 4 0 0 0 .06.7l.21 1.18a4 4 0 0 1-.06-.7c0-.97.31-1.76.93-2.36a3.6 3.6 0 0 1 2.59-.9c.89 0 1.6.13 2.1.4.52.27.92.66 1.18 1.17.15.29.26.61.33.99l-.21-1.18a3.5 3.5 0 0 0-.33-.99 2.8 2.8 0 0 0-1.17-1.17 4.6 4.6 0 0 0-2.11-.4z' />
                 <path d='M67.7 20.37h2.35l-.2-1.18h-2.36z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M72.48 21.51H67.7q.06.58.3.86.35.4.91.4.35 0 .67-.17.2-.12.41-.4l2.35.22q-.53.94-1.3 1.35-.76.4-2.18.4-1.24 0-1.95-.34-.7-.36-1.18-1.11-.46-.76-.46-1.79 0-1.46.93-2.36.94-.9 2.59-.9 1.33 0 2.1.4.78.4 1.18 1.17.4.77.4 2zm-2.43-1.14q-.07-.7-.37-1-.3-.29-.8-.29-.56 0-.9.45-.22.28-.28.84z'
               />
             </g>
@@ -3106,14 +3282,14 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(7, node)
                   : getMap(svgButtonGroupedPathsRef).delete(7)
               }
-              className='test-letter test-letter--8'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='m80.04 14.31-2.39 1.23v1.14h-.88v1.74l.41 1.13V17.8h.88v-1.14l2.4-1.23zm0 2.37.41 1.13h1.32l-.41-1.13Zm-2.39 1.74v2.2c0 .64.06 1.12.17 1.44l.42 1.12a4.5 4.5 0 0 1-.18-1.44v-2.2z' />
                 <path d='m80.12 21.16.41 1.13c.08.13.21.2.41.2.18 0 .42-.06.74-.16l-.41-1.13c-.32.1-.56.16-.74.16-.2 0-.33-.07-.41-.2z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M80.45 15.44v2.37h1.32v1.74h-1.32v2.2q0 .4.08.54.12.2.41.2.26 0 .74-.16l.17 1.65q-.88.2-1.65.2-.89 0-1.31-.24-.42-.22-.63-.69-.2-.47-.2-1.5v-2.2h-.88V17.8h.88v-1.14z'
               />
             </g>
@@ -3123,14 +3299,14 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(8, node)
                   : getMap(svgButtonGroupedPathsRef).delete(8)
               }
-              className='test-letter test-letter--9'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='M82.48 14.35v1.63l.51 1.08v-1.62h2.39l-.51-1.09z' />
                 <path d='M82.48 16.72v6.22l.51 1.1V17.8h2.39l-.51-1.09z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M83 15.44v1.62h2.38v-1.62zm0 2.37v6.22h2.38v-6.22z'
               />
             </g>
@@ -3140,15 +3316,15 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(9, node)
                   : getMap(svgButtonGroupedPathsRef).delete(9)
               }
-              className='test-letter test-letter--10'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='M90.7 16.63c-.47 0-.86.08-1.19.24-.21.1-.43.26-.64.46l-.33-.56h-2.22v6.22l.6 1.04v-6.22h1.7l.52.9c.32-.37.65-.64.97-.8.33-.16.72-.24 1.18-.24.5 0 .9.09 1.18.26.24.15.45.36.62.62l.09.17c.38-.4.72-.68 1.03-.83.3-.15.69-.22 1.14-.22.67 0 1.19.2 1.56.6.09.09.16.19.23.3l-.6-1.04a1.63 1.63 0 0 0-.23-.3c-.37-.4-.9-.6-1.56-.6-.45 0-.84.07-1.14.22-.31.15-.65.42-1.03.83l-.04-.08c-.18-.31-.4-.55-.67-.7a2.26 2.26 0 0 0-1.18-.27z' />
                 <path d='M94.37 18.9c.08.13.11.31.11.55v3.54l.6 1.04V20.5c0-.24-.03-.43-.11-.56z' />
                 <path d='M90.35 19c.03.1.04.3.04.56V23l.6 1.04V20.6c0-.27-.01-.46-.04-.55z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M86.92 17.8h2.22v.92q.48-.57.97-.81.5-.24 1.18-.24.75 0 1.18.26.43.27.71.79.56-.61 1.03-.83.46-.22 1.14-.22 1 0 1.56.6.57.59.57 1.85v3.91h-2.4V20.5q0-.43-.16-.63-.24-.32-.6-.32-.42 0-.68.3-.25.3-.25.98v3.21h-2.4V20.6q0-.4-.04-.55-.08-.24-.27-.38-.18-.14-.44-.14-.4 0-.67.3-.26.32-.26 1.03v3.17h-2.4z'
               />
             </g>
@@ -3158,15 +3334,15 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(10, node)
                   : getMap(svgButtonGroupedPathsRef).delete(10)
               }
-              className='test-letter test-letter--11'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='M102.34 18.52c.16.2.26.5.3.9h-2.35l.74.95h2.35a1.7 1.7 0 0 0-.3-.9z' />
                 <path d='M102.58 21.26c-.14.19-.28.32-.41.39-.21.12-.44.18-.67.18-.37 0-.67-.14-.9-.4l.74.94c.23.27.53.4.9.4.23 0 .46-.06.67-.17.13-.08.26-.2.41-.4l2.35.22-.74-.95z' />
                 <path d='M101.38 16.72c-1.1 0-1.96.3-2.59.9-.62.6-.93 1.4-.93 2.37a3.37 3.37 0 0 0 .68 2.1l.74.94-.22-.31c-.3-.5-.46-1.1-.46-1.79 0-.97.31-1.76.93-2.36a3.6 3.6 0 0 1 2.59-.9c.89 0 1.59.13 2.1.4.37.2.67.44.9.75l-.73-.95c-.24-.3-.54-.55-.9-.74a4.59 4.59 0 0 0-2.11-.4z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M105.8 21.51h-4.77q.06.58.3.86.35.4.9.4.36 0 .68-.17.19-.12.41-.4l2.35.22q-.54.94-1.3 1.35-.76.4-2.18.4-1.24 0-1.95-.34-.7-.36-1.18-1.11-.46-.76-.46-1.79 0-1.46.93-2.36.94-.9 2.59-.9 1.33 0 2.1.4.78.4 1.18 1.17.4.77.4 2zm-2.42-1.14q-.07-.7-.37-1-.3-.29-.8-.29-.56 0-.9.45-.22.28-.28.84z'
               />
             </g>
@@ -3176,21 +3352,20 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   ? getMap(svgButtonGroupedPathsRef).set(11, node)
                   : getMap(svgButtonGroupedPathsRef).delete(11)
               }
-              className='test-letter test-letter--12'>
-              <g fill={borderFillColor} stroke={borderFillColor}>
+              className='home__svg-button-letter'>
+              <g fill='hsl(180, 50%, 45%)' stroke='hsl(180, 50%, 45%)'>
                 <path d='M106.06 14.6v1.95l.48 3.93.85.85-.48-3.93v-1.96h2.55l-.85-.85z' />
                 <path d='M106.15 21.08v2.1l.85.85v-2.1h2.38l-.85-.85z' />
               </g>
               <path
-                fill={letterFillColor}
-                stroke={letterFillColor}
+                fill='hsl(180, 10%, 95%)'
+                stroke='hsl(180, 10%, 95%)'
                 d='M106.9 15.44v1.96l.49 3.93h1.58l.49-3.93v-1.96zm.1 6.49v2.1h2.38v-2.1z'
               />
             </g>
           </g>
           <rect
             ref={svgButtonRectFrontRef}
-            className='test__rect3'
             clipPath='url(#home_button_clip_glass_rect)'
             x='5%'
             y='25%'
@@ -3198,21 +3373,31 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
             width='90%'
             height='50%'
             stroke='none'
-            // fillOpacity='0'
             fill='url(#home_button_glassy_gradient)'></rect>
           {/* Used as a placeholder for mouse events, the rect above is clipped so events dont
           trigger when it shrinks down */}
           <rect
             ref={svgButtonRectPlaceholderRef}
-            style={{ display: 'initial' }}
-            onClick={() => console.log('svgBUTTOONNNNN')}
-            id='home_one_more_time_rect_placeholder'
+            id='home_svg_button_rect_placeholder'
+            className='home__svg-button-rect-placeholder'
+            data-display='false'
             x='5%'
             y='25%'
             rx='5'
             width='90%'
             height='50%'
             fill='transparent'
+            stroke='transparent'
+            onClick={handleReverseAnimationsClick}></rect>
+          <rect
+            className='home__svg-button-rect-outline'
+            x='3%'
+            y='20%'
+            rx='7'
+            width='94%'
+            height='60%'
+            fill='none'
+            strokeWidth='.8'
             stroke='transparent'></rect>
         </svg>
       </div>

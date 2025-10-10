@@ -372,8 +372,41 @@
     }
   }
 
-  &__bottom-part {
-    width: 15%;
+  &__svg-button-container {
+    width: 15vmax;
+    // 1200px
+    @media only screen and (max-width: 75em) {
+      width: 18vmax;
+      align-self: start;
+    }
+  }
+
+  &__svg-button {
+    transform-origin: center;
+    transform-box: fill-box;
+
+    &:focus {
+      outline: none;
+    }
+    &:focus-visible:not([aria-disabled='true']) .home__svg-button-rect-outline {
+      stroke: hsl(180 100% 85%);
+    }
+  }
+  &__svg-button-clip-rect {
+    transform-origin: bottom;
+    transform-box: fill-box;
+  }
+
+  &__svg-button-rect-placeholder {
+    &[data-display='false'] {
+      display: none;
+    }
+  }
+
+  &__svg-button-letter {
+    transform-origin: center;
+    transform-box: fill-box;
+    opacity: 0;
   }
 
   &__svg-glass-container {
