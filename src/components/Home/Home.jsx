@@ -336,7 +336,7 @@ if (window !== undefined) {
 
 const Home = () => {
   const btnRef = useRef(null);
-  const testAnimateRef = useRef(null);
+  const testRef = useRef(null);
   const [animationsPlayState, setAnimationsPlayState] = useState('iddle'); //  iddle / running / reverse
   // Letter relative states based on different viewports
   const [protrusionSize, setProtrusionSize] = useState(initialProtrusion); // Front + Back + Middle letters sum of pixels in depth
@@ -501,7 +501,6 @@ const Home = () => {
 
   // Resize Observer //
   // Observe all front-letters and update the scene to the correct size & watch for breakpoints upon resizing and update the number of middle letters
-  // No need to listen for mql change event since i have the observer "observing"...
   useLayoutEffect(() => {
     ///////////// BUG ///////////////////
     // When the window gets resized rapidly everything works well, but when the window is resized slowly the entry particularly on the
@@ -527,6 +526,7 @@ const Home = () => {
     // end state values of the animation!
 
     resizeObserverRef.current = new ResizeObserver((entries) => {
+      // If there is a pending RAF cancel it.
       const rafID = observerRAF_ID.current;
       if (rafID) {
         cancelAnimationFrame(rafID);
@@ -538,20 +538,26 @@ const Home = () => {
         const frontNodesSizesMap = new Map();
         const frontNodesPlaceholderSet = new Set();
         console.log('resize');
+
+        // First create a Map with letter - container pairs and store all the unique letter elements
+        // inside a placeholder Set.
         frontNodesRef.current.forEach((val, key) => {
           lettersAndContainersMap.set(val, containersRef.current.get(key));
           // frontNodesSizesMap.set(val, { width: null, height: null });
           frontNodesPlaceholderSet.add(val);
         });
 
+        // Then do all the reads of the sizes comming out natively from the resizeObserver.
         for (const entry of entries) {
           frontNodesSizesMap.set(entry.target, {
             width: `${Math.ceil(entry.contentBoxSize[0].inlineSize)}px`,
             height: `${Math.ceil(entry.contentBoxSize[0].blockSize)}px`,
           });
+          // Everything that was read is removed from the Set
           frontNodesPlaceholderSet.delete(entry.target);
         }
 
+        // If any letter was missing from the resizeObserver measurements, catch it here and read its size.
         if (frontNodesPlaceholderSet.size) {
           frontNodesPlaceholderSet.forEach((key) =>
             frontNodesSizesMap.set(key, {
@@ -561,6 +567,8 @@ const Home = () => {
           );
         }
 
+        // Update the container based on the size of the letters!
+        // All the writes are grouped and updated in one go!
         lettersAndContainersMap.forEach((container, letter) => {
           const sizeObj = frontNodesSizesMap.get(letter);
           container.style.width = sizeObj.width;
@@ -568,14 +576,16 @@ const Home = () => {
         });
       };
 
+      // Use a RAF for better performance on reads/writes and cancel the RAF via the ID
+      // at the top of the observer to mitigate very fast updates.
       observerRAF_ID.current = requestAnimationFrame(() => {
         updateContainerSize(entries);
         observerRAF_ID.current = null;
       });
     });
 
-    // This is done once on mount because the observer gets initialized after the nodes have been attached
-    // to the refs and i cant use the observe when there is no observer, inside the ref callback on first render.
+    // The observe method must be initialized inside the effect and NOT in the react 19 ref callbacks because
+    // when the ref is attached the effect has not ran yet and i dont have an observer!
     frontNodesRef.current.forEach((node, key) => {
       resizeObserverRef.current.observe(node);
     });
@@ -834,6 +844,9 @@ const Home = () => {
     svgCowRef.current.style.removeProperty('opacity');
 
     // It's ok to remove the whole style attribute.
+    cowEyeLeftRef.current.removeAttribute('style');
+    cowEyeRightRef.current.removeAttribute('style');
+    cowMouthBottomRef.current.removeAttribute('style');
     svgButtonRef.current.removeAttribute('style');
     getMap(svgButtonGroupedPathsRef).forEach((val) =>
       val.removeAttribute('style')
@@ -1144,6 +1157,38 @@ const Home = () => {
             cowDisplaceAnimateRef.current.beginElement();
 
             cowAppearEndEventCallback = async () => {
+              // Brings the ear backwards by rotating in the Y-axis and back to neutral position.
+              // Used with iterations and combining it with alternate direction.
+              cowEarLeftRef.current.animate(
+                svgAnimationArgs.cowEarFlap.keyframes,
+                { ...svgAnimationArgs.cowEarFlap.optionsFn(4), delay: 500 }
+              );
+              const cowLeftEyeAnim = cowEyeLeftRef.current.animate(
+                svgAnimationArgs.cowEyeToNeutral.keyframes,
+                { ...svgAnimationArgs.cowEyeToNeutral.options, delay: 500 }
+              );
+              forwardsAnimRef.current.push(cowLeftEyeAnim);
+              // Wait for the eye animation and do the same for the right side.
+              await cowLeftEyeAnim.finished;
+              cowEarRightRef.current.animate(
+                svgAnimationArgs.cowEarFlap.keyframes,
+                svgAnimationArgs.cowEarFlap.optionsFn(4)
+              );
+              const cowRightEyeAnim = cowEyeRightRef.current.animate(
+                svgAnimationArgs.cowEyeToNeutral.keyframes,
+                svgAnimationArgs.cowEyeToNeutral.options
+              );
+              forwardsAnimRef.current.push(cowRightEyeAnim);
+
+              await cowRightEyeAnim.finished;
+              // Close the mouth by translating the group element responsible in the Y-axis
+              const cowMouthBottomAnim = cowMouthBottomRef.current.animate(
+                svgAnimationArgs.cowMouthClose.keyframes,
+                svgAnimationArgs.cowMouthClose.options
+              );
+              forwardsAnimRef.current.push(cowMouthBottomAnim);
+              await cowMouthBottomAnim.finished;
+
               ///// BUTTON /////
               // Translate on the Z axis the whole SVG wait at the given max point and then move
               // backwards to the default position.
@@ -1407,6 +1452,11 @@ const Home = () => {
       mainSvgContainerRef.current.style.opacity = '1';
       svgCowRef.current.style.opacity = '1';
       svgStarRef.current.style.opacity = '0';
+      // Cow parts
+      cowMouthBottomRef.current.style.transform = 'translateY(-50px)';
+      cowEyeLeftRef.current.style.transform = 'translateX(0px) translateY(0px)';
+      cowEyeRightRef.current.style.transform =
+        'translateX(0px) translateY(0px)';
       // SVG Button
       svgButtonRef.current.style.opacity = '1';
       svgButtonRectPlaceholderRef.current.dataset.display = 'true';
@@ -1626,6 +1676,97 @@ const Home = () => {
     animationsPlayState,
   ]);
 
+  useLayoutEffect(() => {
+    if (animationsPlayState !== 'iddle') {
+      return;
+    }
+
+    const observer = new ResizeObserver((entries) => {});
+
+    observer.observe(homeRef.current);
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [animationsPlayState]);
+
+  useEffect(() => {
+    // if(animationsPlayState !=='iddle' || [])
+    // check pointer device
+    // resizeObserver for home and update the callback with the new values
+    // Add checks to remove the listener when the animations happen!!!
+    // Maybe upon reset i have to delete the style attribute afterwards!
+    // Maybe fix the point where the mouse leaves the viewport
+
+    // Measure home dimensions.
+    const homeW = homeRef.current.clientWidth;
+    const homeH = homeRef.current.clientHeight;
+
+    // Find center point of the cow.
+    const cowRect = svgCowRef.current.getBoundingClientRect();
+
+    // Distance from one side plus half of the width gives the center point (cx) in the viewport.
+    const cx = cowRect.x + cowRect.width / 2;
+    // Same for (cy)
+    const cy = cowRect.y + cowRect.height / 2 - 70; // -70 because of the navbar height
+    console.log('cow center', cx, cy);
+    // In order to interpolate the values from the big system (the cow and the viewport) to the small system
+    // (the eyeball and the circle of the eye), I have to define the ranges [min,max] of the two different systems.
+    // Because I am using SVG the transform property that I want to use although it is defined in px for the
+    // inline style or CSS to take effect, it is actualy in viewport units!!!
+    // After some testing I found that the [min,max] values of the small system must be [-25,25] for the eye
+    // to stay inside the circle!
+    // To find the [min,max] values of the bigger system I have to take the center of the cow and find  its left,right,top,bottom
+    // distances from the viewport edges. In pracice and for the Linear Interpolation equation I just have to find
+    // the min value and the actual width and height of the viewport gives the denominator of the equation [max-min].
+
+    // min = - abs(Center of cow - viewport width)
+    const centerX = cx - homeW;
+    const centerY = cy - homeH;
+    let pendingRAF = false;
+
+    const calcAngle = (e) => {
+      // Mouse position
+      const mx = e.clientX;
+      const my = e.clientY - 70; // -70 because of the navbar height
+      // Distance between mouse and cow
+      const dx = mx - cx;
+      const dy = my - cy;
+      /*
+                        Linear Interpolation explanation
+
+       * ValueNew = MinNew + (ValueOld - MinOld) * (MaxNew - MinNew)
+       *            ------------------------------------------------
+       *                          MaxOld - MinOld
+       */
+      /*
+       * normalized = -25 + (dx - centerX) * (25 - (-25))
+       *            ------------------------------------------------
+       *                          Width
+       */
+      const normalizeX = -25 + ((dx - -Math.abs(centerX)) * 50) / homeW;
+      const normalizeY = -25 + ((dy - -Math.abs(centerY)) * 50) / homeH;
+
+      const optimizedX = normalizeX.toFixed(2);
+      const optimizedY = normalizeY.toFixed(2);
+
+      // Only schedule a new RAF if the old has been completed!
+      if (!pendingRAF) {
+        requestAnimationFrame(() => {
+          cowEyeLeftRef.current.style.transform = `translate(${optimizedX}px, ${optimizedY}px) `;
+          cowEyeRightRef.current.style.transform = `translate(${optimizedX}px, ${optimizedY}px) `;
+          pendingRAF = false;
+        });
+        pendingRAF = true;
+      }
+    };
+    window.addEventListener('mousemove', calcAngle);
+
+    return () => window.removeEventListener('mousemove', calcAngle);
+  }, []);
+
   // The placeholder rect is responsible for handling mouse events since its the element
   // placed on top of all others and it has stroke & fill set to transparent so click events still
   // trigger through it!
@@ -1653,72 +1794,6 @@ const Home = () => {
   //   console.log(box);
   //   console.log(clint);
   // }, []);
-
-  useEffect(() => {
-    // check pointer device
-    // resizeObserver for home and update the callback with the new values
-    // Add checks to remove the listener when the animations happen!!!
-    // Maybe upon reset i have to delete the style attribute afterwards!
-    // Maybe fix the point where the mouse leaves the viewport
-
-    // measure home dimensions
-    const homeW = homeRef.current.clientWidth;
-    const homeH = homeRef.current.clientHeight;
-    console.log('home', homeW, homeH);
-
-    // find center point of the cow
-    const cowRect = svgCowRef.current.getBoundingClientRect();
-    console.log(cowRect);
-    // Distance from one side plus half of the width gives the center point (cx) in the viewport.
-    const cx = cowRect.x + cowRect.width / 2;
-    // Same for (cy)
-    const cy = cowRect.y + cowRect.height / 2 - 70; // -70 because of the navbar height
-    console.log('cow center', cx, cy);
-    // In order to interpolate the values from the big system (the cow and the viewport) to the small system
-    // (the eyeball and the circle of the eye), I have to define the ranges [min,max] of the two different systems.
-    // Because I am using SVG the transform property that I want to use although it is defined in px for the
-    // inline style or CSS to take effect, it is actualy in viewport units!!!
-    // After some testing I found that the [min,max] values of the small system must be [-25,25] for the eye
-    // to stay inside the circle!
-    // To find the [min,max] values of the bigger system I have to take the center of the cow and find  its left,right,top,bottom
-    // distances from the viewport edges. In pracice and for the Linear Interpolation equation I just have to find
-    // the min value and the actual width and height of the viewport gives the denominator of the equation [max-min].
-
-    // min = - abs(Center of cow - viewport width)
-    const centerX = cx - homeW;
-    const centerY = cy - homeH;
-
-    const calcAngle = (e) => {
-      // Mouse position
-      const mx = e.clientX;
-      const my = e.clientY - 70; // -70 because of the navbar height
-      // Distance between mouse and cow
-      const dx = mx - cx;
-      const dy = my - cy;
-      /*
-                        Linear Interpolation explanation 
-                        
-       * ValueNew = MinNew + (ValueOld - MinOld) * (MaxNew - MinNew)
-       *            ------------------------------------------------
-       *                          MaxOld - MinOld
-       */
-      /*
-       * normalized = -25 + (dx - centerX) * (25 - (-25))
-       *            ------------------------------------------------
-       *                          Width
-       */
-      const normalizeX = -25 + ((dx - -Math.abs(centerX)) * 50) / homeW;
-      const normalizeY = -25 + ((dy - -Math.abs(centerY)) * 50) / homeH;
-
-      requestAnimationFrame(() => {
-        cowEyeLeftRef.current.style.transform = `translate(${normalizeX}px, ${normalizeY}px)`;
-        cowEyeRightRef.current.style.transform = `translate(${normalizeX}px, ${normalizeY}px)`;
-      });
-    };
-    window.addEventListener('mousemove', calcAngle);
-
-    return () => window.removeEventListener('mousemove', calcAngle);
-  }, []);
 
   // useEffect(() => {
   //   const keyframes = [
@@ -1755,12 +1830,43 @@ const Home = () => {
   //   };
   // }, []);
   const playAnimations = async () => {
-    svgStarRef.current.style.opacity = '1';
-    arcAnimateReverseRef.current.beginElement();
+    // DIORTHOSE TA DEKADIKA STA ANIMATION ME TA MATIA EINAI POLLA KAI SKEPSOU MHPWS TO VALEIS
+    // ADI GIA TRANSFORM NA KANEI CX KAI CY APO TO CIRCLE TOY SVG
+    svgCowRef.current.animate(
+      svgAnimationArgs.cowLevitate.keyframes,
+      svgAnimationArgs.cowLevitate.options
+    );
   };
 
   const cancelAnimations = async () => {
-    // setAnimationsPlayState('running');
+    const leftEar = cowEarLeftRef.current.animate(
+      svgAnimationArgs.cowEarFlap.keyframes,
+      svgAnimationArgs.cowEarFlap.optionsFn(4)
+    );
+    leftEar.pause();
+    const rightEar = cowEarRightRef.current.animate(
+      svgAnimationArgs.cowEarFlap.keyframes,
+      svgAnimationArgs.cowEarFlap.optionsFn(4)
+    );
+    rightEar.pause();
+    const MIN_INTERVAL = 2500; // Minimum delay: 0.5 seconds
+    const MAX_INTERVAL = 7000; // Maximum delay: 3.0 seconds
+    const MIN_ITERATIONS = 4; // Minimum delay: 0.5 seconds
+    const MAX_ITERATIONS = 8; // Maximum delay: 3.0 seconds
+    const repetition = () => {
+      const randomDelay =
+        Math.random() * (MAX_INTERVAL - MIN_INTERVAL) + MIN_INTERVAL;
+      const randomIterations =
+        Math.random() * (MAX_ITERATIONS - MIN_ITERATIONS) + MIN_ITERATIONS;
+      // leftEar.currentTime = 0;
+      // rightEar.currentTime = 0;
+      rightEar.effect.updateTiming({ iterations: randomIterations });
+      leftEar.effect.updateTiming({ iterations: randomIterations });
+      leftEar.play();
+      rightEar.play();
+      testRef.current = setTimeout(repetition, [randomDelay]);
+    };
+    repetition();
   };
 
   const reverseAnimations = async () => {
@@ -1768,7 +1874,7 @@ const Home = () => {
   };
 
   const hello = async () => {
-    testAnimateRef.current.beginElement();
+    clearTimeout(testRef.current);
   };
 
   ////// Arc //////
@@ -2645,6 +2751,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
             <g inkscape:label='eyes'>
               <g
                 ref={cowEyeRightRef}
+                className='home__cow-eye home__cow-eye--right'
                 inkscape:label='eye_right'
                 transform='translate(.4 5.2)'>
                 <circle cx='876.28' cy='350.13' r='15.31' fill='#803300' />
@@ -2661,6 +2768,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
               </g>
               <g
                 ref={cowEyeLeftRef}
+                className='home__cow-eye home__cow-eye--left'
                 inkscape:label='eye_left'
                 transform='translate(.98 1.86)'>
                 <circle cx='748.72' cy='353.52' r='15.31' fill='#803300' />
@@ -2709,7 +2817,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
           ref={svgShadowRef}
           data-display='true'
           data-blur='true'
-          className='home__svg-turbulance'
+          className='home__svg-shadow'
           viewBox='0 0 100 100'
           xmlns='http://www.w3.org/2000/svg'
           preserveAspectRatio='xMidYMid meet'>

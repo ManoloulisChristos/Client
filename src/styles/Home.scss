@@ -26,42 +26,6 @@
   initial-value: hsl(180, 35%, 45%);
 }
 
-#bottom-lip {
-  // transform: scale(0.95) translate(0, -23px);
-  transform-box: fill-box;
-  transform-origin: center;
-  // animation: test-test 1s alternate infinite;
-}
-
-@keyframes test-test {
-  0% {
-    transform: scale(1) translate(0px, 0px);
-  }
-  0% {
-    transform: scale(0.95) translate(0, -24px);
-  }
-}
-
-.cow {
-  // @media (min-aspect-ratio: 1 / 1) {
-  //   width: 20%;
-  // }
-
-  // @media (max-aspect-ratio: 1 / 1) {
-  //   width: 70%;
-  // }
-
-  &__ear {
-    transform-box: fill-box;
-    &--left {
-      transform-origin: center right;
-    }
-    &--right {
-      transform-origin: center left;
-    }
-  }
-}
-
 .home {
   min-height: calc(100vh - 70px);
   width: 100%;
@@ -328,7 +292,6 @@
     transform-origin: center;
     transform-box: fill-box;
     transform: translateY(55px);
-    transition: transform 2s linear;
   }
 
   &__cow-ear {
@@ -341,7 +304,18 @@
     }
   }
 
-  &__svg-turbulance {
+  &__cow-eye {
+    transform-origin: center;
+    transform-box: fill-box;
+    &--left {
+      transform: translateX(-20px) translateY(20px);
+    }
+    &--right {
+      transform: translateX(20px) translateY(-20px);
+    }
+  }
+
+  &__svg-shadow {
     &[data-display='true'] {
       display: initial;
     }

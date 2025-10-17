@@ -335,7 +335,7 @@ export const svgAnimationArgs = {
       iterations: 5,
     },
   },
-
+  // CSS properties are applied
   cowEarFlap: {
     keyframes: [
       {
@@ -352,13 +352,24 @@ export const svgAnimationArgs = {
       direction: 'alternate',
     }),
   },
-  cowMouthCloseNeutral: {
+  // CSS properties are applied
+  cowEyeToNeutral: {
     keyframes: [
       {
-        transform: 'translateY(55px)',
+        transform: 'translateX(0px) translateY(0px)',
       },
+    ],
+    options: {
+      duration: 500,
+      fill: 'forwards',
+      easing: 'cubic-bezier(.2,0.4,0.4,1)',
+    },
+  },
+  // CSS properties are applied
+  cowMouthClose: {
+    keyframes: [
       {
-        transform: 'translateY(0px)',
+        transform: 'translateY(-55px)',
       },
     ],
     options: { duration: 1000, fill: 'forwards' },
