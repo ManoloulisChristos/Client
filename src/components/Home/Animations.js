@@ -369,7 +369,7 @@ export const svgAnimationArgs = {
   cowMouthClose: {
     keyframes: [
       {
-        transform: 'translateY(-55px)',
+        transform: 'translateY(-50px)',
       },
     ],
     options: { duration: 1000, fill: 'forwards' },

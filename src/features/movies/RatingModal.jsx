@@ -121,13 +121,13 @@ const RatingModal = ({
         [
           {
             transform: 'scale(1)',
-            transformOrigin: ' 50% 50%',
+            transformOrigin: 'center',
             offset: '0',
           },
 
           {
             transform: 'scale(0)',
-            transformOrigin: ' 50% 50%',
+            transformOrigin: 'center',
             offset: '1',
           },
         ],
@@ -150,29 +150,27 @@ const RatingModal = ({
       // this was the only work around and using pause() with play() or manipulating the currentTime
       // will add a lot more complexity.
       await textRef.current.animationOut.finished;
+      textRef.current.animationOut.cancel();
       textRef.current.animationIn = textRef.current.node.animate(
         [
           {
             transform: 'scale(0)',
-            transformOrigin: ' 50% 50%',
             offset: '0',
           },
 
           {
             transform: 'scale(1.5)',
-            transformOrigin: ' 50% 50%',
             offset: '.8',
           },
           {
             transform: 'scale(1)',
-            transformOrigin: ' 50% 50%',
             offset: '1',
           },
         ],
         {
           duration: 300,
           fill: 'forwards',
-          easing: 'cubic-bezier(.5,-.1,.1,1.5)',
+          easing: 'cubic-bezier(0,0,0,1)',
         }
       );
 
@@ -230,14 +228,9 @@ const RatingModal = ({
 
           <div className='rating-modal__content'>
             <svg
-              ref={(node) => {
-                if (node) {
-                  node.style.setProperty('--_range', rangeValue);
-                  svgRef.current = node;
-                } else {
-                  svgRef.current = null;
-                }
-              }}
+              ref={svgRef}
+              className='icons-default rating-modal__svg'
+              style={{ '--_range': `${rangeValue}` }}
               xmlns='http://www.w3.org/2000/svg'
               width='100'
               height='100'
@@ -245,9 +238,7 @@ const RatingModal = ({
               strokeWidth='1.5'
               strokeLinecap='round'
               strokeLinejoin='round'
-              aria-hidden='true'
-              focusable='false'
-              className='icons-default rating-modal__svg'>
+              aria-hidden='true'>
               <radialGradient
                 ref={radialRef}
                 cx='50%'

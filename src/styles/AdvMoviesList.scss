@@ -116,6 +116,7 @@
     font-variant-numeric: tabular-nums;
     padding: 1ch 2ch;
     background-color: hsl(var(--surface2));
+
     border-radius: 6px;
     &:not([aria-current='page'], [aria-disabled='true']):hover {
       filter: brightness(97%);

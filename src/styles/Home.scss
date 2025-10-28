@@ -31,7 +31,6 @@
   width: 100%;
   display: grid;
   grid-auto-flow: row;
-
   justify-items: center;
   grid-template-rows: 0.5fr 1fr 0.5fr;
   align-items: center;
@@ -804,7 +803,8 @@
     position: absolute;
     inset: 0;
     width: 100%;
-    height: calc(100vh - 80px);
+    background-color: hsl(180, 51%, 4%);
+    height: calc(100vh - 70px);
     isolation: isolate;
     filter: blur(2px);
     mask-image: conic-gradient(
@@ -830,11 +830,6 @@
   // 4 conic gradients with blending and a size of 400% of the viewport in order to position the center at
   // the bottom and have it rotate around the center
   &__conic {
-    // --test-color: hsl(180, 51%, 20%);
-    // --color-test-light: hsl(180, 51%, 20%);
-    // --color-test: hsl(2, 51%, 10%);
-    // --color-test-light: #2c0b0a;
-    // --home-conic-blend-color: hsl(180, 51%, 20%);
     position: absolute;
     inset: 0;
     width: 400%;
@@ -842,17 +837,16 @@
     mix-blend-mode: screen;
     &--1 {
       // display: none;
-      background: repeating-conic-gradient(
-        from -10deg,
-        hsl(195 53% 10%) 0deg 20deg,
-        transparent 20deg 30deg
-      );
+
       background: repeating-conic-gradient(
         from -10deg,
         var(--home-conic-blend-color) 0deg 20deg,
         transparent 20deg 30deg
       );
-      animation: home-background-conic-1 300s linear infinite;
+      transform: translate(-37.5%, -25%);
+      @media (prefers-reduced-motion: no-preference) {
+        animation: home-background-conic-1 300s linear infinite;
+      }
       @keyframes home-background-conic-1 {
         from {
           transform: translate(-37.5%, -25%) rotate(0turn);
@@ -864,17 +858,16 @@
     }
     &--2 {
       // display: none;
-      background: repeating-conic-gradient(
-        from 0deg,
-        hsl(195 53% 10%) 0deg 20deg,
-        transparent 20deg 30deg
-      );
+
       background: repeating-conic-gradient(
         from 0deg,
         var(--home-conic-blend-color) 0deg 20deg,
         transparent 20deg 30deg
       );
-      animation: home-background-conic-2 300s linear infinite;
+      transform: translate(-37.5%, -25%);
+      @media (prefers-reduced-motion: no-preference) {
+        animation: home-background-conic-2 300s linear infinite;
+      }
       @keyframes home-background-conic-2 {
         from {
           transform: translate(-37.5%, -25%) rotate(0turn);
@@ -887,17 +880,16 @@
 
     &--3 {
       // display: none;
-      background: repeating-conic-gradient(
-        from 0deg,
-        hsl(195 53% 10%) 0deg 20deg,
-        transparent 20deg 30deg
-      );
+
       background: repeating-conic-gradient(
         from 0deg,
         var(--home-conic-blend-color) 0deg 20deg,
         transparent 20deg 30deg
       );
-      animation: home-background-conic-3 300s linear infinite;
+      transform: translate(-37.5%, -25%);
+      @media (prefers-reduced-motion: no-preference) {
+        animation: home-background-conic-3 300s linear infinite;
+      }
 
       @keyframes home-background-conic-3 {
         from {

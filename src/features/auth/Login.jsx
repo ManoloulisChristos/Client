@@ -187,7 +187,7 @@ const Login = () => {
           </Link>
         </p>
         <p>
-          New to /////////? -{' '}
+          New to Moovies? -{' '}
           <Link className='login__link' to='/auth/register'>
             Create an account
           </Link>

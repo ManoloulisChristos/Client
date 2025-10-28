@@ -45,33 +45,32 @@ const AdvMoviesList = ({ setFilterBuckets }) => {
   const sortByAcceptedValues = ['Default', 'A-Z', 'Rating', 'Runtime', 'Year'];
 
   const genreAcceptedValues = [
-    'Drama',
-    'Comedy',
-    'Music',
     'Action',
-    'Romance',
-    'Musical',
-    'Crime',
     'Adventure',
     'Animation',
-    'Short',
-    'Mystery',
-    'Documentary',
-    'Sci-Fi',
-    'History',
-    'Fantasy',
-    'Family',
-    'War',
-    'Sport',
-    'News',
-    'Thriller',
-    'Film-Noir',
     'Biography',
+    'Comedy',
+    'Crime',
+    'Documentary',
+    'Drama',
+    'Family',
+    'Fantasy',
+    'Film-Noir',
+    'History',
     'Horror',
+    'Music',
+    'Musical',
+    'Mystery',
+    'News',
+    'Romance',
+    'Sci-Fi',
+    'Short',
+    'Sport',
     'Talk-Show',
+    'Thriller',
+    'War',
     'Western',
   ];
-
   // Check to see if there are any search params and if there are, check if all values are correct.
   if (searchParams.toString()) {
     // Sorting
@@ -248,7 +247,7 @@ const AdvMoviesList = ({ setFilterBuckets }) => {
     plotQuery,
   ]);
 
-  const { currentData } = useGetFilteredMoviesQuery(endpointObject);
+  const { currentData, isFetching } = useGetFilteredMoviesQuery(endpointObject);
 
   // Display option
   const view = useSelector((state) => state.moviesToolbar.view);
@@ -421,9 +420,9 @@ const AdvMoviesList = ({ setFilterBuckets }) => {
     }
 
     return arr.map((val, i) => (
-      <li key={i} className='movies__navigation-item'>
+      <li key={i} className='adv-movies__navigation-item'>
         <Link
-          className='movies__navigation-link'
+          className='adv-movies__navigation-link'
           to={`${location.pathname}?${paramsWithNewPageValue(val)}`}
           aria-current={currentPage === val ? 'page' : 'false'}
           onClick={(e) => {
@@ -612,6 +611,8 @@ const AdvMoviesList = ({ setFilterBuckets }) => {
   const computedNavigationPages = (
     <>{calculateNavigationIndexes(pageCount, currentPage)}</>
   );
+
+  console.log(isFetching);
   return (
     <section
       aria-labelledby='adv-movies-search-title'

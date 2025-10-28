@@ -16,78 +16,6 @@ import {
   svgButtonAnimationArgs,
 } from './Animations';
 
-///////////// IMPORTANT //////////////
-// SVG PROBLEMS > (Chromium browsers bug) (Firefox is ok)
-
-// Applies a blur to the whole SVG when some tranform properties are applied or combined with tranform-origin via CSS.
-// When they are applied with an animation with CSS or the Web Animations Api the blur is persistent
-// throughout the duration of the animation for ALL tranform properties.
-
-// Applying "will-change: tranform" on the group element makes the blur permanent
-// backface-visibility does not solve it
-// image-rendering on chrome only has one property that is available and that is "pixelated"... and maybe that is the problem.
-// changing the values via javascript works with the properties that work in general because they are "static" and not animated.
-
-// List of tranform properties that are applied on the element (not with animation):
-// rotate and rotateZ work with everything
-// rotateX does not work at all
-// rotateY works but not with transform-origin
-// skew skewX skewY all work
-// translate works
-
-//////// Workaround ///////
-// Use the native animateTranform with the properties that are generally ok, with a combination of
-// tranform-origin and tranform-box: fill-box via CSS so the element is animated or moved around itself.
-
-let initialProtrusion = 21;
-let initialAspectRatioOver = true;
-let initialPortraitAndWidthOver600 = true;
-let initialLetterTextStrokeWidth = 4;
-
-if (typeof window !== 'undefined') {
-  const vw600 = window.matchMedia('(max-width: 37.5em)').matches;
-  const vw1200 = window.matchMedia('(max-width: 75em)').matches;
-  const vw1920 = window.matchMedia('(max-width: 120em)').matches;
-  const vw2560 = window.matchMedia('(max-width: 160em)').matches;
-  const allElse = window.matchMedia('(min-width: 160.001em)').matches;
-  const mqlAspectRatio = window.matchMedia('(min-aspect-ratio: 1 / 1)').matches;
-  const phoneLandscape = window.matchMedia(
-    '(orientation: landscape) and (max-height: 500px)'
-  ).matches;
-
-  if (vw600) {
-    initialProtrusion = 9;
-    initialLetterTextStrokeWidth = 2;
-  } else if (vw1200) {
-    initialProtrusion = 13;
-    initialLetterTextStrokeWidth = 2;
-  } else if (vw1920) {
-    initialProtrusion = 17;
-  } else if (vw2560) {
-    initialProtrusion = 21;
-  } else if (allElse) {
-    initialProtrusion = 25;
-  }
-
-  if (phoneLandscape) {
-    initialProtrusion = 9;
-  }
-
-  if (mqlAspectRatio) {
-    // Landscape
-    initialAspectRatioOver = true;
-  } else {
-    //Portrait
-    initialAspectRatioOver = false;
-    // Max 600px
-    if (vw600) {
-      initialPortraitAndWidthOver600 = false;
-    } else {
-      initialPortraitAndWidthOver600 = true;
-    }
-  }
-}
-
 const homeSvgGlassPathsArray = [
   'm47.29 36.06-1.64 1.81-2.78-.84 1.1-1.94-3.53.66 1.99-2.38 1.76-1.2 2.3-1.15 3.1-.08-4.2 1.68-1.28 1.67z',
   'm49.36 36.02.27 1.19 1.19 1.02-2.43-.95-1.77.64 1.19-2.08-2.56-1.68 3.58-1.94-.66 2.39 2.47-3.09 2.74-.18-2.52 1.64.84 1.68-.62.84z',
@@ -326,18 +254,100 @@ const homeGlassKeyframe3dValuesObj = {
   },
 };
 
-let initialAnimationsState = 'initial';
-if (window !== undefined) {
-  const storage = localStorage.getItem('home_first_time_ever');
-  if (storage && storage === 'true') {
-    initialAnimationsState = 'iddle';
+///////////// IMPORTANT //////////////
+// SVG PROBLEMS > (Chromium browsers bug) (Firefox is ok)
+
+// Applies a blur to the whole SVG when some tranform properties are applied or combined with tranform-origin via CSS.
+// When they are applied with an animation with CSS or the Web Animations Api the blur is persistent
+// throughout the duration of the animation for ALL tranform properties.
+
+// Applying "will-change: tranform" on the group element makes the blur permanent
+// backface-visibility does not solve it
+// image-rendering on chrome only has one property that is available and that is "pixelated"... and maybe that is the problem.
+// changing the values via javascript works with the properties that work in general because they are "static" and not animated.
+
+// List of tranform properties that are applied on the element (not with animation):
+// rotate and rotateZ work with everything
+// rotateX does not work at all
+// rotateY works but not with transform-origin
+// skew skewX skewY all work
+// translate works
+
+//////// Workaround ///////
+// Use the native animateTranform with the properties that are generally ok, with a combination of
+// tranform-origin and tranform-box: fill-box via CSS so the element is animated or moved around itself.
+
+let initialProtrusion = 21;
+let initialAspectRatioOver = true;
+let initialPortraitAndWidthOver600 = true;
+let initialLetterTextStrokeWidth = 4;
+let initialMotionOk = true;
+let initialPointerFine = true;
+if (typeof window !== 'undefined') {
+  const vw600 = window.matchMedia('(max-width: 37.5em)').matches;
+  const vw1200 = window.matchMedia('(max-width: 75em)').matches;
+  const vw1920 = window.matchMedia('(max-width: 120em)').matches;
+  const vw2560 = window.matchMedia('(max-width: 160em)').matches;
+  const allElse = window.matchMedia('(min-width: 160.001em)').matches;
+  const mqlAspectRatio = window.matchMedia('(min-aspect-ratio: 1 / 1)').matches;
+  const phoneLandscape = window.matchMedia(
+    '(orientation: landscape) and (max-height: 500px)'
+  ).matches;
+
+  // Set values directly.
+  initialMotionOk = window.matchMedia(
+    '(prefers-reduced-motion: no-preference)'
+  ).matches;
+  initialPointerFine = window.matchMedia('(pointer: fine)').matches;
+
+  if (vw600) {
+    initialProtrusion = 9;
+    initialLetterTextStrokeWidth = 2;
+  } else if (vw1200) {
+    initialProtrusion = 13;
+    initialLetterTextStrokeWidth = 2;
+  } else if (vw1920) {
+    initialProtrusion = 17;
+  } else if (vw2560) {
+    initialProtrusion = 21;
+  } else if (allElse) {
+    initialProtrusion = 25;
+  }
+
+  if (phoneLandscape) {
+    initialProtrusion = 9;
+  }
+
+  if (mqlAspectRatio) {
+    // Landscape
+    initialAspectRatioOver = true;
+  } else {
+    //Portrait
+    initialAspectRatioOver = false;
+    // Max 600px
+    if (vw600) {
+      initialPortraitAndWidthOver600 = false;
+    } else {
+      initialPortraitAndWidthOver600 = true;
+    }
   }
 }
+
+// Check if the user has seen the animations already.
+let initialAnimationsState = 'iddle';
+// if (window !== undefined) {
+//   const storage = localStorage.getItem('home_first_time_ever');
+//   if (storage && storage === 'false') {
+//     initialAnimationsState = 'running';
+//   }
+// }
 
 const Home = () => {
   const btnRef = useRef(null);
   const testRef = useRef(null);
-  const [animationsPlayState, setAnimationsPlayState] = useState('iddle'); //  iddle / running / reverse
+  const [animationsPlayState, setAnimationsPlayState] = useState(
+    initialAnimationsState
+  ); //  iddle / running / reverse
   // Letter relative states based on different viewports
   const [protrusionSize, setProtrusionSize] = useState(initialProtrusion); // Front + Back + Middle letters sum of pixels in depth
   const [letterTextStrokeWidth, setLetterTextStrokeWidth] = useState(
@@ -353,16 +363,19 @@ const Home = () => {
     initialPortraitAndWidthOver600
   );
 
+  const [pointerFine, setPointerFine] = useState(initialPointerFine);
+  const [motionOk, setMotionOk] = useState(initialMotionOk);
+
   // Glass3d offset-path class
   const [toggleGlassClassName, setToggleGlassClassName] = useState(
     'home__svg-glass-empty home__svg-glass-empty--'
   );
 
-  const [svgButtonTabIndexState, setSvgButtonTabIndexState] = useState(false);
-
   const homeRef = useRef(null);
-  const resizeObserverRef = useRef(null);
-  const observerRAF_ID = useRef(null);
+  const letterResizeObserverRef = useRef(null);
+  const letterObserverRAF_ID = useRef(null);
+  const homeResizeObserverRef = useRef(null);
+  const homeObserverRAF_ID = useRef(null);
   // Letter elements
   const containersRef = useRef(null);
   const boxesRef = useRef(null);
@@ -416,7 +429,6 @@ const Home = () => {
   const svgButtonRectPlaceholderRef = useRef(null);
   const svgButtonGroupedPathsRef = useRef(null);
   const svgButtonRectClipScaleUpAnimateRef = useRef(null);
-  const svgButtonRectClipScaleDownAnimateRef = useRef(null);
   const svgButtonRectClipIddleStateAnimateRef = useRef(null);
 
   // Animate SVG Elements that control the state of all animated svg elements
@@ -525,10 +537,11 @@ const Home = () => {
     // showing the end state of the animation i have nothing. But the computed styles are the the actual
     // end state values of the animation!
 
-    resizeObserverRef.current = new ResizeObserver((entries) => {
+    letterResizeObserverRef.current = new ResizeObserver((entries) => {
       // If there is a pending RAF cancel it.
-      const rafID = observerRAF_ID.current;
+      const rafID = letterObserverRAF_ID.current;
       if (rafID) {
+        console.log('first');
         cancelAnimationFrame(rafID);
       }
 
@@ -578,20 +591,20 @@ const Home = () => {
 
       // Use a RAF for better performance on reads/writes and cancel the RAF via the ID
       // at the top of the observer to mitigate very fast updates.
-      observerRAF_ID.current = requestAnimationFrame(() => {
+      letterObserverRAF_ID.current = requestAnimationFrame(() => {
         updateContainerSize(entries);
-        observerRAF_ID.current = null;
+        letterObserverRAF_ID.current = null;
       });
     });
 
     // The observe method must be initialized inside the effect and NOT in the react 19 ref callbacks because
     // when the ref is attached the effect has not ran yet and i dont have an observer!
     frontNodesRef.current.forEach((node, key) => {
-      resizeObserverRef.current.observe(node);
+      letterResizeObserverRef.current.observe(node);
     });
     return () => {
-      resizeObserverRef.current.disconnect();
-      resizeObserverRef.current = null;
+      letterResizeObserverRef.current.disconnect();
+      letterResizeObserverRef.current = null;
     };
   }, []);
 
@@ -623,6 +636,11 @@ const Home = () => {
     const mqlAspectRatioOver = window.matchMedia('(min-aspect-ratio: 1 / 1)');
     const phoneLandscapeAndHeight500 = window.matchMedia(
       '(pointer: coarse) and (orientation: landscape) and (max-height: 31.25em)'
+    );
+
+    const pointerFine = window.matchMedia('(pointer: fine)');
+    const motionOk = window.matchMedia(
+      '(prefers-reduced-motion: no-preference)'
     );
 
     // One Callback for all the viewport MQLs
@@ -670,6 +688,22 @@ const Home = () => {
       }
     };
 
+    const mqlPointerCallback = (e) => {
+      if (e.matches) {
+        setPointerFine(true);
+      } else {
+        setPointerFine(false);
+      }
+    };
+
+    const mqlMotionCallback = (e) => {
+      if (e.matches) {
+        setMotionOk(true);
+      } else {
+        setMotionOk(false);
+      }
+    };
+
     // Attach the listeners
     vw600.addEventListener('change', mqlViewportCallback);
     vw1200.addEventListener('change', mqlViewportCallback);
@@ -681,6 +715,8 @@ const Home = () => {
       'change',
       phoneLandscapeAndHeight500Callback
     );
+    pointerFine.addEventListener('change', mqlPointerCallback);
+    motionOk.addEventListener('change', mqlMotionCallback);
 
     // Cleanup
     return () => {
@@ -694,6 +730,8 @@ const Home = () => {
         'change',
         phoneLandscapeAndHeight500Callback
       );
+      pointerFine.removeEventListener('change', mqlPointerCallback);
+      motionOk.removeEventListener('change', mqlMotionCallback);
     };
   }, []);
 
@@ -803,7 +841,10 @@ const Home = () => {
     // have finished their animation duration. Afterwards it is safe to reset the state of all elements into a starting position
     //  in order to replace the frozen animation and be ready to replay them.
 
-    if (animationsPlayState !== 'running') {
+    if (animationsPlayState !== 'running' || !motionOk) {
+      /////////// Edge Case ///////////
+      // By handling the checks this way if the user changes his preference over motion midway of the animations
+      // play they wont cancel because the svg reset timers are not triggered because of the early return!
       return;
     }
 
@@ -1422,10 +1463,15 @@ const Home = () => {
     protrusionSize,
     portraitAndWidthOver600,
     animationsPlayState,
+    motionOk,
   ]);
 
   //////// IDDLE ////////
   useEffect(() => {
+    let cowLevitateAnim = null;
+    let cowEarFlapLeftAnim = null;
+    let cowEarFlapRightAnim = null;
+    let timeoutID = null;
     if (animationsPlayState === 'iddle') {
       // Display
       glassContainerRef.current.dataset.display = 'false';
@@ -1457,6 +1503,7 @@ const Home = () => {
       cowEyeLeftRef.current.style.transform = 'translateX(0px) translateY(0px)';
       cowEyeRightRef.current.style.transform =
         'translateX(0px) translateY(0px)';
+
       // SVG Button
       svgButtonRef.current.style.opacity = '1';
       svgButtonRectPlaceholderRef.current.dataset.display = 'true';
@@ -1466,13 +1513,77 @@ const Home = () => {
       svgButtonRectBackRef.current.style.strokeDashoffset = '0';
       svgButtonRectBackRef.current.style.fillOpacity = '.4';
       svgButtonRectClipIddleStateAnimateRef.current.beginElement();
+
+      /////////// Cow levitate & ear flap animations (infinite) ///////////
+      // check users preference
+      if (motionOk) {
+        // Translates the cow on the Y-axis in alternate directions for infinity
+        cowLevitateAnim = svgCowRef.current.animate(
+          svgAnimationArgs.cowLevitate.keyframes,
+          svgAnimationArgs.cowLevitate.options
+        );
+
+        // Rotates the ear on the Y-axis in alternate direction use with even amounts of repetitions.
+        cowEarFlapLeftAnim = cowEarLeftRef.current.animate(
+          svgAnimationArgs.cowEarFlap.keyframes,
+          svgAnimationArgs.cowEarFlap.optionsFn(4)
+        );
+        cowEarFlapLeftAnim.pause();
+
+        cowEarFlapRightAnim = cowEarRightRef.current.animate(
+          svgAnimationArgs.cowEarFlap.keyframes,
+          svgAnimationArgs.cowEarFlap.optionsFn(4)
+        );
+        cowEarFlapRightAnim.pause();
+        // Min - Max values for interval timing and iterations of earl flapping
+        const MIN_INTERVAL = 2500;
+        const MAX_INTERVAL = 7000;
+        const MIN_ITERATIONS = 4;
+        const MAX_ITERATIONS = 6;
+
+        // Function that takes min-max range values and produces a random delay and interval ratio of replaying
+        // the ear flap animation by calling itself inside a timeout function.
+        const repetition = () => {
+          const randomDelay =
+            Math.random() * (MAX_INTERVAL - MIN_INTERVAL) + MIN_INTERVAL;
+          const randomIterations =
+            Math.random() * (MAX_ITERATIONS - MIN_ITERATIONS) + MIN_ITERATIONS;
+
+          cowEarFlapRightAnim.effect.updateTiming({
+            iterations: randomIterations,
+          });
+          cowEarFlapLeftAnim.effect.updateTiming({
+            iterations: randomIterations,
+          });
+          cowEarFlapLeftAnim.play();
+          cowEarFlapRightAnim.play();
+          // Store the ID for clearing the timeout when the animation play state changes !
+          timeoutID = setTimeout(repetition, [randomDelay]);
+        };
+        repetition();
+      }
     }
-  }, [protrusionSize, animationsPlayState]);
+
+    return () => {
+      if (cowLevitateAnim) {
+        cowLevitateAnim.cancel();
+      }
+      if (cowEarFlapLeftAnim) {
+        cowEarFlapLeftAnim.cancel();
+      }
+      if (cowEarFlapRightAnim) {
+        cowEarFlapRightAnim.cancel();
+      }
+      if (timeoutID) {
+        clearTimeout(timeoutID);
+      }
+    };
+  }, [protrusionSize, animationsPlayState, motionOk]);
 
   //////// REVERSE ////////
   // This should only trigger from the animationsPlayState changing from 'iddle' to 'reverse' and that happens only if you click the button.
   useEffect(() => {
-    if (animationsPlayState === 'reverse') {
+    if (animationsPlayState === 'reverse' && motionOk) {
       shouldBackgroundAnimateRef.current = true;
       // Reset SVG container timmers only if the animations have been canceled.
       // Reset both SVG timmers in order to keep them in sync.
@@ -1674,112 +1785,230 @@ const Home = () => {
     protrusionSize,
     portraitAndWidthOver600,
     animationsPlayState,
+    motionOk,
   ]);
 
+  // Cow eyes that follow the mouse
   useLayoutEffect(() => {
-    if (animationsPlayState !== 'iddle') {
+    // Check animations play state, if i have a pointing device and if the user has reduced motion enabled.
+    if (animationsPlayState !== 'iddle' || !motionOk || !pointerFine) {
       return;
     }
 
-    const observer = new ResizeObserver((entries) => {});
+    // Global object used for storing data from the observer and being used by the event listener.
+    const sizeObj = {
+      cx: 0, // Center point X of cow in the viewport
+      cy: 0, // Center point Y of cow in the viewport
+      homeW: 0, // Viewport Width
+      homeH: 0, // Viewport Height
+    };
+    // Initialize the observer
+    homeResizeObserverRef.current = new ResizeObserver((entries) => {
+      // If i have RAF pending cancel it.
+      if (homeObserverRAF_ID.current) {
+        cancelAnimationFrame(homeObserverRAF_ID.current);
+      }
 
-    observer.observe(homeRef.current);
+      // Observer info used inside a RAF
+      const updateDimensions = (entries) => {
+        sizeObj.homeW = entries[0].contentRect.width;
+        sizeObj.homeH = entries[0].contentRect.height;
+      };
+
+      // RAF is used because on top of the dimensions of the cow, I also need it's distance from the viewport edge
+      // and as an observer entry i dont get that information, so a manual measurment is needed!
+      homeObserverRAF_ID.current = requestAnimationFrame(() => {
+        updateDimensions(entries);
+        const cowRect = svgCowRef.current.getBoundingClientRect();
+
+        // Find center point of the cow.
+        // Distance from one side plus half of the width gives the center point (cx) in the viewport.
+        const cx = cowRect.x + cowRect.width / 2;
+        // Same for (cy)
+        const cy = cowRect.y + cowRect.height / 2 - 70; // -70 because of the navbar height
+        console.log('cow center', cx, cy);
+
+        sizeObj.cx = cx;
+        sizeObj.cy = cy;
+        homeObserverRAF_ID.current = null;
+      });
+      console.log(sizeObj);
+    });
+
+    // RAF initialization flag
+    let pendingRAF = false;
+    const mousemoveCallback = (e) => {
+      // Create inner function to hold the state of outter object with closure!
+      const calcAngle = (sizeObj) => {
+        const { cx, cy, homeW, homeH } = sizeObj;
+        // Mouse position
+        const mx = e.clientX;
+        const my = e.clientY - 70; // -70 because of the navbar height
+        // Distance between mouse and cow
+        const dx = mx - cx;
+        const dy = my - cy;
+
+        // Finding the minimum range of the big system (viewport).
+        // min = - abs(Center of cow - viewport width)
+        const minX = cx - homeW;
+        const minY = cy - homeH;
+
+        ///////////// Linear Interpolation explanation /////////////
+
+        // In order to interpolate the values from the big system (the cow and the viewport) to the small system
+        // (the eyeball and the circle of the eye), I have to define the ranges [min,max] of the two different systems.
+        // Because I am using SVG the transform property that I want to use although it is defined in px for the
+        // inline style or CSS to take effect, it is actualy in viewport units!!!
+        // After some testing I found that the [min,max] values of the small system must be [-25,25] for the eye
+        // to stay inside the circle!
+        // To find the [min,max] values of the bigger system I have to take the center of the cow and find  its left,right,top,bottom
+        // distances from the viewport edges. In pracice and for the Linear Interpolation equation I just have to find
+        // the min value and the actual width and height of the viewport gives the denominator of the equation [max-min].
+
+        /*
+         * ValueNew = MinNew + (ValueOld - MinOld) * (MaxNew - MinNew)
+         *            ------------------------------------------------
+         *                          MaxOld - MinOld
+         */
+        /*
+         * normalized = -25 + (dx - centerX) * (25 - (-25))
+         *            ------------------------------------------------
+         *                          Width
+         */
+        const normalizeX = -25 + ((dx - -Math.abs(minX)) * 50) / homeW;
+        const normalizeY = -25 + ((dy - -Math.abs(minY)) * 50) / homeH;
+
+        const optimizedX = normalizeX.toFixed(2);
+        const optimizedY = normalizeY.toFixed(2);
+
+        // Throttle the RAF in response to the listener firing continuously.
+        // Only schedule a new RAF if the old has been completed!
+        if (!pendingRAF) {
+          requestAnimationFrame(() => {
+            cowEyeLeftRef.current.style.transform = `translate(${optimizedX}px, ${optimizedY}px) `;
+            cowEyeRightRef.current.style.transform = `translate(${optimizedX}px, ${optimizedY}px) `;
+            // RAF complete!
+            pendingRAF = false;
+          });
+          // RAF scheduled!
+          pendingRAF = true;
+        }
+      };
+      calcAngle(sizeObj);
+    };
+
+    homeResizeObserverRef.current.observe(homeRef.current);
+    window.addEventListener('mousemove', mousemoveCallback);
 
     return () => {
-      if (observer) {
-        observer.disconnect();
+      if (homeResizeObserverRef.current) {
+        homeResizeObserverRef.current.disconnect();
+        homeResizeObserverRef.current = null;
+        homeObserverRAF_ID.current = null;
+        // If i have an observer i also have a listener.
+        window.removeEventListener('mousemove', mousemoveCallback);
+        // If they hold the new value (by re-rendering) I prefer it so the new element's style attribute
+        // gets updated.
+        cowEyeLeftRef.current.style.transform =
+          'translateX(0px) translateY(0px)';
+        cowEyeRightRef.current.style.transform =
+          'translateX(0px) translateY(0px)';
       }
     };
-  }, [animationsPlayState]);
+  }, [animationsPlayState, motionOk, pointerFine]);
 
-  useEffect(() => {
-    // if(animationsPlayState !=='iddle' || [])
-    // check pointer device
-    // resizeObserver for home and update the callback with the new values
-    // Add checks to remove the listener when the animations happen!!!
-    // Maybe upon reset i have to delete the style attribute afterwards!
-    // Maybe fix the point where the mouse leaves the viewport
+  // useEffect(() => {
+  //   // if(animationsPlayState !=='iddle' || [])
+  //   // check pointer device
+  //   // resizeObserver for home and update the callback with the new values
+  //   // Add checks to remove the listener when the animations happen!!!
+  //   // Maybe upon reset i have to delete the style attribute afterwards!
+  //   // Maybe fix the point where the mouse leaves the viewport
 
-    // Measure home dimensions.
-    const homeW = homeRef.current.clientWidth;
-    const homeH = homeRef.current.clientHeight;
+  //   // Measure home dimensions.
+  //   const homeW = homeRef.current.clientWidth;
+  //   const homeH = homeRef.current.clientHeight;
 
-    // Find center point of the cow.
-    const cowRect = svgCowRef.current.getBoundingClientRect();
+  //   // Find center point of the cow.
+  //   const cowRect = svgCowRef.current.getBoundingClientRect();
 
-    // Distance from one side plus half of the width gives the center point (cx) in the viewport.
-    const cx = cowRect.x + cowRect.width / 2;
-    // Same for (cy)
-    const cy = cowRect.y + cowRect.height / 2 - 70; // -70 because of the navbar height
-    console.log('cow center', cx, cy);
-    // In order to interpolate the values from the big system (the cow and the viewport) to the small system
-    // (the eyeball and the circle of the eye), I have to define the ranges [min,max] of the two different systems.
-    // Because I am using SVG the transform property that I want to use although it is defined in px for the
-    // inline style or CSS to take effect, it is actualy in viewport units!!!
-    // After some testing I found that the [min,max] values of the small system must be [-25,25] for the eye
-    // to stay inside the circle!
-    // To find the [min,max] values of the bigger system I have to take the center of the cow and find  its left,right,top,bottom
-    // distances from the viewport edges. In pracice and for the Linear Interpolation equation I just have to find
-    // the min value and the actual width and height of the viewport gives the denominator of the equation [max-min].
+  //   // Distance from one side plus half of the width gives the center point (cx) in the viewport.
+  //   const cx = cowRect.x + cowRect.width / 2;
+  //   // Same for (cy)
+  //   const cy = cowRect.y + cowRect.height / 2 - 70; // -70 because of the navbar height
+  //   console.log('cow center', cx, cy);
+  //   // In order to interpolate the values from the big system (the cow and the viewport) to the small system
+  //   // (the eyeball and the circle of the eye), I have to define the ranges [min,max] of the two different systems.
+  //   // Because I am using SVG the transform property that I want to use although it is defined in px for the
+  //   // inline style or CSS to take effect, it is actualy in viewport units!!!
+  //   // After some testing I found that the [min,max] values of the small system must be [-25,25] for the eye
+  //   // to stay inside the circle!
+  //   // To find the [min,max] values of the bigger system I have to take the center of the cow and find  its left,right,top,bottom
+  //   // distances from the viewport edges. In pracice and for the Linear Interpolation equation I just have to find
+  //   // the min value and the actual width and height of the viewport gives the denominator of the equation [max-min].
 
-    // min = - abs(Center of cow - viewport width)
-    const centerX = cx - homeW;
-    const centerY = cy - homeH;
-    let pendingRAF = false;
+  //   // min = - abs(Center of cow - viewport width)
+  //   const centerX = cx - homeW;
+  //   const centerY = cy - homeH;
+  //   let pendingRAF = false;
 
-    const calcAngle = (e) => {
-      // Mouse position
-      const mx = e.clientX;
-      const my = e.clientY - 70; // -70 because of the navbar height
-      // Distance between mouse and cow
-      const dx = mx - cx;
-      const dy = my - cy;
-      /*
-                        Linear Interpolation explanation
+  //   const calcAngle = (e) => {
+  //     // Mouse position
+  //     const mx = e.clientX;
+  //     const my = e.clientY - 70; // -70 because of the navbar height
+  //     // Distance between mouse and cow
+  //     const dx = mx - cx;
+  //     const dy = my - cy;
+  //     /*
+  //                       Linear Interpolation explanation
 
-       * ValueNew = MinNew + (ValueOld - MinOld) * (MaxNew - MinNew)
-       *            ------------------------------------------------
-       *                          MaxOld - MinOld
-       */
-      /*
-       * normalized = -25 + (dx - centerX) * (25 - (-25))
-       *            ------------------------------------------------
-       *                          Width
-       */
-      const normalizeX = -25 + ((dx - -Math.abs(centerX)) * 50) / homeW;
-      const normalizeY = -25 + ((dy - -Math.abs(centerY)) * 50) / homeH;
+  //      * ValueNew = MinNew + (ValueOld - MinOld) * (MaxNew - MinNew)
+  //      *            ------------------------------------------------
+  //      *                          MaxOld - MinOld
+  //      */
+  //     /*
+  //      * normalized = -25 + (dx - centerX) * (25 - (-25))
+  //      *            ------------------------------------------------
+  //      *                          Width
+  //      */
+  //     const normalizeX = -25 + ((dx - -Math.abs(centerX)) * 50) / homeW;
+  //     const normalizeY = -25 + ((dy - -Math.abs(centerY)) * 50) / homeH;
 
-      const optimizedX = normalizeX.toFixed(2);
-      const optimizedY = normalizeY.toFixed(2);
+  //     const optimizedX = normalizeX.toFixed(2);
+  //     const optimizedY = normalizeY.toFixed(2);
 
-      // Only schedule a new RAF if the old has been completed!
-      if (!pendingRAF) {
-        requestAnimationFrame(() => {
-          cowEyeLeftRef.current.style.transform = `translate(${optimizedX}px, ${optimizedY}px) `;
-          cowEyeRightRef.current.style.transform = `translate(${optimizedX}px, ${optimizedY}px) `;
-          pendingRAF = false;
-        });
-        pendingRAF = true;
-      }
-    };
-    window.addEventListener('mousemove', calcAngle);
+  //     // Only schedule a new RAF if the old has been completed!
+  //     if (!pendingRAF) {
+  //       requestAnimationFrame(() => {
+  //         cowEyeLeftRef.current.style.transform = `translate(${optimizedX}px, ${optimizedY}px) `;
+  //         cowEyeRightRef.current.style.transform = `translate(${optimizedX}px, ${optimizedY}px) `;
+  //         pendingRAF = false;
+  //       });
+  //       pendingRAF = true;
+  //     }
+  //   };
+  //   window.addEventListener('mousemove', calcAngle);
 
-    return () => window.removeEventListener('mousemove', calcAngle);
-  }, []);
+  //   return () => window.removeEventListener('mousemove', calcAngle);
+  // }, []);
 
   // The placeholder rect is responsible for handling mouse events since its the element
   // placed on top of all others and it has stroke & fill set to transparent so click events still
   // trigger through it!
   const handleReverseAnimationsClick = () => {
-    if (animationsPlayState === 'iddle') setAnimationsPlayState('reverse');
+    if (animationsPlayState === 'iddle' && motionOk) {
+      setAnimationsPlayState('reverse');
+    }
   };
   // The whole SVG Button element is set to receive keyboard focus via tabindex and it is expected
   // to behave as a <button>. In order for that to happen "enter" and " " (space) should trigger the
   // button's operation.
+
   const handleReverseAnimationsKeypress = (e) => {
     if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault();
-      if (animationsPlayState === 'iddle') {
+      // Becomes disabled when motion is disabled and play state is not iddle.
+      if (motionOk && animationsPlayState === 'iddle') {
         setAnimationsPlayState('reverse');
       }
     }
@@ -1938,7 +2167,7 @@ const Home = () => {
   // Also the ref does not give a null value for the node as it cycles between re-renders.
 
   const frontNodesStableRef = useCallback((node) => {
-    const observer = resizeObserverRef.current;
+    const observer = letterResizeObserverRef.current;
     if (observer) {
       // On the first render the observer has not been initialized yet because
       // the effect runs after the nodes have been attached to the ref.
@@ -1971,10 +2200,38 @@ const Home = () => {
     };
   }, []);
 
+  // Same logic with frontNodes
+  const homeStableRef = useCallback((node) => {
+    const observer = homeResizeObserverRef.current;
+    if (observer) {
+      observer.observe(node);
+    }
+    homeRef.current = node;
+    return () => {
+      if (observer) {
+        observer.unobserve(node);
+      }
+      homeRef.current = null;
+    };
+  }, []);
+  const svgCowStableRef = useCallback((node) => {
+    const observer = homeResizeObserverRef.current;
+    if (observer) {
+      observer.observe(node);
+    }
+    svgCowRef.current = node;
+    return () => {
+      if (observer) {
+        observer.unobserve(node);
+      }
+      svgCowRef.current = null;
+    };
+  }, []);
+
   const moovies = ['M', 'O', 'O', 'V', 'I', 'E', 'S'];
 
   return (
-    <article ref={homeRef} className='home'>
+    <article ref={homeStableRef} className='home'>
       <button
         id='test_button_3'
         style={{ position: 'absolute', left: '200px', zIndex: '10' }}
@@ -2245,7 +2502,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
         </svg>
 
         <svg
-          ref={svgCowRef}
+          ref={svgCowStableRef}
           preserveAspectRatio='xMidYMid meet'
           className='home__svg-cow'
           xmlns='http://www.w3.org/2000/svg'
@@ -3194,7 +3451,6 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 height='1'
                 transform='scale(1 0)'>
                 <animateTransform
-                  ref={svgButtonRectClipScaleDownAnimateRef}
                   attributeName='transform'
                   attributeType='XML'
                   type='scale'
@@ -3203,7 +3459,11 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   keySplines='.27 .20 .7 1'
                   values='1 1; 1 0'
                   dur='.3s'
-                  begin='home_svg_button_rect_placeholder.mouseenter;indefinite'
+                  begin={
+                    motionOk
+                      ? 'home_svg_button_rect_placeholder.mouseenter;'
+                      : ''
+                  }
                   restart='whenNotActive'
                   fill='freeze'
                 />
@@ -3217,7 +3477,11 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                   keySplines='.37 1 1 1'
                   values='1 0; 1 1'
                   dur='.25s'
-                  begin='home_svg_button_rect_placeholder.mouseleave; indefinite'
+                  begin={
+                    motionOk
+                      ? 'home_svg_button_rect_placeholder.mouseleave; indefinite'
+                      : ''
+                  }
                   restart='whenNotActive'
                   fill='freeze'
                 />

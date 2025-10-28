@@ -5,7 +5,6 @@ import Footer from './components/Footer';
 
 import './styles/App.scss';
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import HelmetWrapper from './components/HelmetWrapper';
 import ErrorBoundary from './ErrorBoundary';
 
 function App() {
@@ -116,7 +115,6 @@ function App() {
   return (
     <div className='App'>
       <ErrorBoundary>
-        <HelmetWrapper />
         <nav aria-label='Skip to content'>
           <ul className='off-screen'>
             <li>

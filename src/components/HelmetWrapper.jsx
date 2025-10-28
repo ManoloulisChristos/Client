@@ -30,7 +30,7 @@ const HelmetWrapper = ({
     ogImageAlt || 'A cow in a green field surrounded by cameras';
 
   return (
-    <div>
+    <>
       <title>{titleFinal}</title>
       <link rel='canonical' href={canonicalUrlFinal} />
       <meta name='description' content={descriptionFinal} />
@@ -59,7 +59,7 @@ const HelmetWrapper = ({
           {JSON.stringify(structuredData)}
         </script>
       )}
-    </div>
+    </>
   );
 };
 
