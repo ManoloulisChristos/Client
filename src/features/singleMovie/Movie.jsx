@@ -25,11 +25,21 @@ const Movie = () => {
   const dispatch = useDispatch();
   const auth = useAuth();
 
+  const [inertRatingModal, setInertRatingModal] = useState(true);
+
   const { data: movie } = useGetMovieQuery({ id });
+
+  // Fetch ratings/watchlist only when i have the userId
+  let skipRatingsRequest = true;
+
+  if (auth?.id) {
+    skipRatingsRequest = false;
+  }
 
   const { rating } = useGetRatingsQuery(
     { userId: auth?.id },
     {
+      skip: skipRatingsRequest,
       selectFromResult: ({ data }) => ({
         rating: data?.find(({ movieId }) => movieId === movie?._id) ?? null,
       }),
@@ -39,6 +49,7 @@ const Movie = () => {
   const { watchlist } = useGetWatchlistQuery(
     { userId: auth?.id },
     {
+      skip: skipRatingsRequest,
       selectFromResult: ({ data }) => ({
         watchlist: data?.find(({ movieId }) => movieId === movie?._id) ?? null,
       }),
@@ -108,16 +119,51 @@ const Movie = () => {
     );
   };
 
-  const handleWatchlistClick = async () => {
-    if (watchlist) {
-      await deleteFromWatchlist({ userId: auth.id, movieId: movie._id });
-
-      dispatch(createToast('success', 'Removed from Watchlist'));
+  const handleRatingClick = () => {
+    if (auth?.id) {
+      if (auth?.isVerified) {
+        ratingModalRef.current.showModal();
+        setInertRatingModal(false);
+      } else {
+        dispatch(
+          createToast(
+            'error',
+            'You must verify your account to perform this action'
+          )
+        );
+      }
     } else {
-      await addToWatchlist({ userId: auth.id, movieId: movie._id });
-      dispatch(createToast('success', 'Added to Watchlist'));
+      dispatch(
+        createToast('error', 'You must have an account to perform this action')
+      );
     }
   };
+
+  const handleWatchlistClick = async () => {
+    if (auth?.id) {
+      if (auth?.isVerified) {
+        if (watchlist) {
+          await deleteFromWatchlist({ userId: auth.id, movieId: movie._id });
+          dispatch(createToast('success', 'Removed from Watchlist'));
+        } else {
+          await addToWatchlist({ userId: auth.id, movieId: movie._id });
+          dispatch(createToast('success', 'Added to Watchlist'));
+        }
+      } else {
+        dispatch(
+          createToast(
+            'error',
+            'You must verify your account to perform this action'
+          )
+        );
+      }
+    } else {
+      dispatch(
+        createToast('error', 'You must have an account to perform this action')
+      );
+    }
+  };
+
   console.log(movie);
 
   const formatDateYYYYMMDD = (data) => {
@@ -256,7 +302,10 @@ const Movie = () => {
         movieId={movie?._id}
         movieRating={rating?.rating}
         movieTitle={movie?.title}
+        inertRatingModal={inertRatingModal}
+        setInertRatingModal={setInertRatingModal}
       />
+
       <HelmetWrapper
         title={movie?.title}
         description={movie?.plot}
@@ -357,10 +406,7 @@ const Movie = () => {
               <button
                 type='button'
                 className='movie__button movie__button--rate'
-                onClick={() => {
-                  ratingModalRef.current.showModal();
-                  ratingModalRef.current.removeAttribute('inert');
-                }}>
+                onClick={handleRatingClick}>
                 <Icons
                   name='star'
                   width='18'
