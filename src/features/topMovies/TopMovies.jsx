@@ -40,7 +40,7 @@ const allGenresStatic = [
 
 const TopMovies = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const formRef = useRef(null);
   const dispatch = useDispatch();
 
   const genreQuery = searchParams.get('genre');
@@ -96,7 +96,10 @@ const TopMovies = () => {
           <p className='top-movies__paragraph'>Based on IMDb ratings</p>
         </header>
         <div className='top-movies__controls-container'>
-          <form className='top-movies__form' onSubmit={handleSubmit}>
+          <form
+            ref={formRef}
+            className='top-movies__form'
+            onSubmit={handleSubmit}>
             <div className='top-movies__select-wrapper'>
               <label
                 className='top-movies__label top-movies__label--select'
@@ -108,11 +111,14 @@ const TopMovies = () => {
                 className='top-movies__select'
                 name='genre'
                 value={selectedGenre}
-                onChange={(e) => setSelectedGenre(e.target.value)}>
+                onChange={(e) => {
+                  setSelectedGenre(e.target.value);
+                  console.log(e.target.form.requestSubmit());
+                }}>
                 {populatedOption}
               </select>
             </div>
-            <Tooltip
+            {/* <Tooltip
               text='Apply selection'
               id='top-movies-submit-tooltip'
               tip='bottom'
@@ -127,7 +133,7 @@ const TopMovies = () => {
                   svgClassName='top-movies__icon top-movies__icon--check'
                 />
               </button>
-            </Tooltip>
+            </Tooltip> */}
           </form>
           {/* <button onClick={() => dispatch(updateView('grid'))}>1</button>
       <button onClick={() => dispatch(updateView('list'))}>2</button> */}
