@@ -334,7 +334,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Check if the user has seen the animations already.
-let initialAnimationsState = 'iddle';
+let initialAnimationsState = 'running';
 // if (window !== undefined) {
 //   const storage = localStorage.getItem('home_first_time_ever');
 //   if (storage && storage === 'false') {
