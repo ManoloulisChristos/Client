@@ -215,7 +215,6 @@ const FilterSection = ({ dialogRef, hideFilters, filterBuckets }) => {
 
   const handleCloseButtonClick = () => {
     dialogRef.current.close();
-    dialogRef.current.setAttribute('inert', '');
   };
 
   const handleCheckboxChange = (e) => {
@@ -315,7 +314,6 @@ const FilterSection = ({ dialogRef, hideFilters, filterBuckets }) => {
       // Close modal when it is rendered if all checks pass.
       if (hideFilters) {
         dialogRef.current.close();
-        dialogRef.current.setAttribute('inert', '');
       }
     }
   };

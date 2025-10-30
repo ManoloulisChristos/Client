@@ -16,11 +16,9 @@ import AdvMoviesListToolbar from './AdvMoviesListToolbar';
 import MovieDetailsModal from '../movies/MovieDetailsModal';
 import RatingModal from '../movies/RatingModal';
 import Icons from '../../components/Icons';
-import '../../styles/AdvMoviesList.scss';
-import searchIconLight from '../../assets/SVG/empty-search-light.svg';
-import searchIconDark from '../../assets/SVG/empty-search-dark.svg';
 import searchNotFoundIcon from '../../assets/SVG/search-not-found.svg';
 import HelmetWrapper from '../../components/HelmetWrapper';
+import '../../styles/AdvMoviesList.scss';
 
 const AdvMoviesList = ({ setFilterBuckets }) => {
   // The data are coming as an array with 2 objects
@@ -247,7 +245,7 @@ const AdvMoviesList = ({ setFilterBuckets }) => {
     plotQuery,
   ]);
 
-  const { currentData, isFetching } = useGetFilteredMoviesQuery(endpointObject);
+  const { currentData } = useGetFilteredMoviesQuery(endpointObject);
 
   // Display option
   const view = useSelector((state) => state.moviesToolbar.view);
@@ -343,7 +341,7 @@ const AdvMoviesList = ({ setFilterBuckets }) => {
       setFilterBuckets(currentData);
 
       // Check if there are 0 movies in the request result or if i have movies
-      if (currentData?.docs.length) {
+      if (currentData?.docs?.length) {
         setProgressBarSize(currMovies.length);
         setIsProgressBarLoading(true);
       } else {
@@ -612,7 +610,6 @@ const AdvMoviesList = ({ setFilterBuckets }) => {
     <>{calculateNavigationIndexes(pageCount, currentPage)}</>
   );
 
-  console.log(isFetching);
   return (
     <section
       aria-labelledby='adv-movies-search-title'
@@ -978,16 +975,11 @@ const AdvMoviesList = ({ setFilterBuckets }) => {
               htmlFor='autocomplete-input'
               name='adv-movies-output'
               className='adv-movies__count'>
-              <span className='visually-hidden'>
+              <span>
                 {/* Changing between loading and the results, in every user action is important! Because if just the sort order changes
-             the total number remains the same and if the contents are the same there is no announcing. */}
-                {isProgressBarLoading ? (
-                  'Loading'
-                ) : (
-                  <>{totalResults} total results</>
-                )}
+             the total number remains the same and if the contents are the same there is no announcing of the output. */}
+                {!show ? 'Loading' : <>{totalResults} total results</>}
               </span>
-              <span aria-hidden='true'>{totalResults} total results</span>
             </output>
           </hgroup>
           {renderFilterButtons() && (
@@ -1069,7 +1061,7 @@ const AdvMoviesList = ({ setFilterBuckets }) => {
                 </ul>
               </nav>
             </>
-          ) : (
+          ) : show ? (
             <>
               <p>
                 Sorry! No results were found for your specific search, try
@@ -1081,7 +1073,7 @@ const AdvMoviesList = ({ setFilterBuckets }) => {
                 className='adv-movies__search-icon'
               />
             </>
-          )}
+          ) : null}
           {/* the key is important because in the case when only the sort order changes for example, the same images appear so
       the imagesReady function does not run and everything breaks. Workaround: in every new location based on the URL the images re-render
       and they get pulled from the cache so the function runs and everything that depends on it(everything...) get's updated. */}
