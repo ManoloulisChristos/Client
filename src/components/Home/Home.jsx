@@ -334,11 +334,11 @@ if (typeof window !== 'undefined') {
 }
 
 // Check if the user has seen the animations already.
-let initialAnimationsState = 'iddle';
+let initialAnimationsState = 'running';
 if (window !== undefined) {
   const storage = localStorage.getItem('home_animations_played');
-  if (storage && storage === 'false') {
-    initialAnimationsState = 'running';
+  if (storage && storage === 'true') {
+    initialAnimationsState = 'iddle';
   }
 }
 
