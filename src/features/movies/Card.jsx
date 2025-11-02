@@ -167,7 +167,7 @@ const Card = memo(function Card({
               </Link>
 
               <h2 className='card__title' title={movie.title}>
-                <Link className='card__link'>
+                <Link className='card__link' to={`/search/id/${movie._id}`}>
                   {movie.title ?? 'Title not found'}
                 </Link>
               </h2>

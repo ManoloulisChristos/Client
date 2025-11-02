@@ -142,15 +142,15 @@ const MovieDetailsModal = ({
             onClick={() => ref.current.close()}>
             Close
           </button>
-          <button
-            type='button'
-            className='movie-modal__button movie-modal__button--more'>
+          <Link
+            className='movie-modal__button movie-modal__button--more'
+            to={`/search/id/${movie?._id}`}>
             <Icons
               name='chevronRight'
               svgClassName='movie-modal__icon movie-modal__icon--right'
             />
             More
-          </button>
+          </Link>
         </footer>
       </article>
     </dialog>

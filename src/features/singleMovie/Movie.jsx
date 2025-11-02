@@ -382,7 +382,11 @@ const Movie = () => {
             <ul className='movie__genre-list' aria-label='genres'>
               {movie?.genres.map((genre) => (
                 <li className='movie__genre-item' key={genre}>
-                  <Link className='movie__genre-link'>{genre}</Link>
+                  <Link
+                    className='movie__genre-link'
+                    to={`/search/advanced?sortBy=Default&sort=-1&page=1&genre=${genre}`}>
+                    {genre}
+                  </Link>
                 </li>
               )) ?? null}
             </ul>
