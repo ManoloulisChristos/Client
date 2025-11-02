@@ -334,13 +334,13 @@ if (typeof window !== 'undefined') {
 }
 
 // Check if the user has seen the animations already.
-let initialAnimationsState = 'running';
-// if (window !== undefined) {
-//   const storage = localStorage.getItem('home_first_time_ever');
-//   if (storage && storage === 'false') {
-//     initialAnimationsState = 'running';
-//   }
-// }
+let initialAnimationsState = 'iddle';
+if (window !== undefined) {
+  const storage = localStorage.getItem('home_animations_played');
+  if (storage && storage === 'false') {
+    initialAnimationsState = 'running';
+  }
+}
 
 const Home = () => {
   const btnRef = useRef(null);
@@ -1315,6 +1315,8 @@ const Home = () => {
               // All animations have finished + canceled and the styles have been commited.
               // Empty the array
               forwardsAnimRef.current = [];
+              // Set storage flag so the animations go to "iddle" state on Home page startup.
+              localStorage.setItem('home_animations_played', 'true');
               // Change the animations play state
               setAnimationsPlayState('iddle');
 
