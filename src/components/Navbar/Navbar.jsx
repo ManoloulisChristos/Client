@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import AutocompleteForm from './AutocompleteForm';
 import '../../styles/Navbar.scss';
 import ThemeButton from './ThemeButton';
@@ -172,11 +172,25 @@ const Navbar = ({ topLevelSentinelRef }) => {
     };
   }, []);
 
+  // Listener for the popstate event to close the navbar if the user presses the back button.
+  useEffect(() => {
+    const popstateCallback = (e) => {
+      if (navExpanded) {
+        setNavExpanded(false);
+      }
+    };
+    window.addEventListener('popstate', popstateCallback);
+
+    return () => window.removeEventListener('popstate', popstateCallback);
+  }, [navExpanded]);
+
   return (
     <>
       <div className='header-container' ref={headerContainerRef}>
         <header className='header'>
-          <h2 className='header__logo'>LOGO</h2>
+          <Link className='header__logo' to='/'>
+            LOGO
+          </Link>
 
           <SearchModal
             ref={searchModalRef}
