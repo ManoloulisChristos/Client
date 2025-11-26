@@ -9,6 +9,7 @@ import Tooltip from '../../components/Tooltip';
 import usePersist from '../../hooks/usePersist';
 import '../../styles/Login.scss';
 import { createToast } from '../toast/toastsSlice';
+import HelmetWrapper from '../../components/HelmetWrapper';
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -84,116 +85,123 @@ const Login = () => {
   };
 
   return (
-    <div className='login'>
-      <h1 className='login__heading'>Sign in</h1>
+    <>
+      <HelmetWrapper
+        title='Sign in'
+        description='Login in to your account.'
+        keywords={`Search,Movie,Database,Sign in,Login`}
+      />
+      <div className='login'>
+        <h1 className='login__heading'>Sign in</h1>
 
-      {showGenericError && (
-        <p
-          className='login__generic-error'
-          id='login-generic-error'
-          aria-live='assertive'>
-          Error: {error?.data?.message}
-        </p>
-      )}
-
-      <form className='login__form' noValidate onSubmit={handleSubmit}>
-        <div className='login__input-container'>
-          <label htmlFor='login-email-input' className='login__label'>
-            Email
-          </label>
-          <input
-            id='login-email-input'
-            className='login__input'
-            type='email'
-            required
-            aria-describedby='login-email-error login-generic-error'
-            aria-invalid={emailError || showGenericError}
-            onChange={handleEmailChange}
-            value={emailValue}
-            onInvalid={handleEmailValidation}
-          />
+        {showGenericError && (
           <p
-            id='login-email-error'
-            className='login__input-error'
+            className='login__generic-error'
+            id='login-generic-error'
             aria-live='assertive'>
-            {emailError}
+            Error: {error?.data?.message}
           </p>
-        </div>
-        <div className='login__input-container'>
-          <label htmlFor='login-password-input' className='login__label'>
-            Password
-          </label>
-          <div className='login__input-wrapper'>
+        )}
+
+        <form className='login__form' noValidate onSubmit={handleSubmit}>
+          <div className='login__input-container'>
+            <label htmlFor='login-email-input' className='login__label'>
+              Email
+            </label>
             <input
-              ref={passwordRef}
-              id='login-password-input'
+              id='login-email-input'
               className='login__input'
-              type={showPassword ? 'text' : 'password'}
+              type='email'
               required
-              aria-describedby='login-password-error login-generic-error'
-              aria-invalid={passwordError || showGenericError}
-              onChange={handlePasswordChange}
-              value={passwordValue}
-              onInvalid={handlePassowordValidation}
+              aria-describedby='login-email-error login-generic-error'
+              aria-invalid={emailError || showGenericError}
+              onChange={handleEmailChange}
+              value={emailValue}
+              onInvalid={handleEmailValidation}
             />
-            <button
-              className='login__show-password has-tooltip'
-              type='button'
-              aria-pressed={showPassword}
-              onClick={() => setShowPassword((s) => !s)}>
-              <span className='visually-hidden'>Password visibility</span>
-              <Icons
-                name={showPassword ? 'eye' : 'eyeOff'}
-                width='20'
-                height='20'
-              />
-              <span aria-hidden='true'>
-                <Tooltip
-                  text={showPassword ? 'Hide' : 'Show'}
-                  tip='bottom'
-                  hasWrapper={false}
-                />
-              </span>
-            </button>
+            <p
+              id='login-email-error'
+              className='login__input-error'
+              aria-live='assertive'>
+              {emailError}
+            </p>
           </div>
-          <p
-            id='login-password-error'
-            className='login__input-error'
-            aria-live='assertive'>
-            {passwordError}
+          <div className='login__input-container'>
+            <label htmlFor='login-password-input' className='login__label'>
+              Password
+            </label>
+            <div className='login__input-wrapper'>
+              <input
+                ref={passwordRef}
+                id='login-password-input'
+                className='login__input'
+                type={showPassword ? 'text' : 'password'}
+                required
+                aria-describedby='login-password-error login-generic-error'
+                aria-invalid={passwordError || showGenericError}
+                onChange={handlePasswordChange}
+                value={passwordValue}
+                onInvalid={handlePassowordValidation}
+              />
+              <button
+                className='login__show-password has-tooltip'
+                type='button'
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((s) => !s)}>
+                <span className='visually-hidden'>Password visibility</span>
+                <Icons
+                  name={showPassword ? 'eye' : 'eyeOff'}
+                  width='20'
+                  height='20'
+                />
+                <span aria-hidden='true'>
+                  <Tooltip
+                    text={showPassword ? 'Hide' : 'Show'}
+                    tip='bottom'
+                    hasWrapper={false}
+                  />
+                </span>
+              </button>
+            </div>
+            <p
+              id='login-password-error'
+              className='login__input-error'
+              aria-live='assertive'>
+              {passwordError}
+            </p>
+          </div>
+          <div className='login__checkbox-container'>
+            <input
+              id='login-persist-checkbox'
+              className='login__checkbox'
+              type='checkbox'
+              onChange={handleCheckboxChange}
+              checked={persist}
+            />
+            <label htmlFor='login-persist-checkbox' className='login__label'>
+              Stay signed in
+            </label>
+          </div>
+          <button ref={submitButtonRef} className='login__submit' type='submit'>
+            Sign in
+          </button>
+        </form>
+        <div className='login__links'>
+          <p>
+            <strong>Can&apos;t sign in? </strong> -{' '}
+            <Link className='login__link' to='/auth/password'>
+              Reset your password
+            </Link>
+          </p>
+          <p>
+            New to Moovies? -{' '}
+            <Link className='login__link' to='/auth/register'>
+              Create an account
+            </Link>
           </p>
         </div>
-        <div className='login__checkbox-container'>
-          <input
-            id='login-persist-checkbox'
-            className='login__checkbox'
-            type='checkbox'
-            onChange={handleCheckboxChange}
-            checked={persist}
-          />
-          <label htmlFor='login-persist-checkbox' className='login__label'>
-            Stay signed in
-          </label>
-        </div>
-        <button ref={submitButtonRef} className='login__submit' type='submit'>
-          Sign in
-        </button>
-      </form>
-      <div className='login__links'>
-        <p>
-          <strong>Can&apos;t sign in? </strong> -{' '}
-          <Link className='login__link' to='/auth/password'>
-            Reset your password
-          </Link>
-        </p>
-        <p>
-          New to Moovies? -{' '}
-          <Link className='login__link' to='/auth/register'>
-            Create an account
-          </Link>
-        </p>
       </div>
-    </div>
+    </>
   );
 };
 
