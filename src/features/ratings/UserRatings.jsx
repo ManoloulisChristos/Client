@@ -243,7 +243,7 @@ const UserRatings = () => {
 
   return (
     <>
-      <HelmetWrapper noIndex={true} />
+      <HelmetWrapper title='Ratings' noIndex={true} />
       <ProgressBar
         size={docsCount}
         loaded={progressBarLoaded}

@@ -174,7 +174,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
 
   // Listener for the popstate event to close the navbar if the user presses the back button.
   useEffect(() => {
-    const popstateCallback = (e) => {
+    const popstateCallback = () => {
       if (navExpanded) {
         setNavExpanded(false);
       }

@@ -241,7 +241,7 @@ const Watchlist = () => {
 
   return (
     <>
-      <HelmetWrapper noIndex={true} />
+      <HelmetWrapper title='Watchlist' noIndex={true} />
       <ProgressBar
         size={docsCount}
         loaded={progressBarLoaded}

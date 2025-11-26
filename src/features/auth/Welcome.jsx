@@ -4,6 +4,7 @@ import { useSendVerificationEmailMutation } from './authApiSlice';
 import VerificationBoilerplate from './VerificationBoilerplate';
 import { useDispatch } from 'react-redux';
 import { createToast } from '../toast/toastsSlice';
+import HelmetWrapper from '../../components/HelmetWrapper';
 
 const Welcome = () => {
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ const Welcome = () => {
 
   return (
     <>
+      <HelmetWrapper title='Welcome' noIndex={true} />
       {id && !isVerified ? (
         <VerificationBoilerplate
           title={'Welcome'}

@@ -233,7 +233,7 @@ const UserSettings = () => {
 
   return (
     <div className='user-settings'>
-      <HelmetWrapper noIndex={true} />
+      <HelmetWrapper title='Settings' noIndex={true} />
       {isLoading ? (
         <Spinner />
       ) : (

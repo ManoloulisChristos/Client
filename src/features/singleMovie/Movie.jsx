@@ -164,8 +164,6 @@ const Movie = () => {
     }
   };
 
-  console.log(movie);
-
   const formatDateYYYYMMDD = (data) => {
     //Set Intl API options
     const dateOptions = {

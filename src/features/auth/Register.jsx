@@ -7,6 +7,7 @@ import Tooltip from '../../components/Tooltip';
 import '../../styles/Register.scss';
 import usePersist from '../../hooks/usePersist';
 import { useNavigate } from 'react-router';
+import HelmetWrapper from '../../components/HelmetWrapper';
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -140,224 +141,231 @@ const Register = () => {
   };
 
   return (
-    <div className='register'>
-      <h1 className='register__heading'>Create a new account</h1>
-      {showGenericError && (
-        <p className='register__generic-error' aria-live='assertive'>
-          Error: {error?.data?.message}
-        </p>
-      )}
-      <form className='register__form' onSubmit={handleSubmit} noValidate>
-        <div className='register__input-container'>
-          <div className='register__label-wrapper'>
-            <label
-              htmlFor='register-email-input'
-              className='register__label'
-              aria-describedby='input-details-test'>
-              Email
-            </label>
-          </div>
-          <div className='register__input-wrapper'>
-            <input
-              id='register-email-input'
-              className='register__input'
-              type='email'
-              required
-              aria-describedby='register-email-error'
-              aria-invalid={emailError ? 'true' : 'false'}
-              value={emailValue}
-              onChange={handleEmailChange}
-              onInvalid={handleEmailValidation}
-            />
-            <p
-              className='register__error'
-              aria-live='assertive'
-              id='register-email-error'>
-              {emailError}
-            </p>
-          </div>
-        </div>
-        <div className='register__input-container'>
-          <div className='register__label-wrapper'>
-            <label
-              htmlFor='register-username-input'
-              className='register__label'>
-              Username
-            </label>
-            <Tooltip
-              text='4-15 characters long and it must start with a letter'
-              id='register-username-info'
-              tip='top'
-              hasWrapper={true}>
-              <p className='register__help-icon-wrapper has-tooltip-with-wrapper'>
-                <Icons name='help' width='20' height='20' />
-              </p>
-            </Tooltip>
-          </div>
-          <div className='register__input-wrapper'>
-            <input
-              id='register-username-input'
-              className='register__input'
-              type='text'
-              required
-              minLength={4}
-              maxLength={20}
-              autoComplete='off'
-              pattern='^[a-zA-Z]+[0-9]*$'
-              aria-describedby='register-username-error'
-              aria-details='register-username-info'
-              aria-invalid={usernameError ? 'true' : 'false'}
-              value={usernameValue}
-              onChange={handleUsernameChange}
-              onInvalid={handleUsernameValidation}
-            />
-            <p
-              className='register__error'
-              aria-live='assertive'
-              id='register-username-error'>
-              {usernameError}
-            </p>
-          </div>
-        </div>
-        <div className='register__input-container'>
-          <div className='register__label-wrapper'>
-            <label
-              htmlFor='register-password-input'
-              className='register__label'>
-              Password
-            </label>
-            <Tooltip
-              text='8-24 characters long, number, special character (@!#%$), uppercase and lowercase letters are all required'
-              id='register-password-info'
-              tip='top'
-              hasWrapper={true}>
-              <p className='has-tooltip-with-wrapper'>
-                <Icons name='help' width='20' height='20' />
-              </p>
-            </Tooltip>
-          </div>
-          <div className='register__input-wrapper'>
-            <input
-              ref={passwordRef}
-              id='register-password-input'
-              className='register__input'
-              type={showPassword ? 'text' : 'password'}
-              required
-              pattern='^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,24}$' //at least one uppercase, lowercase letter, special char, number
-              maxLength='24'
-              autoComplete='off'
-              aria-describedby='register-password-error'
-              aria-details='register-password-info'
-              aria-invalid={passwordError ? 'true' : 'false'}
-              value={passwordValue}
-              onChange={handlePasswordChange}
-              onInvalid={handlePasswordValidation}
-            />
-            <button
-              className='register__show-password has-tooltip'
-              type='button'
-              aria-pressed={showPassword ? 'true' : 'false'}
-              aria-controls='register-password-input'
-              onClick={() => setShowPassword((s) => !s)}>
-              <span className='visually-hidden'>Password Visibility</span>
-              <Icons
-                name={showPassword ? 'eye' : 'eyeOff'}
-                width='20'
-                height='20'
+    <>
+      <HelmetWrapper
+        title='Register'
+        description='Create an account'
+        keywords='Moovies,Register,Sign up,Account'
+      />
+      <div className='register'>
+        <h1 className='register__heading'>Create a new account</h1>
+        {showGenericError && (
+          <p className='register__generic-error' aria-live='assertive'>
+            Error: {error?.data?.message}
+          </p>
+        )}
+        <form className='register__form' onSubmit={handleSubmit} noValidate>
+          <div className='register__input-container'>
+            <div className='register__label-wrapper'>
+              <label
+                htmlFor='register-email-input'
+                className='register__label'
+                aria-describedby='input-details-test'>
+                Email
+              </label>
+            </div>
+            <div className='register__input-wrapper'>
+              <input
+                id='register-email-input'
+                className='register__input'
+                type='email'
+                required
+                aria-describedby='register-email-error'
+                aria-invalid={emailError ? 'true' : 'false'}
+                value={emailValue}
+                onChange={handleEmailChange}
+                onInvalid={handleEmailValidation}
               />
-              <span aria-hidden='true'>
-                <Tooltip
-                  text={showPassword ? 'Hide' : 'Show'}
-                  tip='bottom'
-                  hasWrapper={false}
-                />
-              </span>
-            </button>
-            <p
-              className='register__error'
-              aria-live='assertive'
-              id='register-password-error'>
-              {passwordError}
-            </p>
+              <p
+                className='register__error'
+                aria-live='assertive'
+                id='register-email-error'>
+                {emailError}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className='register__input-container'>
-          <div className='register__label-wrapper'>
+          <div className='register__input-container'>
+            <div className='register__label-wrapper'>
+              <label
+                htmlFor='register-username-input'
+                className='register__label'>
+                Username
+              </label>
+              <Tooltip
+                text='4-15 characters long and it must start with a letter'
+                id='register-username-info'
+                tip='top'
+                hasWrapper={true}>
+                <p className='register__help-icon-wrapper has-tooltip-with-wrapper'>
+                  <Icons name='help' width='20' height='20' />
+                </p>
+              </Tooltip>
+            </div>
+            <div className='register__input-wrapper'>
+              <input
+                id='register-username-input'
+                className='register__input'
+                type='text'
+                required
+                minLength={4}
+                maxLength={20}
+                autoComplete='off'
+                pattern='^[a-zA-Z]+[0-9]*$'
+                aria-describedby='register-username-error'
+                aria-details='register-username-info'
+                aria-invalid={usernameError ? 'true' : 'false'}
+                value={usernameValue}
+                onChange={handleUsernameChange}
+                onInvalid={handleUsernameValidation}
+              />
+              <p
+                className='register__error'
+                aria-live='assertive'
+                id='register-username-error'>
+                {usernameError}
+              </p>
+            </div>
+          </div>
+          <div className='register__input-container'>
+            <div className='register__label-wrapper'>
+              <label
+                htmlFor='register-password-input'
+                className='register__label'>
+                Password
+              </label>
+              <Tooltip
+                text='8-24 characters long, number, special character (@!#%$), uppercase and lowercase letters are all required'
+                id='register-password-info'
+                tip='top'
+                hasWrapper={true}>
+                <p className='has-tooltip-with-wrapper'>
+                  <Icons name='help' width='20' height='20' />
+                </p>
+              </Tooltip>
+            </div>
+            <div className='register__input-wrapper'>
+              <input
+                ref={passwordRef}
+                id='register-password-input'
+                className='register__input'
+                type={showPassword ? 'text' : 'password'}
+                required
+                pattern='^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,24}$' //at least one uppercase, lowercase letter, special char, number
+                maxLength='24'
+                autoComplete='off'
+                aria-describedby='register-password-error'
+                aria-details='register-password-info'
+                aria-invalid={passwordError ? 'true' : 'false'}
+                value={passwordValue}
+                onChange={handlePasswordChange}
+                onInvalid={handlePasswordValidation}
+              />
+              <button
+                className='register__show-password has-tooltip'
+                type='button'
+                aria-pressed={showPassword ? 'true' : 'false'}
+                aria-controls='register-password-input'
+                onClick={() => setShowPassword((s) => !s)}>
+                <span className='visually-hidden'>Password Visibility</span>
+                <Icons
+                  name={showPassword ? 'eye' : 'eyeOff'}
+                  width='20'
+                  height='20'
+                />
+                <span aria-hidden='true'>
+                  <Tooltip
+                    text={showPassword ? 'Hide' : 'Show'}
+                    tip='bottom'
+                    hasWrapper={false}
+                  />
+                </span>
+              </button>
+              <p
+                className='register__error'
+                aria-live='assertive'
+                id='register-password-error'>
+                {passwordError}
+              </p>
+            </div>
+          </div>
+          <div className='register__input-container'>
+            <div className='register__label-wrapper'>
+              <label
+                htmlFor='register-confirm-password-input'
+                className='register__label'>
+                Confirm password
+              </label>
+            </div>
+            <div className='register__input-wrapper'>
+              <input
+                ref={confirmPasswordRef}
+                id='register-confirm-password-input'
+                className='register__input'
+                type={showConfirmPassword ? 'text' : 'password'}
+                required
+                maxLength='24'
+                autoComplete='off'
+                aria-describedby='register-confirm-password-error'
+                aria-invalid={confirmPasswordError ? 'true' : 'false'}
+                value={confirmPasswordValue}
+                onChange={handleConfirmPasswordChange}
+                onInvalid={handleConfirmPasswordValidation}
+              />
+              <button
+                className='register__show-password has-tooltip'
+                type='button'
+                aria-pressed={showConfirmPassword ? 'true' : 'false'}
+                aria-controls='register-password-input'
+                onClick={() => setShowConfirmPassword((s) => !s)}>
+                <span className='visually-hidden'>
+                  Confirm password visibility
+                </span>
+                <Icons
+                  name={showConfirmPassword ? 'eye' : 'eyeOff'}
+                  width='20'
+                  height='20'
+                />
+                <span aria-hidden='true'>
+                  <Tooltip
+                    text={showConfirmPassword ? 'Hide' : 'Show'}
+                    tip='bottom'
+                    hasWrapper={false}
+                  />
+                </span>
+              </button>
+              <p
+                className='register__error'
+                aria-live='assertive'
+                id='register-confirm-password-error'>
+                {confirmPasswordError}
+              </p>
+            </div>
+          </div>
+
+          <div className='register__checkbox-container'>
+            <input
+              id='register-persist-checkbox'
+              className='register__checkbox'
+              type='checkbox'
+              onChange={handleCheckboxChange}
+              checked={persist}
+            />
             <label
-              htmlFor='register-confirm-password-input'
+              htmlFor='register-persist-checkbox'
               className='register__label'>
-              Confirm password
+              Stay signed in
             </label>
           </div>
-          <div className='register__input-wrapper'>
-            <input
-              ref={confirmPasswordRef}
-              id='register-confirm-password-input'
-              className='register__input'
-              type={showConfirmPassword ? 'text' : 'password'}
-              required
-              maxLength='24'
-              autoComplete='off'
-              aria-describedby='register-confirm-password-error'
-              aria-invalid={confirmPasswordError ? 'true' : 'false'}
-              value={confirmPasswordValue}
-              onChange={handleConfirmPasswordChange}
-              onInvalid={handleConfirmPasswordValidation}
-            />
-            <button
-              className='register__show-password has-tooltip'
-              type='button'
-              aria-pressed={showConfirmPassword ? 'true' : 'false'}
-              aria-controls='register-password-input'
-              onClick={() => setShowConfirmPassword((s) => !s)}>
-              <span className='visually-hidden'>
-                Confirm password visibility
-              </span>
-              <Icons
-                name={showConfirmPassword ? 'eye' : 'eyeOff'}
-                width='20'
-                height='20'
-              />
-              <span aria-hidden='true'>
-                <Tooltip
-                  text={showConfirmPassword ? 'Hide' : 'Show'}
-                  tip='bottom'
-                  hasWrapper={false}
-                />
-              </span>
-            </button>
-            <p
-              className='register__error'
-              aria-live='assertive'
-              id='register-confirm-password-error'>
-              {confirmPasswordError}
-            </p>
-          </div>
-        </div>
 
-        <div className='register__checkbox-container'>
-          <input
-            id='register-persist-checkbox'
-            className='register__checkbox'
-            type='checkbox'
-            onChange={handleCheckboxChange}
-            checked={persist}
-          />
-          <label
-            htmlFor='register-persist-checkbox'
-            className='register__label'>
-            Stay signed in
-          </label>
-        </div>
-
-        <button
-          ref={submitButtonRef}
-          className='register__submit'
-          type='submit'>
-          Sign up
-        </button>
-      </form>
-    </div>
+          <button
+            ref={submitButtonRef}
+            className='register__submit'
+            type='submit'>
+            Sign up
+          </button>
+        </form>
+      </div>
+    </>
   );
 };
 
