@@ -3,6 +3,7 @@ import { Link, useSearchParams, useNavigate, useLocation } from 'react-router';
 import { useAutocompleteQuery } from '../../features/api/apiSlice';
 import Tooltip from '../Tooltip';
 import '../../styles/AutocompleteForm.scss';
+import Icons from '../Icons';
 
 const AutocompleteForm = ({ searchModalRef }) => {
   const navigate = useNavigate();
@@ -386,16 +387,10 @@ const AutocompleteForm = ({ searchModalRef }) => {
         className='autocomplete__button autocomplete__button--clear has-tooltip'
         aria-labelledby='search-clear-tooltip'>
         <span className='autocomplete__icon-wrap autocomplete__icon-wrap--clear'>
-          <svg
-            className='autocomplete__icon autocomplete__icon--clear'
-            aria-hidden='true'
-            version='1.1'
-            xmlns='http://www.w3.org/2000/svg'
-            width='20'
-            height='20'
-            viewBox='0 0 20 20'>
-            <path d='M10.707 10.5l5.646-5.646c0.195-0.195 0.195-0.512 0-0.707s-0.512-0.195-0.707 0l-5.646 5.646-5.646-5.646c-0.195-0.195-0.512-0.195-0.707 0s-0.195 0.512 0 0.707l5.646 5.646-5.646 5.646c-0.195 0.195-0.195 0.512 0 0.707 0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146l5.646-5.646 5.646 5.646c0.098 0.098 0.226 0.146 0.354 0.146s0.256-0.049 0.354-0.146c0.195-0.195 0.195-0.512 0-0.707l-5.646-5.646z'></path>
-          </svg>
+          <Icons
+            name='close'
+            svgClassName='autocomplete__icon autocomplete__icon--clear'
+          />
         </span>
         <Tooltip
           text={'Clear search'}
@@ -409,16 +404,10 @@ const AutocompleteForm = ({ searchModalRef }) => {
         className='autocomplete__button autocomplete__button--submit has-tooltip'
         aria-labelledby='search-submit-tooltip'>
         <span className='autocomplete__icon-wrap autocomplete__icon-wrap--submit'>
-          <svg
-            className='autocomplete__icon autocomplete__icon--submit'
-            aria-hidden='true'
-            version='1.1'
-            xmlns='http://www.w3.org/2000/svg'
-            width='20'
-            height='20'
-            viewBox='0 0 20 20'>
-            <path d='M18.869 19.162l-5.943-6.484c1.339-1.401 2.075-3.233 2.075-5.178 0-2.003-0.78-3.887-2.197-5.303s-3.3-2.197-5.303-2.197-3.887 0.78-5.303 2.197-2.197 3.3-2.197 5.303 0.78 3.887 2.197 5.303 3.3 2.197 5.303 2.197c1.726 0 3.362-0.579 4.688-1.645l5.943 6.483c0.099 0.108 0.233 0.162 0.369 0.162 0.121 0 0.242-0.043 0.338-0.131 0.204-0.187 0.217-0.503 0.031-0.706zM1 7.5c0-3.584 2.916-6.5 6.5-6.5s6.5 2.916 6.5 6.5-2.916 6.5-6.5 6.5-6.5-2.916-6.5-6.5z'></path>
-          </svg>
+          <Icons
+            name='search'
+            svgClassName='autocomplete__icon autocomplete__icon--submit'
+          />
         </span>
         <Tooltip
           text={'Search'}

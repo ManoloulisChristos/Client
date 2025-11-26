@@ -34,10 +34,7 @@ const SearchModal = ({
               onClick={() => {
                 ref.current.close();
               }}>
-              <Icons
-                name='minimize'
-                svgClassName='search-modal__minimize-icon'
-              />
+              <Icons name='close' svgClassName='search-modal__minimize-icon' />
             </button>
           </Tooltip>
         </dialog>

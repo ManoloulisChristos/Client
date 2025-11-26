@@ -41,6 +41,6 @@ html:has(.search-modal[open]) {
   }
 
   &__minimize-icon {
-    stroke: hsl(var(--on-surface-variant) / 0.8);
+    stroke: hsl(var(--on-surface-variant));
   }
 }

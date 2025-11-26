@@ -86,7 +86,11 @@
   &__icon {
     width: 1.125rem;
     height: 1.125rem;
-    fill: hsl(var(--on-surface-variant));
+    stroke: hsl(var(--on-surface-variant));
+    &--clear {
+      width: 1.225rem;
+      height: 1.225rem;
+    }
   }
 
   // Listbox

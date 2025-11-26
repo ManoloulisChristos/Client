@@ -17,6 +17,19 @@ const IconWrapper = ({ width, height, svgClassName, children }) => (
   </svg>
 );
 
+const SearchIcon = ({ width, height, svgClassName }) => (
+  <IconWrapper width={width} height={height} svgClassName={svgClassName}>
+    <line
+      x1='15'
+      x2='22.5'
+      y1='14.5'
+      y2='23'
+      rx='20'
+      strokeLinecap='round'></line>
+    <circle cx='9' cy='9' r='8'></circle>
+  </IconWrapper>
+);
+
 const CloseIcon = ({ width, height, svgClassName }) => (
   <IconWrapper width={width} height={height} svgClassName={svgClassName}>
     <line x1='18' y1='6' x2='6' y2='18'></line>
@@ -246,6 +259,7 @@ const ArrowLeftIcon = ({ width, height, svgClassName }) => (
 );
 
 const iconsMap = {
+  search: SearchIcon,
   clock: ClockIcon,
   calendar: CalendarIcon,
   questionMark: QuestionMarkIcon,
