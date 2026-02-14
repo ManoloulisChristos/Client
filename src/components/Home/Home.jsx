@@ -2257,7 +2257,7 @@ const Home = () => {
           onClick={reverseAnimations}>
           reverse
         </button> */}
-        <button
+        {/* <button
           style={{
             position: 'absolute',
             left: '160px',
@@ -2266,7 +2266,7 @@ const Home = () => {
           }}
           onClick={() => {}}>
           true/false
-        </button>
+        </button> */}
         <h1 className='home__title'>
           {moovies.map((letter, index) => (
             <span
