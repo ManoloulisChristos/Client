@@ -143,12 +143,15 @@
 
     &--back {
       transform: translateZ(calc(((var(--_protrusionSize) - 1) / 2) * -1px));
+      user-select: none;
     }
 
     &--middle {
+      user-select: none;
     }
 
     &--left {
+      user-select: none;
       left: 0;
       opacity: 0;
       color: var(--home-letter-text-stroke-color);
@@ -167,6 +170,7 @@
     }
 
     &--right {
+      user-select: none;
       color: var(--home-letter-text-stroke-color);
       right: 0;
       opacity: 0;

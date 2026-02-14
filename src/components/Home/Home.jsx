@@ -2223,7 +2223,7 @@ const Home = () => {
     };
   }, []);
 
-  const moovies = ['M', 'O', 'O', 'V', 'I', 'E', 'S'];
+  const MOOVIES = ['M', 'O', 'O', 'V', 'I', 'E', 'S'];
 
   return (
     <>
@@ -2268,7 +2268,7 @@ const Home = () => {
           true/false
         </button> */}
         <h1 className='home__title'>
-          {moovies.map((letter, index) => (
+          {MOOVIES.map((letter, index) => (
             <span
               ref={letterContainerStableRef}
               key={index}
