@@ -292,12 +292,12 @@ if (typeof window !== 'undefined') {
   const allElse = window.matchMedia('(min-width: 160.001em)').matches;
   const mqlAspectRatio = window.matchMedia('(min-aspect-ratio: 1 / 1)').matches;
   const phoneLandscape = window.matchMedia(
-    '(orientation: landscape) and (max-height: 500px)'
+    '(orientation: landscape) and (max-height: 500px)',
   ).matches;
 
   // Set values directly.
   initialMotionOk = window.matchMedia(
-    '(prefers-reduced-motion: no-preference)'
+    '(prefers-reduced-motion: no-preference)',
   ).matches;
   initialPointerFine = window.matchMedia('(pointer: fine)').matches;
 
@@ -341,27 +341,31 @@ if (window !== undefined) {
   if (storage && storage === 'true') {
     initialAnimationsState = 'iddle';
   }
+  // Check if motion is set to reduce and set the animationState to iddle.
+  if (!initialMotionOk) {
+    initialAnimationsState = 'iddle';
+  }
 }
 
 const Home = () => {
   const btnRef = useRef(null);
   const testRef = useRef(null);
   const [animationsPlayState, setAnimationsPlayState] = useState(
-    initialAnimationsState
+    initialAnimationsState,
   ); //  iddle / running / reverse
   // Letter relative states based on different viewports
   const [protrusionSize, setProtrusionSize] = useState(initialProtrusion); // Front + Back + Middle letters sum of pixels in depth
   const [letterTextStrokeWidth, setLetterTextStrokeWidth] = useState(
-    initialLetterTextStrokeWidth
+    initialLetterTextStrokeWidth,
   );
 
   // Viewport flags for the Star animation offset-path
   const [aspectRatioOver, setAspectRatioOver] = useState(
-    initialAspectRatioOver
+    initialAspectRatioOver,
   ); // Over 1 / 1 > 1.1, 1.2 etc
 
   const [portraitAndWidthOver600, setPortraitAndWidthOver600] = useState(
-    initialPortraitAndWidthOver600
+    initialPortraitAndWidthOver600,
   );
 
   const [pointerFine, setPointerFine] = useState(initialPointerFine);
@@ -369,7 +373,7 @@ const Home = () => {
 
   // Glass3d offset-path class
   const [toggleGlassClassName, setToggleGlassClassName] = useState(
-    'home__svg-glass-empty home__svg-glass-empty--'
+    'home__svg-glass-empty home__svg-glass-empty--',
   );
 
   const homeRef = useRef(null);
@@ -575,7 +579,7 @@ const Home = () => {
             frontNodesSizesMap.set(key, {
               width: key.clientWidth,
               height: key.clientHeight,
-            })
+            }),
           );
         }
 
@@ -620,26 +624,26 @@ const Home = () => {
     const vw600 = window.matchMedia('(max-width: 37.5em)');
     // [601 - 1200]
     const vw1200 = window.matchMedia(
-      '(min-width: 37.5625em) and (max-width: 75em)'
+      '(min-width: 37.5625em) and (max-width: 75em)',
     );
     // [1201 - 1920]
     const vw1920 = window.matchMedia(
-      '(min-width: 75.0625em) and (max-width: 120em)'
+      '(min-width: 75.0625em) and (max-width: 120em)',
     );
     // [1921 - 2560]
     const vw2560 = window.matchMedia(
-      '(min-width: 120.0625em) and (max-width: 160em)'
+      '(min-width: 120.0625em) and (max-width: 160em)',
     );
     // [> 2561]
     const allElse = window.matchMedia('(min-width: 160.0625em)');
     const mqlAspectRatioOver = window.matchMedia('(min-aspect-ratio: 1 / 1)');
     const phoneLandscapeAndHeight500 = window.matchMedia(
-      '(pointer: coarse) and (orientation: landscape) and (max-height: 31.25em)'
+      '(pointer: coarse) and (orientation: landscape) and (max-height: 31.25em)',
     );
 
     const pointerFine = window.matchMedia('(pointer: fine)');
     const motionOk = window.matchMedia(
-      '(prefers-reduced-motion: no-preference)'
+      '(prefers-reduced-motion: no-preference)',
     );
 
     // One Callback for all the viewport MQLs
@@ -712,7 +716,7 @@ const Home = () => {
     mqlAspectRatioOver.addEventListener('change', mqlAspectRatioCallback);
     phoneLandscapeAndHeight500.addEventListener(
       'change',
-      phoneLandscapeAndHeight500Callback
+      phoneLandscapeAndHeight500Callback,
     );
     pointerFine.addEventListener('change', mqlPointerCallback);
     motionOk.addEventListener('change', mqlMotionCallback);
@@ -727,7 +731,7 @@ const Home = () => {
       mqlAspectRatioOver.removeEventListener('change', mqlAspectRatioCallback);
       phoneLandscapeAndHeight500.removeEventListener(
         'change',
-        phoneLandscapeAndHeight500Callback
+        phoneLandscapeAndHeight500Callback,
       );
       pointerFine.removeEventListener('change', mqlPointerCallback);
       motionOk.removeEventListener('change', mqlMotionCallback);
@@ -889,7 +893,7 @@ const Home = () => {
     cowMouthBottomRef.current.removeAttribute('style');
     svgButtonRef.current.removeAttribute('style');
     getMap(svgButtonGroupedPathsRef).forEach((val) =>
-      val.removeAttribute('style')
+      val.removeAttribute('style'),
     );
     svgButtonRectBackRef.current.removeAttribute('style');
 
@@ -901,12 +905,12 @@ const Home = () => {
       // Scales up and down the bubble
       const bubble = svgBubbleRef.current.animate(
         backgroundAnimationArgs.bubble.keyframes,
-        backgroundAnimationArgs.bubble.options
+        backgroundAnimationArgs.bubble.options,
       );
       // Scales the beam only in the Y-axis
       const beam = beamRef.current.animate(
         backgroundAnimationArgs.beam.keyframes,
-        backgroundAnimationArgs.beam.options
+        backgroundAnimationArgs.beam.options,
       );
       await beam.finished;
 
@@ -915,14 +919,14 @@ const Home = () => {
       // Animates a custom property to change the (hsl)lightness of the color
       conicBackDarkRef.current.animate(
         backgroundAnimationArgs.conicBackDarkRef.keyframes,
-        backgroundAnimationArgs.conicBackDarkRef.options
+        backgroundAnimationArgs.conicBackDarkRef.options,
       );
       // Animates a custom property to change the angle of the conic gradient used as a mask image to reveal
       // the gradient.
       // The custom property is also inherited by the sibling in order to make the effect from left and right angles.
       const conicWrapperAnimation = conicWrapperRef.current.animate(
         backgroundAnimationArgs.conicMaskAngle.keyframes,
-        backgroundAnimationArgs.conicMaskAngle.options
+        backgroundAnimationArgs.conicMaskAngle.options,
       );
 
       return conicWrapperAnimation;
@@ -947,7 +951,7 @@ const Home = () => {
           .get(i)
           .animate(
             letterAnimationArgs.leftSide.keyframes,
-            letterAnimationArgs.leftSide.options
+            letterAnimationArgs.leftSide.options,
           );
 
         leftAnimation.effect.updateTiming({
@@ -961,7 +965,7 @@ const Home = () => {
           .get(i)
           .animate(
             letterAnimationArgs.rightSide.keyframes,
-            letterAnimationArgs.rightSide.options
+            letterAnimationArgs.rightSide.options,
           );
 
         rightAnimation.effect.updateTiming({
@@ -975,7 +979,7 @@ const Home = () => {
           .get(i)
           .animate(
             letterAnimationArgs.boxEntrance.keyframesFn(protrusionSize),
-            letterAnimationArgs.boxEntrance.options
+            letterAnimationArgs.boxEntrance.options,
           );
 
         boxAnimation.effect.updateTiming({
@@ -995,7 +999,7 @@ const Home = () => {
           .get(i)
           .animate(
             letterAnimationArgs.container.keyframes,
-            letterAnimationArgs.container.options
+            letterAnimationArgs.container.options,
           );
         containerAnimation.effect.updateTiming({
           delay: delayConstant * (i + 1),
@@ -1054,7 +1058,7 @@ const Home = () => {
           .get(countIteretions)
           .animate(
             letterAnimationArgs.boxEnding.keyframesFn(protrusionSize),
-            letterAnimationArgs.boxEnding.options
+            letterAnimationArgs.boxEnding.options,
           );
         boxAnimation.currentTime = -computedDelay;
         countIteretions++;
@@ -1066,7 +1070,7 @@ const Home = () => {
           .get(6)
           .animate(
             letterAnimationArgs.boxEnding.keyframesFn(protrusionSize),
-            letterAnimationArgs.boxEnding.options
+            letterAnimationArgs.boxEnding.options,
           );
 
         boxAnimation.currentTime = -computedDelay;
@@ -1121,14 +1125,14 @@ const Home = () => {
     const shadowAngryEyeListenerCallback = () => {
       // After the eyes get angry begin the strokedash-offset transition to half
       setToggleGlassClassName(
-        'home__svg-glass-transition-half home__svg-glass-transition-half--'
+        'home__svg-glass-transition-half home__svg-glass-transition-half--',
       );
       //  Path 10 is the last one transitioning
       //  Wait for the transition to end (half-point)
       path10TransitionEndCallback = () => {
         // Begin the full strokedash-offset transition
         setToggleGlassClassName(
-          'home__svg-glass-transition-full home__svg-glass-transition-full--'
+          'home__svg-glass-transition-full home__svg-glass-transition-full--',
         );
         // Wait for the transition of path 4 to end this is almost midway of all the paths
         // that are transitioning
@@ -1137,7 +1141,7 @@ const Home = () => {
           // then move fast towards the screen and remove the blur when the glass is broken
           const shadowBreakGlassAnim = svgShadowRef.current.animate(
             svgAnimationArgs.shadowBreakGlass.keyframes,
-            svgAnimationArgs.shadowBreakGlass.options
+            svgAnimationArgs.shadowBreakGlass.options,
           );
           // Glass 3d animation
           for (let i = 0; i <= 43; i++) {
@@ -1146,7 +1150,7 @@ const Home = () => {
             // based on their position around the center of the glass with 2500 delay (half of the turbulence breaking the glass)
             const animation = path.animate(
               glass3dAnimationArgs.keyframesFn(homeGlassKeyframe3dValuesObj[i]),
-              glass3dAnimationArgs.options
+              glass3dAnimationArgs.options,
             );
             // 42 is the one that hits the center of the screen
             // when it finishes the animation remove the glass display entirely
@@ -1161,7 +1165,7 @@ const Home = () => {
           // Move the svg turbulence on the X and the Y axis with multiple iterations
           const shadowShakeAnimation = svgShadowRef.current.animate(
             svgAnimationArgs.shadowShake.keyframes,
-            svgAnimationArgs.shadowShake.options
+            svgAnimationArgs.shadowShake.options,
           );
           // Shaking steps and increased playback rate with each step
           // await shadowShakeAnimation.finished;
@@ -1190,7 +1194,7 @@ const Home = () => {
                   opacity: '1',
                 },
               ],
-              { duration: 500, fill: 'forwards' }
+              { duration: 500, fill: 'forwards' },
             );
             forwardsAnimRef.current.push(cowOpacity);
             cowDisplaceAnimateRef.current.beginElement();
@@ -1200,22 +1204,22 @@ const Home = () => {
               // Used with iterations and combining it with alternate direction.
               cowEarLeftRef.current.animate(
                 svgAnimationArgs.cowEarFlap.keyframes,
-                { ...svgAnimationArgs.cowEarFlap.optionsFn(4), delay: 500 }
+                { ...svgAnimationArgs.cowEarFlap.optionsFn(4), delay: 500 },
               );
               const cowLeftEyeAnim = cowEyeLeftRef.current.animate(
                 svgAnimationArgs.cowEyeToNeutral.keyframes,
-                { ...svgAnimationArgs.cowEyeToNeutral.options, delay: 500 }
+                { ...svgAnimationArgs.cowEyeToNeutral.options, delay: 500 },
               );
               forwardsAnimRef.current.push(cowLeftEyeAnim);
               // Wait for the eye animation and do the same for the right side.
               await cowLeftEyeAnim.finished;
               cowEarRightRef.current.animate(
                 svgAnimationArgs.cowEarFlap.keyframes,
-                svgAnimationArgs.cowEarFlap.optionsFn(4)
+                svgAnimationArgs.cowEarFlap.optionsFn(4),
               );
               const cowRightEyeAnim = cowEyeRightRef.current.animate(
                 svgAnimationArgs.cowEyeToNeutral.keyframes,
-                svgAnimationArgs.cowEyeToNeutral.options
+                svgAnimationArgs.cowEyeToNeutral.options,
               );
               forwardsAnimRef.current.push(cowRightEyeAnim);
 
@@ -1223,7 +1227,7 @@ const Home = () => {
               // Close the mouth by translating the group element responsible in the Y-axis
               const cowMouthBottomAnim = cowMouthBottomRef.current.animate(
                 svgAnimationArgs.cowMouthClose.keyframes,
-                svgAnimationArgs.cowMouthClose.options
+                svgAnimationArgs.cowMouthClose.options,
               );
               forwardsAnimRef.current.push(cowMouthBottomAnim);
               await cowMouthBottomAnim.finished;
@@ -1233,7 +1237,7 @@ const Home = () => {
               // backwards to the default position.
               const svgButtonAnim = svgButtonRef.current.animate(
                 svgButtonAnimationArgs.svgMoveBackwards.keyframes,
-                svgButtonAnimationArgs.svgMoveBackwards.options
+                svgButtonAnimationArgs.svgMoveBackwards.options,
               );
               forwardsAnimRef.current.push(svgButtonAnim);
               // Animate the stroke-dash with a delay
@@ -1241,7 +1245,7 @@ const Home = () => {
                 svgButtonAnimationArgs.rectBackStrokeDashOffsetAndFillOpacity
                   .keyframes,
                 svgButtonAnimationArgs.rectBackStrokeDashOffsetAndFillOpacity
-                  .options
+                  .options,
               );
               forwardsAnimRef.current.push(strokeDashOffsetAnim);
               const map = getMap(svgButtonGroupedPathsRef);
@@ -1257,7 +1261,7 @@ const Home = () => {
                 if (key <= 4) {
                   animation = val.animate(
                     svgButtonAnimationArgs.elasticLetterLeft.keyframes,
-                    svgButtonAnimationArgs.elasticLetterLeft.optionsFn(delay)
+                    svgButtonAnimationArgs.elasticLetterLeft.optionsFn(delay),
                   );
                   delay = delay - 100; // Decrease by 100ms.
                 }
@@ -1265,7 +1269,7 @@ const Home = () => {
                 else if (key === 5) {
                   animation = val.animate(
                     svgButtonAnimationArgs.elasticLetterLeft.keyframes,
-                    svgButtonAnimationArgs.elasticLetterLeft.optionsFn(delay)
+                    svgButtonAnimationArgs.elasticLetterLeft.optionsFn(delay),
                   );
                   delay = 50; // Start at 50ms to create gap between the two sides.
                 }
@@ -1273,7 +1277,7 @@ const Home = () => {
                 else {
                   animation = val.animate(
                     svgButtonAnimationArgs.elasticLetterRight.keyframes,
-                    svgButtonAnimationArgs.elasticLetterRight.optionsFn(delay)
+                    svgButtonAnimationArgs.elasticLetterRight.optionsFn(delay),
                   );
                   delay = delay + 100; // Increase by 100.
                 }
@@ -1294,7 +1298,7 @@ const Home = () => {
               document.getAnimations().forEach((animation) => {
                 const animationFill = animation.effect.getTiming().fill;
                 const localAnimation = homeRef.current.contains(
-                  animation.effect.target
+                  animation.effect.target,
                 );
 
                 const hasConicClassName =
@@ -1324,7 +1328,7 @@ const Home = () => {
           // 3rd level of depth
           shadowDissapear.addEventListener(
             'endEvent',
-            shadowDissapearEndEventCallback
+            shadowDissapearEndEventCallback,
           );
         };
         // 2nd level of depth
@@ -1341,7 +1345,7 @@ const Home = () => {
     // Event listener for the end event of the animate element that "makes the eyes angry"
     shadowEyeAngryAnimate.addEventListener(
       'endEvent',
-      shadowAngryEyeListenerCallback
+      shadowAngryEyeListenerCallback,
     );
 
     const playAllAnimations = async () => {
@@ -1381,7 +1385,7 @@ const Home = () => {
 
         shadowEyeAngryAnimate.removeEventListener(
           'endEvent',
-          shadowAngryEyeListenerCallback
+          shadowAngryEyeListenerCallback,
         );
         // Conditionally remove the listener callbacks, because based on the timing of the re-rendering they may have not been
         // registered yet.
@@ -1391,7 +1395,7 @@ const Home = () => {
             path10TransitionEndCallback,
             {
               once: 'true',
-            }
+            },
           );
         }
         if (path4TransitionEndCallback) {
@@ -1400,13 +1404,13 @@ const Home = () => {
             path4TransitionEndCallback,
             {
               once: 'true',
-            }
+            },
           );
         }
         if (shadowDissapearEndEventCallback) {
           shadowDissapear.removeEventListener(
             'endEvent',
-            shadowDissapearEndEventCallback
+            shadowDissapearEndEventCallback,
           );
         }
         if (cowAppearEndEventCallback) {
@@ -1424,7 +1428,7 @@ const Home = () => {
         if (shouldBackgroundAnimateRef.current === false) {
           document.getAnimations().forEach((animation) => {
             const localAnimation = homeArticle.contains(
-              animation.effect.target
+              animation.effect.target,
             );
             const hasConicClassName =
               animation.effect.target.classList.contains('home__conic');
@@ -1444,7 +1448,7 @@ const Home = () => {
           // declared in the CSS.
           document.getAnimations().forEach((animation) => {
             const localAnimation = homeArticle.contains(
-              animation.effect.target
+              animation.effect.target,
             );
             const hasConicClassName =
               animation.effect.target.classList.contains('home__conic');
@@ -1469,7 +1473,7 @@ const Home = () => {
     let cowEarFlapLeftAnim = null;
     let cowEarFlapRightAnim = null;
     let timeoutID = null;
-    if (animationsPlayState === 'iddle') {
+    if (animationsPlayState === 'iddle' || !motionOk) {
       // Display
       glassContainerRef.current.dataset.display = 'false';
       svgShadowRef.current.dataset.display = 'false';
@@ -1478,11 +1482,11 @@ const Home = () => {
       // Background
       conicWrapperRef.current.style.setProperty(
         '--home-mask-gradient-angle',
-        '180deg'
+        '180deg',
       );
       conicBackDarkRef.current.style.setProperty(
         '--home-conic-color-lightness',
-        '5%'
+        '5%',
       );
       // Letters
       getMap(containersRef).forEach((val) => (val.style.opacity = '1'));
@@ -1505,7 +1509,7 @@ const Home = () => {
       svgButtonRef.current.style.opacity = '1';
       svgButtonRectPlaceholderRef.current.dataset.display = 'true';
       getMap(svgButtonGroupedPathsRef).forEach(
-        (val) => (val.style.opacity = '1')
+        (val) => (val.style.opacity = '1'),
       );
       svgButtonRectBackRef.current.style.strokeDashoffset = '0';
       svgButtonRectBackRef.current.style.fillOpacity = '.4';
@@ -1517,19 +1521,19 @@ const Home = () => {
         // Translates the cow on the Y-axis in alternate directions for infinity
         cowLevitateAnim = svgCowRef.current.animate(
           svgAnimationArgs.cowLevitate.keyframes,
-          svgAnimationArgs.cowLevitate.options
+          svgAnimationArgs.cowLevitate.options,
         );
 
         // Rotates the ear on the Y-axis in alternate direction use with even amounts of repetitions.
         cowEarFlapLeftAnim = cowEarLeftRef.current.animate(
           svgAnimationArgs.cowEarFlap.keyframes,
-          svgAnimationArgs.cowEarFlap.optionsFn(4)
+          svgAnimationArgs.cowEarFlap.optionsFn(4),
         );
         cowEarFlapLeftAnim.pause();
 
         cowEarFlapRightAnim = cowEarRightRef.current.animate(
           svgAnimationArgs.cowEarFlap.keyframes,
-          svgAnimationArgs.cowEarFlap.optionsFn(4)
+          svgAnimationArgs.cowEarFlap.optionsFn(4),
         );
         cowEarFlapRightAnim.pause();
         // Min - Max values for interval timing and iterations of earl flapping
@@ -1603,7 +1607,7 @@ const Home = () => {
       const svgButtonDissapear = () => {
         const animation = svgButtonRef.current.animate(
           svgButtonAnimationArgs.svgDissapear.keyframes,
-          svgButtonAnimationArgs.svgDissapear.options
+          svgButtonAnimationArgs.svgDissapear.options,
         );
         reverseForwardsAnimRef.current.push(animation);
         return animation;
@@ -1617,7 +1621,7 @@ const Home = () => {
             },
             { opacity: 0 },
           ],
-          { duration: 750, fill: 'forwards' }
+          { duration: 750, fill: 'forwards' },
         );
         reverseForwardsAnimRef.current.push(animation);
         svgStarRef.current.style.opacity = '1';
@@ -1641,7 +1645,7 @@ const Home = () => {
 
         const animation = mainSvgContainerRef.current.animate(
           keyframes,
-          options
+          options,
         );
         // Change the current time into a bigger value that duration to add delay!
         animation.currentTime = 8000;
@@ -1665,7 +1669,7 @@ const Home = () => {
                 offset: 1,
               },
             ],
-            { ...letterAnimationArgs.boxEnding.options, fill: 'backwards' }
+            { ...letterAnimationArgs.boxEnding.options, fill: 'backwards' },
           );
           // Change the current time into a bigger value that duration to add delay!
           animation.currentTime = 1600 + 1200;
@@ -1710,7 +1714,7 @@ const Home = () => {
               '--home-mask-gradient-angle': '88deg',
             },
           ],
-          { duration: 1000, fill: 'forwards' }
+          { duration: 1000, fill: 'forwards' },
         );
         reverseForwardsAnimRef.current.push(animation);
         return animation;
@@ -1732,7 +1736,7 @@ const Home = () => {
         document.getAnimations().forEach((animation) => {
           const animationFill = animation.effect.getTiming().fill;
           const localAnimation = homeRef.current.contains(
-            animation.effect.target
+            animation.effect.target,
           );
 
           const hasConicClassName =
@@ -1764,7 +1768,7 @@ const Home = () => {
           // Cancle all other animations that are inside the component except the conic
           document.getAnimations().forEach((animation) => {
             const localAnimation = homeArticle.contains(
-              animation.effect.target
+              animation.effect.target,
             );
             const hasConicClassName =
               animation.effect.target.classList.contains('home__conic');
@@ -2055,19 +2059,19 @@ const Home = () => {
   const playAnimations = async () => {
     svgCowRef.current.animate(
       svgAnimationArgs.cowLevitate.keyframes,
-      svgAnimationArgs.cowLevitate.options
+      svgAnimationArgs.cowLevitate.options,
     );
   };
 
   const cancelAnimations = async () => {
     const leftEar = cowEarLeftRef.current.animate(
       svgAnimationArgs.cowEarFlap.keyframes,
-      svgAnimationArgs.cowEarFlap.optionsFn(4)
+      svgAnimationArgs.cowEarFlap.optionsFn(4),
     );
     leftEar.pause();
     const rightEar = cowEarRightRef.current.animate(
       svgAnimationArgs.cowEarFlap.keyframes,
-      svgAnimationArgs.cowEarFlap.optionsFn(4)
+      svgAnimationArgs.cowEarFlap.optionsFn(4),
     );
     rightEar.pause();
     const MIN_INTERVAL = 2500; // Minimum delay: 0.5 seconds
@@ -2122,16 +2126,16 @@ const Home = () => {
 
       // Builds up as the loop progresses
       let str = `M 988 500 A 488 488 0 1 0 ${arcX(minAngle)} ${arcY(
-        minAngle
+        minAngle,
       )} L 500 500 Z;`;
       while (deg <= maxAngle) {
         if (deg < 180) {
           str = `${str} M 988 500 A 488 488 0 1 0 ${arcX(deg)} ${arcY(
-            deg
+            deg,
           )} L 500 500 Z;`;
         } else {
           str = `${str} M 988 500 A 488 488 0 0 0 ${arcX(deg)} ${arcY(
-            deg
+            deg,
           )} L 500 500 Z;`;
         }
         // Increase the loop step
@@ -2229,7 +2233,7 @@ const Home = () => {
         keywords={`Search,Movie,Database,Film,Top movies,Cinema,Watchlist,Ratings`}
       />
       <article ref={homeStableRef} className='home'>
-        <button
+        {/* <button
           id='test_button_3'
           style={{ position: 'absolute', left: '200px', zIndex: '10' }}
           onClick={hello}>
@@ -2252,7 +2256,7 @@ const Home = () => {
           style={{ position: 'absolute', left: '160px', zIndex: '10' }}
           onClick={reverseAnimations}>
           reverse
-        </button>
+        </button> */}
         <button
           style={{
             position: 'absolute',
@@ -2464,11 +2468,11 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
                 dur='.5s'
                 begin='home_svg_star_to_circle_anim.end;'
                 values={`M 988 500 A 488 488 0 1 0 ${arcX(0.2)} ${arcY(
-                  0.2
+                  0.2,
                 )} L ${arcX(0.2)} ${arcY(0.2)} Z;
               M 988 500 A 488 488 0 1 0 ${arcX(0.2)} ${arcY(
-                  0.2
-                )} L 500 500 Z`}></animate>
+                0.2,
+              )} L 500 500 Z`}></animate>
               {/* Arc clockwise */}
               <animate
                 id='home_svg_star_arc_moprh_out'
