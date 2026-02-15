@@ -1788,7 +1788,7 @@ const Home = () => {
     motionOk,
   ]);
 
-  // Cow eyes that follow the mouse
+  // Cow eyes that follow the mouse on animation 'iddle' state.
   useLayoutEffect(() => {
     // Check animations play state, if i have a pointing device and if the user has reduced motion enabled.
     if (animationsPlayState !== 'iddle' || !motionOk || !pointerFine) {
@@ -1860,8 +1860,9 @@ const Home = () => {
         // After some testing I found that the [min,max] values of the small system must be [-25,25] for the eye
         // to stay inside the circle!
         // To find the [min,max] values of the bigger system I have to take the center of the cow and find  its left,right,top,bottom
-        // distances from the viewport edges. In pracice and for the Linear Interpolation equation I just have to find
-        // the min value and the actual width and height of the viewport gives the denominator of the equation [max-min].
+        // distances from the viewport edges. In practice and for the Linear Interpolation equation I just have to find
+        // the min value and the actual width and height of the viewport gives the denominator of the equation [max-min],
+        // because the cow is centered into the viewport.
 
         /*
          * ValueNew = MinNew + (ValueOld - MinOld) * (MaxNew - MinNew)
@@ -1914,81 +1915,6 @@ const Home = () => {
       }
     };
   }, [animationsPlayState, motionOk, pointerFine]);
-
-  // useEffect(() => {
-  //   // if(animationsPlayState !=='iddle' || [])
-  //   // check pointer device
-  //   // resizeObserver for home and update the callback with the new values
-  //   // Add checks to remove the listener when the animations happen!!!
-  //   // Maybe upon reset i have to delete the style attribute afterwards!
-  //   // Maybe fix the point where the mouse leaves the viewport
-
-  //   // Measure home dimensions.
-  //   const homeW = homeRef.current.clientWidth;
-  //   const homeH = homeRef.current.clientHeight;
-
-  //   // Find center point of the cow.
-  //   const cowRect = svgCowRef.current.getBoundingClientRect();
-
-  //   // Distance from one side plus half of the width gives the center point (cx) in the viewport.
-  //   const cx = cowRect.x + cowRect.width / 2;
-  //   // Same for (cy)
-  //   const cy = cowRect.y + cowRect.height / 2 - 70; // -70 because of the navbar height
-  //
-  //   // In order to interpolate the values from the big system (the cow and the viewport) to the small system
-  //   // (the eyeball and the circle of the eye), I have to define the ranges [min,max] of the two different systems.
-  //   // Because I am using SVG the transform property that I want to use although it is defined in px for the
-  //   // inline style or CSS to take effect, it is actualy in viewport units!!!
-  //   // After some testing I found that the [min,max] values of the small system must be [-25,25] for the eye
-  //   // to stay inside the circle!
-  //   // To find the [min,max] values of the bigger system I have to take the center of the cow and find  its left,right,top,bottom
-  //   // distances from the viewport edges. In pracice and for the Linear Interpolation equation I just have to find
-  //   // the min value and the actual width and height of the viewport gives the denominator of the equation [max-min].
-
-  //   // min = - abs(Center of cow - viewport width)
-  //   const centerX = cx - homeW;
-  //   const centerY = cy - homeH;
-  //   let pendingRAF = false;
-
-  //   const calcAngle = (e) => {
-  //     // Mouse position
-  //     const mx = e.clientX;
-  //     const my = e.clientY - 70; // -70 because of the navbar height
-  //     // Distance between mouse and cow
-  //     const dx = mx - cx;
-  //     const dy = my - cy;
-  //     /*
-  //                       Linear Interpolation explanation
-
-  //      * ValueNew = MinNew + (ValueOld - MinOld) * (MaxNew - MinNew)
-  //      *            ------------------------------------------------
-  //      *                          MaxOld - MinOld
-  //      */
-  //     /*
-  //      * normalized = -25 + (dx - centerX) * (25 - (-25))
-  //      *            ------------------------------------------------
-  //      *                          Width
-  //      */
-  //     const normalizeX = -25 + ((dx - -Math.abs(centerX)) * 50) / homeW;
-  //     const normalizeY = -25 + ((dy - -Math.abs(centerY)) * 50) / homeH;
-
-  //     const optimizedX = normalizeX.toFixed(2);
-  //     const optimizedY = normalizeY.toFixed(2);
-
-  //     // Only schedule a new RAF if the old has been completed!
-  //     if (!pendingRAF) {
-  //       requestAnimationFrame(() => {
-  //         cowEyeLeftRef.current.style.transform = `translate(${optimizedX}px, ${optimizedY}px) `;
-  //         cowEyeRightRef.current.style.transform = `translate(${optimizedX}px, ${optimizedY}px) `;
-  //         pendingRAF = false;
-  //       });
-  //       pendingRAF = true;
-  //     }
-  //   };
-  //   window.addEventListener('mousemove', calcAngle);
-
-  //   return () => window.removeEventListener('mousemove', calcAngle);
-  // }, []);
 
   // The placeholder rect is responsible for handling mouse events since its the element
   // placed on top of all others and it has stroke & fill set to transparent so click events still
@@ -2170,7 +2096,7 @@ const Home = () => {
       // Since the ref is stable i do not need this but its good to have for edge cases
       observer.observe(node);
     }
-    const map = getMap(frontNodesRef);
+    const map = getMap(frontNodesRef); // Map of front nodes
     const index = Number(node.dataset.index);
     map.set(index, node);
     return () => {
@@ -2233,41 +2159,9 @@ const Home = () => {
         keywords={`Search,Movie,Database,Film,Top movies,Cinema,Watchlist,Ratings`}
       />
       <article ref={homeStableRef} className='home'>
-        {/* <button
-          id='test_button_3'
-          style={{ position: 'absolute', left: '200px', zIndex: '10' }}
-          onClick={hello}>
-          hello
-        </button>
-        <button
-          style={{ position: 'absolute', left: '20px', zIndex: '10' }}
-          onClick={playAnimations}>
-          play
-        </button>
-        <button
-          id='test_button_2'
-          style={{ position: 'absolute', left: '80px', zIndex: '10' }}
-          onClick={cancelAnimations}>
-          cancel
-        </button>
-        <button
-          ref={btnRef}
-          id='test_button_4'
-          style={{ position: 'absolute', left: '160px', zIndex: '10' }}
-          onClick={reverseAnimations}>
-          reverse
-        </button> */}
-        {/* <button
-          style={{
-            position: 'absolute',
-            left: '160px',
-            top: '40%',
-            zIndex: '10',
-          }}
-          onClick={() => {}}>
-          true/false
-        </button> */}
         <h1 className='home__title'>
+          {/* Render all moovie letters and then create a stack of each letter based on the viewport size comming from 
+            MediaQueryList checks in the layoutEffect */}
           {MOOVIES.map((letter, index) => (
             <span
               ref={letterContainerStableRef}
