@@ -809,18 +809,8 @@ const Home = () => {
 
   // Whatever creates a stacking context breaks the 3d, opacity less that 1 creates a stacking context.
 
+  ///////// RUNNING Animations ////////////
   useEffect(() => {
-    // REVERSE ANIMATION
-    //Starting state
-    //Ending state
-
-    // const motionOk = window.matchMedia(
-    //   '(prefers-reduced-motion: no-preference)'
-    // ).matches;
-    // localStorage.setItem('home-animation-ran', false);
-    //Check if animations can be played
-    // Normal animations start here.
-
     ////////////////// How to reset SMIL Animations /////////////////
     // Based on the Smill animations spec, all the animate timing functions e.g begin, whether they are defined
     // as a sync-based or event-based or time relative value with or without a time offset defines that:
@@ -3287,6 +3277,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
             </g>
           </svg>
         </div>
+        {/* Button Start */}
         <div className='home__svg-button-container'>
           <p
             id='home-svg-button-description'
@@ -3675,6 +3666,9 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
               stroke='transparent'></rect>
           </svg>
         </div>
+        {/* Button End */}
+
+        {/* Glass Start */}
         <div
           ref={glassContainerRef}
           className='home__svg-glass-container'
@@ -3855,6 +3849,7 @@ M617.1 821.38c45.02 19.53 97.34 52.99 136.37 66.9 39.02 13.9 38.7-6.88 35.3-35.7
           </g> */}
           </svg>
         </div>
+        {/* Glass End */}
         <div ref={conicWrapperRef} className='home__conic-wrapper'>
           <div ref={conicInsideRef} className='home__conic-inside'>
             <div className='home__conic home__conic--1'></div>

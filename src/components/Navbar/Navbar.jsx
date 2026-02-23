@@ -33,10 +33,10 @@ const Navbar = ({ topLevelSentinelRef }) => {
   const [navExpanded, setNavExpanded] = useState(false);
 
   const [showSearchModal, setShowSearchModal] = useState(
-    getWindowSizeOnPageLoad800
+    getWindowSizeOnPageLoad800,
   );
   const [widthBellow550, setWidthBellow550] = useState(
-    getWindowSizeOnPageLoad550
+    getWindowSizeOnPageLoad550,
   );
 
   const [inertSearchModal, setInertSearchModal] = useState(true);
@@ -120,12 +120,12 @@ const Navbar = ({ topLevelSentinelRef }) => {
       if (entry.isIntersecting) {
         headerContainerRef.current.style.setProperty(
           '--_header-before-opacity',
-          '0'
+          '0',
         );
       } else {
         headerContainerRef.current.style.setProperty(
           '--_header-before-opacity',
-          '1'
+          '1',
         );
       }
     };
@@ -189,7 +189,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
       <div className='header-container' ref={headerContainerRef}>
         <header className='header'>
           <Link className='header__logo' to='/'>
-            LOGO
+            <span>HOME</span>
           </Link>
 
           <SearchModal
@@ -284,7 +284,7 @@ const Navbar = ({ topLevelSentinelRef }) => {
                     id='nav-link-0'
                     ref={(n) => insertNodesToMapRef(n, 1)}
                     className='header__link'
-                    to='test'
+                    to='/'
                     onClick={closeMobileNav}>
                     Genres
                   </NavLink>
@@ -294,7 +294,8 @@ const Navbar = ({ topLevelSentinelRef }) => {
                     id='nav-link-1'
                     ref={(n) => insertNodesToMapRef(n, 2)}
                     className='header__link'
-                    onClick={closeMobileNav}>
+                    onClick={closeMobileNav}
+                    to='/'>
                     Trending
                   </NavLink>
                 </li>
