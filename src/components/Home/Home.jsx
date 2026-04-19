@@ -296,10 +296,10 @@ if (typeof window !== 'undefined') {
   ).matches;
 
   // Set values directly.
-  initialMotionOk = window.matchMedia(
-    '(prefers-reduced-motion: no-preference)',
-  ).matches;
-  initialPointerFine = window.matchMedia('(pointer: fine)').matches;
+  // initialMotionOk = window.matchMedia(
+  //   '(prefers-reduced-motion: no-preference)',
+  // ).matches;
+  // initialPointerFine = window.matchMedia('(pointer: fine)').matches;
 
   if (vw600) {
     initialProtrusion = 9;
@@ -369,7 +369,7 @@ const Home = () => {
   );
 
   const [pointerFine, setPointerFine] = useState(initialPointerFine);
-  const [motionOk, setMotionOk] = useState(initialMotionOk);
+  const [motionOk, setMotionOk] = useState(true);
 
   // Glass3d offset-path class
   const [toggleGlassClassName, setToggleGlassClassName] = useState(
@@ -698,14 +698,14 @@ const Home = () => {
         setPointerFine(false);
       }
     };
-
-    const mqlMotionCallback = (e) => {
-      if (e.matches) {
-        setMotionOk(true);
-      } else {
-        setMotionOk(false);
-      }
-    };
+    //Disable for showcasing
+    // const mqlMotionCallback = (e) => {
+    //   if (e.matches) {
+    //     setMotionOk(true);
+    //   } else {
+    //     setMotionOk(false);
+    //   }
+    // };
 
     // Attach the listeners
     vw600.addEventListener('change', mqlViewportCallback);
@@ -719,7 +719,7 @@ const Home = () => {
       phoneLandscapeAndHeight500Callback,
     );
     pointerFine.addEventListener('change', mqlPointerCallback);
-    motionOk.addEventListener('change', mqlMotionCallback);
+    // motionOk.addEventListener('change', mqlMotionCallback);
 
     // Cleanup
     return () => {
@@ -734,7 +734,7 @@ const Home = () => {
         phoneLandscapeAndHeight500Callback,
       );
       pointerFine.removeEventListener('change', mqlPointerCallback);
-      motionOk.removeEventListener('change', mqlMotionCallback);
+      // motionOk.removeEventListener('change', mqlMotionCallback);
     };
   }, []);
 

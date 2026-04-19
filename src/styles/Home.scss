@@ -848,9 +848,9 @@
         transparent 20deg 30deg
       );
       transform: translate(-37.5%, -25%);
-      @media (prefers-reduced-motion: no-preference) {
-        animation: home-background-conic-1 300s linear infinite;
-      }
+      // @media (prefers-reduced-motion: no-preference) {
+      animation: home-background-conic-1 300s linear infinite;
+      // }
       @keyframes home-background-conic-1 {
         from {
           transform: translate(-37.5%, -25%) rotate(0turn);
@@ -869,9 +869,9 @@
         transparent 20deg 30deg
       );
       transform: translate(-37.5%, -25%);
-      @media (prefers-reduced-motion: no-preference) {
-        animation: home-background-conic-2 300s linear infinite;
-      }
+      // @media (prefers-reduced-motion: no-preference) {
+      animation: home-background-conic-2 300s linear infinite;
+      // }
       @keyframes home-background-conic-2 {
         from {
           transform: translate(-37.5%, -25%) rotate(0turn);
@@ -891,9 +891,9 @@
         transparent 20deg 30deg
       );
       transform: translate(-37.5%, -25%);
-      @media (prefers-reduced-motion: no-preference) {
-        animation: home-background-conic-3 300s linear infinite;
-      }
+      // @media (prefers-reduced-motion: no-preference) {
+      animation: home-background-conic-3 300s linear infinite;
+      // }
 
       @keyframes home-background-conic-3 {
         from {
