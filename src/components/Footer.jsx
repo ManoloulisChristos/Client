@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer style={{ marginBlockStart: 'auto' }}>
       {/* <footer> */}
-      footer goes here........
+
       <Toasts />
     </footer>
   );

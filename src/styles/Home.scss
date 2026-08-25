@@ -351,6 +351,7 @@
 
   &__svg-button-container {
     width: 15vmax;
+
     // 1200px
     @media only screen and (max-width: 75em) {
       width: 18vmax;
@@ -361,7 +362,7 @@
   &__svg-button {
     transform-origin: center;
     transform-box: fill-box;
-
+    cursor: pointer;
     &:focus {
       outline: none;
     }
